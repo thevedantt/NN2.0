@@ -27,22 +27,33 @@ export default function BookingSchedulePage() {
     const handleConfirm = async () => {
         setIsSubmitting(true)
 
-        // Mock API call
-        await new Promise(resolve => setTimeout(resolve, 1500))
+        try {
+            const bookingPayload = {
+                doctor: selectedDoctor,
+                date: new Date().toISOString(),
+                time: "10:00 AM"
+            }
 
-        const bookingDetails = {
-            doctorId: selectedDoctor.id,
-            doctorName: selectedDoctor.name,
-            timestamp: new Date().toISOString(),
-            status: "confirmed"
+            console.log("🚀 Sending Booking Request:", bookingPayload)
+
+            const res = await fetch('/api/appointments/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(bookingPayload)
+            })
+
+            const data = await res.json()
+
+            if (!res.ok) throw new Error(data.error || "Booking Failed")
+
+            console.log("✅ Booking Success (DB):", data)
+
+            setBookingStep('success')
+        } catch (error) {
+            console.error("❌ Booking Error:", error)
+        } finally {
+            setIsSubmitting(false)
         }
-
-        console.log("✅ Booking Confirmed:", bookingDetails)
-        console.log("Doctor JSON:", JSON.stringify(selectedDoctor, null, 2))
-
-        // If we had a toast: toast.success("Appointment Confirmed!")
-        setBookingStep('success')
-        setIsSubmitting(false)
     }
 
     if (bookingStep === 'success') {
