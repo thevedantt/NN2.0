@@ -3,6 +3,7 @@ import { Poppins } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AppointmentProvider } from "@/context/AppointmentContext";
+import { Toaster } from "@/components/ui/sonner";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -33,6 +34,7 @@ export default function RootLayout({
         >
           <AppointmentProvider>
             {children}
+            <Toaster />
           </AppointmentProvider>
         </ThemeProvider>
       </body>

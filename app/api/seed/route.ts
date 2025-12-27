@@ -27,6 +27,6 @@ export async function POST() {
         return NextResponse.json({ success: true, insertedDoctors });
     } catch (error) {
         console.error('Seeding error:', error);
-        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+        return NextResponse.json({ success: false, error: (error as Error).message }, { status: 500 });
     }
 }

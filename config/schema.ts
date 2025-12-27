@@ -21,3 +21,19 @@ export const appointments = pgTable('appointments', {
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull().$onUpdate(() => new Date()),
 });
+
+// 3️⃣ User Profiles Table
+export const userProfiles = pgTable('user_profiles', {
+    profileId: serial('profile_id').primaryKey(),
+    userId: varchar('user_id', { length: 255 }).notNull().unique(), // References User (External Auth ID)
+    gender: varchar('gender', { length: 50 }),
+    preferredLanguage: varchar('preferred_language', { length: 50 }),
+    primaryConcern: varchar('primary_concern', { length: 100 }),
+    therapyPreference: varchar('therapy_preference', { length: 50 }),
+    previousExperience: varchar('previous_experience', { length: 50 }),
+    sleepPattern: varchar('sleep_pattern', { length: 50 }),
+    supportSystem: varchar('support_system', { length: 50 }),
+    stressLevel: varchar('stress_level', { length: 50 }),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull().$onUpdate(() => new Date()),
+});
