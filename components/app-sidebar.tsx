@@ -36,12 +36,12 @@ const items = [
   },
   {
     title: "AI Companion",
-    url: "/chat",
+    url: "/chat-ai",
     icon: Bot,
   },
   {
     title: "Assessments",
-    url: "/assessments",
+    url: "/assessment",
     icon: ClipboardList,
   },
   {
