@@ -19,21 +19,21 @@ import { DoctorCard } from "@/components/doctors/DoctorCard"
 const APPOINTMENTS = [
     {
         id: "1",
-        therapist: "Dr. Sarah Mitchell",
+        therapist: "Dr. Ananya Sharma",
         type: "Video Session",
         date: new Date(2025, 11, 28, 14, 0), // Dec 28 2025
         duration: "50 min",
         status: "scheduled",
-        avatar: "SM"
+        avatar: "AS"
     },
     {
         id: "2",
-        therapist: "Dr. James Wilson",
+        therapist: "Dr. Sneha Gupta",
         type: "Video Session",
         date: new Date(2025, 11, 20, 10, 0),
         duration: "50 min",
         status: "completed",
-        avatar: "JW"
+        avatar: "SG"
     }
 ]
 
@@ -43,7 +43,7 @@ export default function AppointmentsPage() {
 
     return (
         <div className="flex-1 overflow-y-auto w-full p-6 md:p-8 bg-background">
-            <div className="max-w-5xl mx-auto w-full">
+            <div className="max-w-6xl mx-auto w-full">
                 <header className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
                         <h1 className="text-3xl font-bold">Appointments</h1>
@@ -82,7 +82,7 @@ export default function AppointmentsPage() {
                                     <h3 className="text-lg font-semibold">Available Specialists</h3>
                                     <p className="text-sm text-muted-foreground">Select a therapist to book a session.</p>
                                 </div>
-                                <div className="grid grid-cols-1 gap-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
                                     {DOCTORS.map((doctor) => (
                                         <DoctorCard key={doctor.id} doctor={doctor} />
                                     ))}

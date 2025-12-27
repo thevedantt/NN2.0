@@ -13,10 +13,12 @@ export const doctors = pgTable('doctors', {
 export const appointments = pgTable('appointments', {
     appointmentId: serial('appointment_id').primaryKey(),
     userId: varchar('user_id', { length: 255 }).notNull(), // References User (External Auth ID)
-    doctorId: integer('doctor_id').references(() => doctors.doctorId).notNull(),
+    doctorId: varchar('doctor_id', { length: 50 }).notNull(), // Stores ID like "d1", "d4"
     doctorSnapshot: json('doctor_snapshot').notNull(), // Snapshot of doctor details at booking
     appointmentDate: date('appointment_date').notNull(),
     appointmentTime: varchar('appointment_time', { length: 50 }).notNull(),
+    sessionType: varchar('session_type', { length: 50 }).default('Video Consultation').notNull(),
+    price: integer('price').notNull(), // Stored in lowest currency unit or raw number
     status: varchar('status', { length: 20 }).default('scheduled').notNull(), // scheduled, completed, cancelled, rescheduled
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull().$onUpdate(() => new Date()),

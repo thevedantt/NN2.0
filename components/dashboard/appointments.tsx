@@ -4,10 +4,25 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Calendar } from "@/components/ui/calendar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 export function UpcomingAppointments() {
     const [date, setDate] = useState<Date | undefined>(new Date())
+    const [appointments, setAppointments] = useState<any[]>([])
+    const [loading, setLoading] = useState(true)
+
+    useEffect(() => {
+        fetch('/api/appointments')
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    setAppointments(data.appointments)
+                }
+            })
+            .finally(() => setLoading(false))
+    }, [])
+
+    const upcoming = appointments.find(a => new Date(a.appointmentDate) >= new Date(new Date().setHours(0, 0, 0, 0))) || appointments[0];
 
     return (
         <Card className="col-span-1 md:col-span-2 lg:col-span-2 shadow-md border-none flex flex-col h-full">
@@ -21,21 +36,34 @@ export function UpcomingAppointments() {
                         mode="single"
                         selected={date}
                         onSelect={setDate}
-                        className="p-3 pointer-events-none" // Making it static for now as it's just visual in this demo context or fully interactive? Let's keep it interactive.
+                        className="p-3 pointer-events-none"
                     />
                 </div>
 
                 <div className="flex-1 space-y-4 w-full">
-                    <div className="flex items-center justify-between p-4 border rounded-xl bg-background shadow-sm hover:shadow-md transition-shadow cursor-pointer">
-                        <div>
-                            <p className="font-semibold">Dr. Sarah Cole</p>
-                            <p className="text-sm text-muted-foreground">One-on-One Therapy</p>
+                    {loading ? (
+                        <div className="p-4 border rounded-xl text-center text-sm text-muted-foreground">Loading...</div>
+                    ) : upcoming ? (
+                        <div className="flex items-center justify-between p-4 border rounded-xl bg-background shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+                            <div>
+                                <p className="font-semibold">{upcoming.doctorSnapshot?.name || "Unknown Doctor"}</p>
+                                <p className="text-sm text-muted-foreground">{upcoming.sessionType}</p>
+                            </div>
+                            <div className="text-right flex flex-col items-end">
+                                <Badge variant="default" className="mb-1 bg-primary text-primary-foreground">
+                                    {upcoming.status === 'scheduled' ? 'Upcoming' : upcoming.status}
+                                </Badge>
+                                <p className="text-xs text-muted-foreground">
+                                    {new Date(upcoming.appointmentDate).toLocaleDateString()} at {upcoming.appointmentTime}
+                                </p>
+                            </div>
                         </div>
-                        <div className="text-right flex flex-col items-end">
-                            <Badge variant="default" className="mb-1 bg-primary text-primary-foreground">Upcoming</Badge>
-                            <p className="text-xs text-muted-foreground">Tomorrow, 10:00 AM</p>
+                    ) : (
+                        <div className="p-4 border rounded-xl bg-muted/30 text-center">
+                            <p className="font-medium text-muted-foreground">No upcoming sessions</p>
+                            <p className="text-xs text-muted-foreground">Book a session to get started.</p>
                         </div>
-                    </div>
+                    )}
 
                     <div className="flex items-center justify-between p-4 border rounded-xl bg-muted/30">
                         <div>

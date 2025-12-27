@@ -30,7 +30,7 @@ export function DoctorCard({ doctor }: DoctorCardProps) {
 
     return (
         <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 border-border/50 bg-card group">
-            <div className="relative h-48 w-full overflow-hidden">
+            <div className="relative h-64 w-full overflow-hidden">
                 <Image
                     src={doctor.image}
                     alt={doctor.name}
@@ -45,9 +45,9 @@ export function DoctorCard({ doctor }: DoctorCardProps) {
             </div>
 
             <CardHeader className="p-4 pb-2">
-                <div className="flex justify-between items-start">
+                <div className="flex flex-col items-start gap-1">
                     <div>
-                        <h3 className="font-bold text-lg text-foreground">{doctor.name}</h3>
+                        <h3 className="font-bold text-lg text-foreground line-clamp-1">{doctor.name}</h3>
                         <p className="text-sm text-primary font-medium">{doctor.specialization}</p>
                     </div>
                     <Badge variant="outline" className="text-xs bg-secondary hover:bg-secondary/80">
@@ -56,8 +56,8 @@ export function DoctorCard({ doctor }: DoctorCardProps) {
                 </div>
             </CardHeader>
 
-            <CardContent className="p-4 pt-2 space-y-3">
-                <p className="text-sm text-muted-foreground line-clamp-2 min-h-[40px]">
+            <CardContent className="p-4 pt-2 space-y-3 flex-grow">
+                <p className="text-sm text-muted-foreground line-clamp-3">
                     {doctor.description}
                 </p>
 
@@ -69,13 +69,13 @@ export function DoctorCard({ doctor }: DoctorCardProps) {
                 </div>
             </CardContent>
 
-            <CardFooter className="p-4 pt-0 flex items-center justify-between gap-3">
-                <div className="text-sm font-semibold">
-                    ${doctor.price}<span className="text-muted-foreground font-normal">/session</span>
+            <CardFooter className="p-4 pt-0 flex items-center justify-between gap-3 mt-auto">
+                <div className="text-sm font-semibold text-lg">
+                    ₹{doctor.price}<span className="text-muted-foreground font-normal text-sm">/session</span>
                 </div>
                 <Button
                     onClick={handleBook}
-                    className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 shadow-md"
+                    className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-md"
                 >
                     Book Appointment
                 </Button>
