@@ -17,29 +17,29 @@ async function seed() {
 
     const doctors = [
         {
-            name: "Dr. Sarah Mitchell",
-            email: "sarah.m@neuranet.com",
+            name: "Dr. Sanya Mishra",
+            email: "sanya.m@neuranet.com",
             specialization: ["Anxiety", "Depression"],
             fee: 1500,
             image: "/avatars/doctor-1.png"
         },
         {
-            name: "Dr. James Wilson",
-            email: "james.w@neuranet.com",
+            name: "Dr. Jayesh Verma",
+            email: "jayesh.v@neuranet.com",
             specialization: ["Trauma", "PTSD"],
             fee: 2000,
             image: "/avatars/doctor-2.png"
         },
         {
-            name: "Dr. Emily Chen",
-            email: "emily.c@neuranet.com",
+            name: "Dr. Esha Chopra",
+            email: "esha.c@neuranet.com",
             specialization: ["Relationships", "Family Therapy"],
             fee: 1800,
             image: "/avatars/doctor-3.png"
         },
         {
-            name: "Dr. Michael Ross",
-            email: "michael.r@neuranet.com",
+            name: "Dr. Manish Reddy",
+            email: "manish.r@neuranet.com",
             specialization: ["Stress Management", "Career Counseling"],
             fee: 1200,
             image: "/avatars/doctor-4.png"

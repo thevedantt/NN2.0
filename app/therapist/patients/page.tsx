@@ -22,8 +22,8 @@ import {
 const patients = [
     {
         id: "1",
-        name: "Augustine Watts",
-        email: "augustine@example.com",
+        name: "Arjun Watsa",
+        email: "arjun@example.com",
         status: "Active",
         risk: "Low",
         lastSession: "2024-03-25",
@@ -32,8 +32,8 @@ const patients = [
     },
     {
         id: "2",
-        name: "Clementine Baker",
-        email: "clementine@example.com",
+        name: "Chandni Bakshi",
+        email: "chandni@example.com",
         status: "Active",
         risk: "Moderate",
         lastSession: "2024-03-20",
@@ -42,8 +42,8 @@ const patients = [
     },
     {
         id: "3",
-        name: "Jimmie Christian",
-        email: "jimmie@example.com",
+        name: "Jai Chopra",
+        email: "jai@example.com",
         status: "Inactive",
         risk: "High",
         lastSession: "2024-03-10",
@@ -52,8 +52,8 @@ const patients = [
     },
     {
         id: "4",
-        name: "Greg McPherson",
-        email: "greg@example.com",
+        name: "Girish M.",
+        email: "girish@example.com",
         status: "Active",
         risk: "Low",
         lastSession: "2024-03-22",
@@ -62,8 +62,8 @@ const patients = [
     },
     {
         id: "5",
-        name: "Sarah Jenkins",
-        email: "sarah@example.com",
+        name: "Saanvi J.",
+        email: "saanvi.j@example.com",
         status: "Active",
         risk: "High",
         lastSession: "2024-03-26",
@@ -72,8 +72,8 @@ const patients = [
     },
     {
         id: "6",
-        name: "Michael Ross",
-        email: "michael@example.com",
+        name: "Manish Reddy",
+        email: "manish.r@example.com",
         status: "On Hold",
         risk: "Moderate",
         lastSession: "2024-03-15",

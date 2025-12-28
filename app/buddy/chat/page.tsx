@@ -12,15 +12,15 @@ import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
 
 const CONVERSATIONS = [
-    { id: "1", name: "Alex Rivers", avatar: "AR", lastMessage: "Thanks for listening!", time: "2m", unread: 1, online: true },
-    { id: "2", name: "Jamie Chen", avatar: "JC", lastMessage: "Let's catch up later.", time: "1h", unread: 0, online: false },
-    { id: "3", name: "Sam Smith", avatar: "SS", lastMessage: "How was your day?", time: "3h", unread: 0, online: false },
+    { id: "1", name: "Aarav Rao", avatar: "AR", lastMessage: "Thanks for listening!", time: "2m", unread: 1, online: true },
+    { id: "2", name: "Jay Chopra", avatar: "JC", lastMessage: "Let's catch up later.", time: "1h", unread: 0, online: false },
+    { id: "3", name: "Sameer S.", avatar: "SS", lastMessage: "How was your day?", time: "3h", unread: 0, online: false },
 ]
 
 const MESSAGES = [
-    { id: "1", sender: "Alex Rivers", content: "Hey! How are you holding up today?", time: "10:30 AM", isMe: false },
+    { id: "1", sender: "Aarav Rao", content: "Hey! How are you holding up today?", time: "10:30 AM", isMe: false },
     { id: "2", sender: "Me", content: "doing okay, just a bit overwhelmed with work.", time: "10:32 AM", isMe: true },
-    { id: "3", sender: "Alex Rivers", content: "I totally get that. Remember to take small breaks! breaks are important.", time: "10:33 AM", isMe: false },
+    { id: "3", sender: "Aarav Rao", content: "I totally get that. Remember to take small breaks! breaks are important.", time: "10:33 AM", isMe: false },
     { id: "4", sender: "Me", content: "Thanks for listening!", time: "10:35 AM", isMe: true },
 ]
 
@@ -108,7 +108,7 @@ export default function BuddyChatPage() {
                                 <AvatarFallback>AR</AvatarFallback>
                             </Avatar>
                             <div>
-                                <h3 className="font-semibold text-sm">Alex Rivers</h3>
+                                <h3 className="font-semibold text-sm">Aarav Rao</h3>
                                 <span className="text-xs text-green-600 font-medium flex items-center gap-1">
                                     <span className="h-1.5 w-1.5 rounded-full bg-green-500" /> Active now
                                 </span>

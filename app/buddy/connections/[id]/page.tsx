@@ -33,9 +33,9 @@ export default function ConnectionProfilePage() {
                         </div>
                         <div className="ml-40 pt-2 flex justify-between items-start">
                             <div>
-                                <CardTitle className="text-2xl">Alex Rivers</CardTitle>
+                                <CardTitle className="text-2xl">Aarav Rao</CardTitle>
                                 <CardDescription className="flex items-center gap-2 mt-1">
-                                    @arivers
+                                    @arao
                                     <Badge variant="outline" className="text-green-600 bg-green-50 border-green-200 text-[10px] py-0 h-5">
                                         <Shield className="h-3 w-3 mr-1" /> Verified
                                     </Badge>

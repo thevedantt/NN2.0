@@ -85,7 +85,7 @@ export default function BuddyProfilePage() {
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <Label htmlFor="firstName">Display Name</Label>
-                                    <Input id="firstName" placeholder="Alex" />
+                                    <Input id="firstName" placeholder="Aarav" />
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="pronouns">Pronouns</Label>

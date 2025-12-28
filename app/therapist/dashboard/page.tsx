@@ -44,7 +44,7 @@ import { Separator } from "@/components/ui/separator"
 const upcomingAppointments = [
     {
         id: "1",
-        name: "Augustine Watts",
+        name: "Arjun Watsa",
         time: "08:00 AM",
         type: "Consultation",
         status: "confirmed",
@@ -53,7 +53,7 @@ const upcomingAppointments = [
     },
     {
         id: "2",
-        name: "Clementine Baker",
+        name: "Chandni Bakshi",
         time: "09:00 AM",
         type: "First Visit",
         status: "confirmed",
@@ -62,7 +62,7 @@ const upcomingAppointments = [
     },
     {
         id: "3",
-        name: "Jimmie Christian",
+        name: "Jai Chopra",
         time: "10:30 AM",
         type: "Emergency",
         status: "urgent",
@@ -71,7 +71,7 @@ const upcomingAppointments = [
     },
     {
         id: "4",
-        name: "Greg McPherson",
+        name: "Girish M.",
         time: "11:30 AM",
         type: "Consultation",
         status: "confirmed",
@@ -83,14 +83,14 @@ const upcomingAppointments = [
 const urgentCases = [
     {
         id: "u1",
-        name: "Sarah Jenkins",
+        name: "Saanvi J.",
         reason: "Severe Mood Drop",
         detectedAt: "2h ago",
         image: "/avatars/05.png",
     },
     {
         id: "u2",
-        name: "Michael Ross",
+        name: "Manish Reddy",
         reason: "Crisis Keywords Detected",
         detectedAt: "4h ago",
         image: "/avatars/06.png",
@@ -320,7 +320,7 @@ export default function TherapistDashboardPage() {
                         </CardHeader>
                         <CardContent>
                             <p className="text-sm text-foreground/80">
-                                Augustine Watts (08:00 AM) has shown a 15% increase in positive sentiment over the last 3 days.
+                                Arjun Watsa (08:00 AM) has shown a 15% increase in positive sentiment over the last 3 days.
                                 However, sleep patterns remain irregular. Consider discussing sleep hygiene.
                             </p>
                         </CardContent>

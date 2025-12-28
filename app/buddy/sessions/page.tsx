@@ -10,9 +10,9 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
 
 const SESSIONS = [
-    { id: "1", buddy: "Alex Rivers", date: "Today", time: "2:00 PM", duration: "30 min", status: "scheduled", type: "Video Chat" },
-    { id: "2", buddy: "Jamie Chen", date: "Dec 20", time: "10:00 AM", duration: "45 min", status: "completed", type: "Voice Call" },
-    { id: "3", buddy: "Sam Smith", date: "Dec 18", time: "4:00 PM", duration: "30 min", status: "cancelled", type: "Video Chat" },
+    { id: "1", buddy: "Aarav Rao", date: "Today", time: "2:00 PM", duration: "30 min", status: "scheduled", type: "Video Chat" },
+    { id: "2", buddy: "Jay Chopra", date: "Dec 20", time: "10:00 AM", duration: "45 min", status: "completed", type: "Voice Call" },
+    { id: "3", buddy: "Sameer S.", date: "Dec 18", time: "4:00 PM", duration: "30 min", status: "cancelled", type: "Video Chat" },
 ]
 
 export default function SessionsPage() {
