@@ -61,6 +61,11 @@ export const userProfiles = pgTable('user_profiles', {
     sleepPattern: varchar('sleep_pattern', { length: 50 }),
     supportSystem: varchar('support_system', { length: 50 }),
     stressLevel: varchar('stress_level', { length: 50 }),
+    socialPlatforms: json('social_platforms'), // Array of selected platforms
+    socialPreferences: json('social_preferences'), // Key-value object for preferences
+    hobbies: json('hobbies'), // Array of hobbies
+    musicDetails: json('music_details'), // { genre, artist } if applicable
+    entertainment: json('entertainment'), // { bingeType, bingeList, comfortArtist, favoriteComedian }
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull().$onUpdate(() => new Date()),
 });

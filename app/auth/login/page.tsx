@@ -41,7 +41,7 @@ export default function LoginPage() {
                 // Redirect based on role
                 if (data.role === "therapist") {
                     // router.push("/therapist/dashboard")
-                    router.push("/dashboard") // User request override
+                    router.push("/therapist/dashboard")
                 } else if (data.role === "buddy") {
                     router.push("/buddy/dashboard")
                 } else {

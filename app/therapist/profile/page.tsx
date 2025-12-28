@@ -11,6 +11,40 @@ import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 
 export default function ProfilePage() {
+    const [profile, setProfile] = React.useState<any>(null);
+    const [isLoading, setIsLoading] = React.useState(true);
+
+    React.useEffect(() => {
+        async function fetchProfile() {
+            const token = localStorage.getItem("token");
+            if (!token) return;
+
+            try {
+                const res = await fetch("/api/auth/me", {
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    setProfile(data);
+                }
+            } catch (error) {
+                console.error("Failed to fetch profile", error);
+            } finally {
+                setIsLoading(false);
+            }
+        }
+        fetchProfile();
+    }, []);
+
+    // Fallbacks
+    const name = profile?.fullName || "Dr. Mary Grey";
+    const fee = profile?.perSessionFee || "150";
+    const specs = (profile?.specializations as string[]) || ["Anxiety", "Depression", "CBT", "Trauma"];
+    const mobile = profile?.mobileNumber || "N/A";
+    const license = profile?.licenseNumber || "Pending";
+
     return (
         <div className="container mx-auto max-w-5xl py-8 px-4 animate-in fade-in-50">
 
@@ -30,14 +64,14 @@ export default function ProfilePage() {
                         </div>
                         <CardHeader className="pt-4 pb-2">
                             <div className="flex items-center justify-center gap-2">
-                                <CardTitle className="text-xl">Dr. Mary Grey</CardTitle>
+                                <CardTitle className="text-xl">{name}</CardTitle>
                                 <CheckCircle2 className="h-5 w-5 text-white bg-blue-500 rounded-full p-0.5" fill="currentColor" />
                             </div>
                             <CardDescription>Clinical Psychologist, PhD</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="flex items-center justify-center gap-1 text-sm text-muted-foreground">
-                                <MapPin className="h-3 w-3" /> New York, NY (Remote)
+                                <MapPin className="h-3 w-3" /> Mumbai, India (Remote)
                             </div>
                             <div className="flex justify-center gap-2">
                                 <Badge variant="secondary" className="bg-green-100 text-green-700 hover:bg-green-100">Verified</Badge>
@@ -71,7 +105,7 @@ export default function ProfilePage() {
                         <CardContent className="space-y-3">
                             <div className="flex items-center justify-between text-sm">
                                 <span className="text-muted-foreground">License</span>
-                                <span className="font-medium">Valid</span>
+                                <span className="font-medium">{license}</span>
                             </div>
                             <div className="flex items-center justify-between text-sm">
                                 <span className="text-muted-foreground">Identity</span>
@@ -101,7 +135,7 @@ export default function ProfilePage() {
                                     Specializations
                                 </label>
                                 <div className="flex flex-wrap gap-2 mb-2">
-                                    {["Anxiety", "Depression", "CBT", "Trauma"].map(tag => (
+                                    {specs.map(tag => (
                                         <Badge key={tag} variant="secondary" className="px-3 py-1 text-sm bg-primary/10 text-primary hover:bg-primary/20 cursor-pointer">
                                             {tag} &times;
                                         </Badge>
@@ -120,14 +154,14 @@ export default function ProfilePage() {
                                         <Globe className="h-4 w-4 text-muted-foreground" />
                                         Languages Spoken
                                     </label>
-                                    <Input defaultValue="English, Spanish, French" />
+                                    <Input defaultValue="English, Hindi, Marathi" />
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-sm font-medium flex items-center gap-2">
                                         <Wallet className="h-4 w-4 text-muted-foreground" />
-                                        Hourly Rate ($)
+                                        Hourly Rate (₹)
                                     </label>
-                                    <Input type="number" defaultValue="150" />
+                                    <Input type="number" defaultValue={fee} key={fee} />
                                 </div>
                             </div>
 
@@ -135,7 +169,7 @@ export default function ProfilePage() {
                                 <label className="text-sm font-medium">Bio / About Me</label>
                                 <textarea
                                     className="flex min-h-[120px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                                    defaultValue="Dr. Mary Grey is a licensed clinical psychologist with over 10 years of experience specializing in cognitive behavioral therapy (CBT) for anxiety and depression to help patients lead healthier lives..."
+                                    defaultValue={`I am a licensed clinical psychologist dedicated to mental wellness in the Indian context. I help individuals navigate family dynamics, work stress, and societal expectations to find balance and peace.`}
                                 />
                             </div>
                         </CardContent>

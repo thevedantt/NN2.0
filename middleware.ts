@@ -7,6 +7,7 @@ const encodedKey = new TextEncoder().encode(SECRET_KEY)
 
 export async function middleware(request: NextRequest) {
     const path = request.nextUrl.pathname
+    console.log("Middleware hitting path:", path)
 
     // 1. Define guarded routes
     const isTherapistRoute = path.startsWith('/therapist')
@@ -73,6 +74,9 @@ export async function middleware(request: NextRequest) {
         // if (isUserRoute && role === 'therapist') {
         //    return redirectToDashboard(role, request)
         // }
+        if (isUserRoute && role === 'therapist') {
+            return redirectToDashboard(role, request)
+        }
         if (isUserRoute && role === 'buddy') {
             return redirectToDashboard(role, request)
         }

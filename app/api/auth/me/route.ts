@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/config/db';
-import { users } from '@/config/schema';
+import { users, therapistProfiles } from '@/config/schema';
 import { verifyAccessToken } from '@/lib/auth';
 import { eq } from 'drizzle-orm';
 
@@ -28,10 +28,24 @@ export async function GET(req: Request) { // This handles GET /auth/me
             return NextResponse.json({ error: 'User not found' }, { status: 401 });
         }
 
+        let profileData = {};
+
+        if (user.role === 'therapist') {
+            try {
+                const tProfile = await db.select().from(therapistProfiles).where(eq(therapistProfiles.userId, userId));
+                if (tProfile && tProfile.length > 0) {
+                    profileData = tProfile[0];
+                }
+            } catch (err) {
+                console.error("Error fetching therapist profile", err);
+            }
+        }
+
         return NextResponse.json({
             id: user.id,
             email: user.email,
             role: user.role,
+            ...profileData
         });
 
     } catch (error) {
