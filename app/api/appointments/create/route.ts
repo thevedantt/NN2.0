@@ -40,10 +40,12 @@ export async function POST(req: Request) {
         // 2️⃣ Create Appointment
         const newAppointment = await db.insert(appointments).values({
             userId: userId,
-            doctorId: finalDoctorId,
+            doctorId: String(finalDoctorId),
             doctorSnapshot: doctor,
             appointmentDate: new Date().toISOString().split('T')[0], // Mock date if missing: today
             appointmentTime: time || "10:00 AM", // Mock time if missing
+            sessionType: 'Video Consultation',
+            price: 1500, // Default price
             status: 'scheduled',
         }).returning({ appointmentId: appointments.appointmentId });
 

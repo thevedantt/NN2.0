@@ -37,9 +37,7 @@ export async function POST(req: Request) {
             specializations: specializations, // JSON/Array logic depends on frontend sending correct format
             perSessionFee: parseInt(perSessionFee),
             preferredSessionType,
-            isOnboardingComplete: true, // Though this field isn't in this table schema explicitly as a flag, we rely on users table flag
-            // Wait, schema has isVerified but not isOnboardingComplete in profile table?
-            // Schema has `isOnboardingComplete` in USERS table.
+            // isOnboardingComplete is updated in users table below
         });
 
         // Update User Table Flag
