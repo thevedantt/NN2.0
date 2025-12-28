@@ -30,31 +30,51 @@ export default function GroupsPage() {
     const USER_ID = "user_123"
     const USERNAME = "Demo User"
 
+    // NOTE: Firestore is fetched once on the client, stored in state, and rendered deterministically.
+    // This eliminates race conditions and ensures consistent UI.
     React.useEffect(() => {
-        const fetchGroups = async () => {
+        let isMounted = true;
+
+        async function loadGroups() {
+            console.log("📡 Fetching groups from Firestore...");
+
             try {
-                const querySnapshot = await getDocs(collection(db, "groups"))
-                const fetchedGroups: Group[] = []
-                querySnapshot.forEach((doc) => {
-                    const data = doc.data()
-                    fetchedGroups.push({
+                const snapshot = await getDocs(collection(db, "groups"));
+
+                const fetchedGroups: Group[] = snapshot.docs.map(doc => {
+                    const data = doc.data();
+                    return {
                         id: doc.id,
                         name: data.name || "Unnamed Group",
                         topic: data.category || "General",
                         description: data.description || "No description available.",
                         members: data.membersCount || 0,
-                        type: data.type || "Public"
-                    })
-                })
-                setGroups(fetchedGroups)
-            } catch (error) {
-                console.error("Error fetching groups:", error)
+                        type: data.safeSpace ? "Moderated" : "Public"
+                    };
+                });
+
+                console.log("✅ Groups fetched:", fetchedGroups.length, fetchedGroups);
+
+                if (isMounted) {
+                    setGroups(fetchedGroups);
+                }
+            } catch (err) {
+                console.error("❌ Firestore fetch failed:", err);
+                if (isMounted) {
+                    setGroups([]);
+                }
             } finally {
-                setLoading(false)
+                if (isMounted) {
+                    setLoading(false);
+                }
             }
         }
 
-        fetchGroups()
+        loadGroups();
+
+        return () => {
+            isMounted = false;
+        };
     }, [])
 
     const handleJoinGroup = async (groupId: string) => {

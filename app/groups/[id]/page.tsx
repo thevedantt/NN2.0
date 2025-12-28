@@ -14,7 +14,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { cn } from "@/lib/utils"
 // Firebase imports
 import { db } from "@/lib/firebase"
-import { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, Timestamp } from "firebase/firestore"
+import { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, Timestamp, getDocs } from "firebase/firestore"
 
 // Mock Data for Group Info (could be fetched too, but keeping simple as per request)
 const GROUP_INFO = {
@@ -54,30 +54,83 @@ export default function GroupChatPage() {
             orderBy("createdAt", "asc")
         );
 
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-            const msgs: Message[] = [];
-            snapshot.forEach((doc) => {
-                const data = doc.data();
-                // Format timestamp to readable time
-                let timeString = "Just now";
-                if (data.createdAt) {
-                    const date = data.createdAt.toDate();
-                    timeString = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                }
+        let unsubscribe: (() => void) | null = null;
+        let isRealtime = true;
 
-                msgs.push({
-                    id: doc.id,
-                    user: data.username || "Anonymous",
-                    avatar: (data.username || "A").substring(0, 2).toUpperCase(),
-                    content: data.text || "",
-                    time: timeString,
-                    likes: 0, // Mock likes for now
+        const setupRealtimeListener = () => {
+            // NOTE:
+            // Firestore realtime listeners may be blocked by browser privacy tools
+            // Fallback to standard fetch is used to ensure functionality
+            try {
+                unsubscribe = onSnapshot(q,
+                    (snapshot) => {
+                        const msgs: Message[] = [];
+                        snapshot.forEach((doc) => {
+                            const data = doc.data();
+                            // Format timestamp to readable time
+                            let timeString = "Just now";
+                            if (data.createdAt) {
+                                const date = data.createdAt.toDate();
+                                timeString = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                            }
+
+                            msgs.push({
+                                id: doc.id,
+                                user: data.username || "Anonymous",
+                                avatar: (data.username || "A").substring(0, 2).toUpperCase(),
+                                content: data.text || "",
+                                time: timeString,
+                                likes: 0,
+                            });
+                        });
+                        setMessages(msgs);
+                    },
+                    (error) => {
+                        console.warn("Firestore realtime blocked by browser (messages). Falling back to fetch.", error);
+                        isRealtime = false;
+                        fallbackFetch();
+                    }
+                );
+            } catch (err) {
+                console.warn("Listener failed:", err);
+                isRealtime = false;
+                fallbackFetch();
+            }
+        };
+
+        const fallbackFetch = async () => {
+            try {
+                const snapshot = await getDocs(q);
+                const msgs: Message[] = [];
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    let timeString = "Just now";
+                    if (data.createdAt) {
+                        const date = data.createdAt.toDate();
+                        timeString = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    }
+
+                    msgs.push({
+                        id: doc.id,
+                        user: data.username || "Anonymous",
+                        avatar: (data.username || "A").substring(0, 2).toUpperCase(),
+                        content: data.text || "",
+                        time: timeString,
+                        likes: 0,
+                    });
                 });
-            });
-            setMessages(msgs);
-        });
+                setMessages(msgs);
+                if (!isRealtime) console.log("Messages loaded in fallback mode.");
+            } catch (e) {
+                console.error("Error fetching messages (fallback):", e);
+            }
+        };
 
-        return () => unsubscribe();
+        setupRealtimeListener();
+
+        return () => {
+            if (unsubscribe) unsubscribe();
+        }
     }, [id]);
 
     const handleSendMessage = async () => {
