@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
+import { Disclaimer } from "@/components/assessment/Disclaimer"
 
 // Data Mock
 const ASSESSMENTS = [
@@ -224,13 +225,15 @@ export default function AssessmentPage() {
 
                                     <div className="flex gap-4 justify-center">
                                         <Button variant="outline" onClick={() => setView("selection")}>Take Another</Button>
-                                        <Button onClick={() => window.location.href = '/appointments'}>Book Consultation</Button>
+                                        <Button onClick={() => window.location.href = '/doctors'}>Book Consultation</Button>
                                     </div>
                                 </Card>
                             )
                         })()}
                     </div>
                 )}
+
+                <Disclaimer />
             </div>
         </div>
     )
