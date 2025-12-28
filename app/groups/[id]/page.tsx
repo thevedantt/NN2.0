@@ -12,18 +12,25 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { cn } from "@/lib/utils"
+// Firebase imports
+import { db } from "@/lib/firebase"
+import { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, Timestamp } from "firebase/firestore"
 
-// Mock Data
+// Mock Data for Group Info (could be fetched too, but keeping simple as per request)
 const GROUP_INFO = {
     "1": { name: "Anxiety Warriors", members: 1205, topic: "Anxiety", description: "A safe space to share strategies for managing daily anxiety and panic attacks." },
     "2": { name: "Mindful Living", members: 890, topic: "Wellness", description: "Practicing mindfulness, meditation, and staying present in the moment." },
 }
 
-const INITIAL_MESSAGES = [
-    { id: "1", user: "CalmBadger", avatar: "CB", content: "Had a tough morning, but trying deep breathing. Anyone else struggles with morning anxiety?", time: "10:30 AM", likes: 5 },
-    { id: "2", user: "HopefulSky", avatar: "HS", content: "Yes! I find that drinking water first thing helps ground me. You're not alone.", time: "10:32 AM", likes: 3 },
-    { id: "3", user: "GentleRain", avatar: "GR", content: "I listed 3 things I'm grateful for. It's a small step but it shifts the focus.", time: "10:35 AM", likes: 8 },
-]
+interface Message {
+    id: string
+    user: string
+    avatar: string
+    content: string
+    time: string
+    likes: number
+    createdAt?: Timestamp
+}
 
 export default function GroupChatPage() {
     const params = useParams()
@@ -31,21 +38,63 @@ export default function GroupChatPage() {
     const id = params?.id as string
     const group = GROUP_INFO[id as keyof typeof GROUP_INFO] || { name: "Community Group", members: 0, topic: "Support", description: "Welcome to the group." }
 
-    const [messages, setMessages] = React.useState(INITIAL_MESSAGES)
+    const [messages, setMessages] = React.useState<Message[]>([])
     const [inputValue, setInputValue] = React.useState("")
 
-    const handleSendMessage = () => {
+    // Mock User Data
+    const USER_ID = "user_123"
+    const USERNAME = "Demo User"
+
+    // Real-time listener for messages
+    React.useEffect(() => {
+        if (!id) return;
+
+        const q = query(
+            collection(db, "groups", id, "messages"),
+            orderBy("createdAt", "asc")
+        );
+
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            const msgs: Message[] = [];
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                // Format timestamp to readable time
+                let timeString = "Just now";
+                if (data.createdAt) {
+                    const date = data.createdAt.toDate();
+                    timeString = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                }
+
+                msgs.push({
+                    id: doc.id,
+                    user: data.username || "Anonymous",
+                    avatar: (data.username || "A").substring(0, 2).toUpperCase(),
+                    content: data.text || "",
+                    time: timeString,
+                    likes: 0, // Mock likes for now
+                });
+            });
+            setMessages(msgs);
+        });
+
+        return () => unsubscribe();
+    }, [id]);
+
+    const handleSendMessage = async () => {
         if (!inputValue.trim()) return
-        const newMessage = {
-            id: Date.now().toString(),
-            user: "Me (Anonymous)",
-            avatar: "ME",
-            content: inputValue,
-            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            likes: 0
+
+        try {
+            await addDoc(collection(db, "groups", id, "messages"), {
+                text: inputValue,
+                userId: USER_ID,
+                username: USERNAME,
+                anonymous: true, // defaulting to true for this safe space app
+                createdAt: serverTimestamp()
+            });
+            setInputValue("");
+        } catch (error) {
+            console.error("Error sending message:", error);
         }
-        setMessages([...messages, newMessage])
-        setInputValue("")
     }
 
     return (
@@ -104,22 +153,28 @@ export default function GroupChatPage() {
                 </header>
 
                 <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4">
-                    {messages.map((msg) => (
-                        <Card key={msg.id} className="border-border/60 bg-card/60 rounded-xl p-4 max-w-2xl mx-auto shadow-sm">
-                            <div className="flex items-start gap-4">
-                                <Avatar className="h-8 w-8 mt-1">
-                                    <AvatarFallback className={cn("text-xs font-medium", msg.user === "Me (Anonymous)" ? "bg-primary text-primary-foreground" : "bg-muted")}>{msg.avatar}</AvatarFallback>
-                                </Avatar>
-                                <div className="flex-1">
-                                    <div className="flex justify-between items-center mb-1">
-                                        <span className="text-sm font-medium text-foreground/90">{msg.user}</span>
-                                        <span className="text-[10px] text-muted-foreground">{msg.time}</span>
+                    {messages.length === 0 ? (
+                        <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
+                            No messages yet. Be the first to say hi!
+                        </div>
+                    ) : (
+                        messages.map((msg) => (
+                            <Card key={msg.id} className="border-border/60 bg-card/60 rounded-xl p-4 max-w-2xl mx-auto shadow-sm">
+                                <div className="flex items-start gap-4">
+                                    <Avatar className="h-8 w-8 mt-1">
+                                        <AvatarFallback className={cn("text-xs font-medium", msg.user.includes("Demo") ? "bg-primary text-primary-foreground" : "bg-muted")}>{msg.avatar}</AvatarFallback>
+                                    </Avatar>
+                                    <div className="flex-1">
+                                        <div className="flex justify-between items-center mb-1">
+                                            <span className="text-sm font-medium text-foreground/90">{msg.user}</span>
+                                            <span className="text-[10px] text-muted-foreground">{msg.time}</span>
+                                        </div>
+                                        <p className="text-sm text-foreground/80 leading-relaxed">{msg.content}</p>
                                     </div>
-                                    <p className="text-sm text-foreground/80 leading-relaxed">{msg.content}</p>
                                 </div>
-                            </div>
-                        </Card>
-                    ))}
+                            </Card>
+                        ))
+                    )}
                 </div>
 
                 <div className="p-4 md:p-6 border-t bg-background/95 backdrop-blur">
