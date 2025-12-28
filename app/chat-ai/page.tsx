@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
+import { useLanguage } from "@/context/LanguageContext"
 
 // Types
 type Message = {
@@ -20,16 +21,30 @@ type Message = {
 }
 
 export default function ChatPage() {
+    const { language } = useLanguage()
+
+    // Language-specific greetings
+    const greetings = React.useMemo(() => ({
+        en: "Hello, I’m your AI mental health companion.\nI’m here to listen, understand, and support you in a calm and respectful way.\nYou can share anything that’s on your mind.",
+        hi: "नमस्ते, मैं आपका AI मानसिक स्वास्थ्य साथी हूँ।\nमैं आपकी बात ध्यान से सुनने और आपको शांत तरीके से समझने के लिए यहाँ हूँ।\nआप जो भी महसूस कर रहे हैं, खुलकर साझा कर सकते हैं।"
+    }), [])
+
     const [input, setInput] = React.useState("")
-    const [messages, setMessages] = React.useState<Message[]>([
-        {
-            id: "1",
-            role: "ai",
-            content: "Hello! I'm here to listen. This is a safe space for you. How are you feeling today?",
-            timestamp: new Date(),
-            emotion: "warmth"
-        }
-    ])
+    const [messages, setMessages] = React.useState<Message[]>([])
+
+    // Set initial greeting based on language
+    React.useEffect(() => {
+        setMessages([
+            {
+                id: "1",
+                role: "ai",
+                content: greetings[language],
+                timestamp: new Date(),
+                emotion: "warmth"
+            }
+        ])
+    }, [language, greetings])
+
     const [status, setStatus] = React.useState<"Listening" | "Thinking" | "Idle">("Listening")
     const [showInsight, setShowInsight] = React.useState(true)
     const [isTyping, setIsTyping] = React.useState(false)
@@ -58,13 +73,52 @@ export default function ChatPage() {
         setStatus("Thinking")
         setIsTyping(true)
 
+        // define system prompt based on language
+        const systemPrompts = {
+            en: `Act as a qualified psychiatrist-style mental health professional, providing empathetic, supportive, and structured emotional guidance.
+Your responsibilities:
+- Listen actively and respond with empathy
+- Ask gentle, open-ended questions
+- Help users reflect on emotions and thoughts
+- Offer coping strategies and grounding techniques
+- Encourage professional help when needed
+
+Important rules:
+- Do NOT give medical diagnoses
+- Do NOT prescribe medication
+- Do NOT replace a real psychiatrist
+- Use simple, reassuring language
+- If user shows distress, respond calmly and supportively
+
+Your tone must always be:
+Calm, respectful, non-judgmental, and patient-centric.`,
+            hi: `एक अनुभवी मनोचिकित्सक (Psychiatrist) की तरह व्यवहार करें, जो उपयोगकर्ता को समझने, सहारा देने और भावनाओं को सुलझाने में मदद करता है।
+आपकी ज़िम्मेदारियाँ:
+- ध्यान से सुनना और सहानुभूति के साथ जवाब देना
+- धीरे-धीरे, खुले सवाल पूछना
+- भावनाओं और विचारों पर सोचने में मदद करना
+- सरल coping techniques और calming exercises सुझाना
+- ज़रूरत पड़ने पर पेशेवर मदद लेने के लिए प्रोत्साहित करना
+
+महत्वपूर्ण नियम:
+- कोई बीमारी का निदान (diagnosis) न करें
+- दवाइयों की सलाह न दें
+- खुद को असली डॉक्टर का विकल्प न बताएं
+- भाषा सरल और भरोसेमंद रखें
+- अगर उपयोगकर्ता परेशान लगे, तो शांत और सहायक जवाब दें
+
+आपका व्यवहार हमेशा:
+शांत, सम्मानजनक, बिना जजमेंट और उपयोगकर्ता-केंद्रित होना चाहिए।`
+        };
+
         try {
             const response = await fetch("/api/chat", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     message: userMessage.content,
-                    history: messages.map(m => ({ role: m.role, content: m.content }))
+                    history: messages.map(m => ({ role: m.role, content: m.content })),
+                    systemPrompt: systemPrompts[language]
                 })
             })
 
@@ -81,11 +135,10 @@ export default function ChatPage() {
                 setMessages(prev => [...prev, aiMessage])
             } else {
                 console.error("Failed to get response:", data.error)
-                // Optional: Helper message for error
                 setMessages(prev => [...prev, {
                     id: Date.now().toString(),
                     role: "ai",
-                    content: "I'm having a little trouble connecting right now. Can we try again?",
+                    content: language === 'hi' ? "मुझे कनेक्ट करने में थोड़ी परेशानी हो रही है। क्या हम फिर से कोशिश कर सकते हैं?" : "I'm having a little trouble connecting right now. Can we try again?",
                     timestamp: new Date(),
                     emotion: "neutral"
                 }])
@@ -95,7 +148,7 @@ export default function ChatPage() {
             setMessages(prev => [...prev, {
                 id: Date.now().toString(),
                 role: "ai",
-                content: "I'm sorry, I couldn't reach the server. Please check your connection.",
+                content: language === 'hi' ? "क्षमा करें, मैं सर्वर तक नहीं पहुँच सका। कृपया अपना कनेक्शन जांचें।" : "I'm sorry, I couldn't reach the server. Please check your connection.",
                 timestamp: new Date(),
                 emotion: "neutral"
             }])

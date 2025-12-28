@@ -5,14 +5,11 @@ import { THERAPIST_CONTEXT } from "@/lib/gemini/context";
 
 export async function POST(req: NextRequest) {
     try {
-        const { message, history } = await req.json();
+        const { message, history, systemPrompt } = await req.json();
 
         if (!message) {
             return NextResponse.json({ error: "Message is required" }, { status: 400 });
         }
-
-        // specific handling for "gemini-2.5-flash" if it doesn't exist yet, 
-        // we might need to fallback, but for now assuming the library/API handles the string or we get a specific error.
 
         // Construct chat history for the model
         // The SDK supports history in startChat
@@ -20,7 +17,7 @@ export async function POST(req: NextRequest) {
             history: [
                 {
                     role: "user",
-                    parts: [{ text: THERAPIST_CONTEXT }],
+                    parts: [{ text: systemPrompt || THERAPIST_CONTEXT }],
                 },
                 {
                     role: "model",
