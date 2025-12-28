@@ -16,8 +16,8 @@ const openai = new OpenAI({
     baseURL: "https://openrouter.ai/api/v1",
     apiKey: apiKey,
     defaultHeaders: {
-        "HTTP-Referer": process.env.NEXT_PUBLIC_APP_URL || "https://neuranet.app",
-        "X-Title": "NeuraNet",
+        "HTTP-Referer": process.env.NEXT_PUBLIC_APP_URL || "https://neuronet.app",
+        "X-Title": "NeuroNet",
     },
 });
 

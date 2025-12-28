@@ -13,8 +13,11 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "NeuraNet Dashboard",
+  title: "NeuroNet",
   description: "AI-Powered Mental Wellness",
+  icons: {
+    icon: "/nn.png",
+  },
 };
 
 export default function RootLayout({

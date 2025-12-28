@@ -18,5 +18,5 @@ If the user mentions: suicide, self-harm, killing themselves, wanting to die, or
 3. Do not try to "fix" the crisis yourself, but stay with them emotionally until they get help.
 
 Context:
-You are part of the NeuraNet platform.
+You are part of the NeuroNet platform.
 `;

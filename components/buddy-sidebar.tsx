@@ -66,7 +66,7 @@ export function BuddySidebar() {
     return (
         <Sidebar collapsible="icon">
             <SidebarHeader className="flex flex-row items-center justify-between py-4 px-4 h-16 group-data-[collapsible=icon]:justify-center">
-                <h1 className="text-xl font-bold text-primary group-data-[collapsible=icon]:hidden">NeuraNet Buddy</h1>
+                <h1 className="text-xl font-bold text-primary group-data-[collapsible=icon]:hidden">NeuroNet Buddy</h1>
                 <SidebarTrigger />
             </SidebarHeader>
             <SidebarContent>
