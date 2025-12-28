@@ -37,6 +37,14 @@ export async function middleware(request: NextRequest) {
 
         // 5. Role-Based Access Control
 
+        // CHECK: Root redirects for role bases (prevent 404 on /therapist or /buddy)
+        if (path === '/therapist') {
+            return NextResponse.redirect(new URL('/therapist/dashboard', request.url))
+        }
+        if (path === '/buddy') {
+            return NextResponse.redirect(new URL('/buddy/dashboard', request.url))
+        }
+
         // CHECK: Mandatory Onboarding for Therapists
         if (role === 'therapist' && !isOnboardingComplete && path !== '/therapist/onboarding') {
             return NextResponse.redirect(new URL('/therapist/onboarding', request.url))

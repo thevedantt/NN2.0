@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { cn } from "@/lib/utils"
 import { db } from "@/lib/firebase"
 import { collection, getDocs, doc, setDoc, updateDoc, increment, serverTimestamp, getDoc } from "firebase/firestore"
+import { useLanguage } from "@/context/LanguageContext"
 
 interface Group {
     id: string
@@ -36,6 +37,9 @@ export default function GroupsPage() {
     const USER_ID = "user_123"
     const USERNAME = "Demo User"
 
+    // Use Language Context
+    const { language } = useLanguage()
+
     // NOTE: Firestore is fetched once on the client, stored in state, and rendered deterministically.
     // This eliminates race conditions and ensures consistent UI.
     React.useEffect(() => {
@@ -47,8 +51,42 @@ export default function GroupsPage() {
             try {
                 const snapshot = await getDocs(collection(db, "groups"));
 
+                const STATIC_GROUP_DATA: Record<string, { en: { name: string, description: string }, hi: { name: string, description: string } }> = {
+                    "anxiety-warriors": {
+                        en: { name: "Anxiety Warriors", description: "Understand and manage anxiety with shared strategies and support. A safe space to discuss panic, worry, and finding calm in daily life." },
+                        hi: { name: "Anxiety Warriors (चिंता मुक्ति)", description: "साझा रणनीतियों और समर्थन के साथ चिंता को समझें और प्रबंधित करें। घबराहट और चिंता पर चर्चा करने के लिए एक सुरक्षित स्थान।" }
+                    },
+                    "mindful-living": {
+                        en: { name: "Mindful Living", description: "Cultivate mental clarity and emotional balance through mindfulness. Techniques and discussions for staying present and reducing stress." },
+                        hi: { name: "Mindful Living (माइंडफुलनेस)", description: "माइंडफुलनेस, ध्यान और वर्तमान क्षण में रहने का अभ्यास करें। तनाव कम करने और मानसिक स्पष्टता के लिए चर्चाएँ।" }
+                    },
+                    "depression-support": {
+                        en: { name: "Depression Support", description: "A compassionate community for those experiencing depression. Share your journey and find understanding, hope, and emotional resilience." },
+                        hi: { name: "Depression Support (अवसाद सहायता)", description: "आप अकेले नहीं हैं। अवसाद से जूझ रहे लोगों के लिए एक गहरा सहायक समुदाय। अपनी यात्रा साझा करें और उम्मीद पाएं।" }
+                    },
+                    "social-confidence": {
+                        en: { name: "Social Confidence", description: "Overcome fears of social interaction in a supportive environment. Practice connecting with others and building genuine self-confidence." },
+                        hi: { name: "Social Confidence (सामाजिक आत्मविश्वास)", description: "सामाजिक स्थितियों में आत्मविश्वास बढ़ाएं। एक सहायक वातावरण में दूसरों के साथ जुड़ने का अभ्यास करें।" }
+                    },
+                    "sleep-insomnia": {
+                        en: { name: "Sleep & Insomnia", description: "Explore natural ways to overcome insomnia and improve sleep quality. A place to discuss restful habits for a healthier mind and body." },
+                        hi: { name: "Sleep & Insomnia (नींद और अनिद्रा)", description: "बेहतर आराम और नींद के लिए सुझाव और समर्थन। स्वस्थ दिमाग और शरीर के लिए आरामदायक आदतों पर चर्चा करने की जगह।" }
+                    },
+                    "work-stress": {
+                        en: { name: "Work Stress", description: "Navigate professional challenges and prevent burnout. Share experiences and find solutions for maintaining a healthy work-life balance." },
+                        hi: { name: "Work Stress (कार्य तनाव)", description: "बर्नआउट और कार्यस्थल के तनाव से निपटना। स्वस्थ कार्य-जीवन संतुलन बनाए रखने के लिए अनुभव और समाधान साझा करें।" }
+                    }
+                };
+
                 const fetchedGroups: Group[] = snapshot.docs.map(doc => {
                     const data = doc.data();
+                    // Store ALL language variants in the object if needed, or just rely on ID mapping during render.
+                    // To keep state simple, we will store the ID and map dynamically during render, 
+                    // OR we can store the raw data and let the render map it.
+                    // For now, let's keep the fetch logic generic and map inside render?
+                    // actually, let's just default to english here and override in render?
+                    // BETTER: Store the raw needed data to look up.
+
                     return {
                         id: doc.id,
                         name: data.name || "Unnamed Group",
@@ -58,6 +96,8 @@ export default function GroupsPage() {
                         type: data.safeSpace ? "Moderated" : "Public"
                     };
                 });
+
+                // We'll map the translations in the render method using the ID.
 
                 console.log("✅ Groups fetched:", fetchedGroups.length, fetchedGroups);
 
@@ -101,6 +141,65 @@ export default function GroupsPage() {
             isMounted = false;
         };
     }, [])
+
+    // Translation Data locally for this page
+    const STATIC_GROUP_DATA: Record<string, { en: { name: string, description: string }, hi: { name: string, description: string } }> = {
+        "anxiety-warriors": {
+            en: { name: "Anxiety Warriors", description: "Understand and manage anxiety with shared strategies and support. A safe space to discuss panic, worry, and finding calm in daily life." },
+            hi: { name: "Anxiety Warriors (चिंता मुक्ति)", description: "साझा रणनीतियों और समर्थन के साथ चिंता को समझें और प्रबंधित करें। घबराहट और चिंता पर चर्चा करने के लिए एक सुरक्षित स्थान।" }
+        },
+        "mindful-living": {
+            en: { name: "Mindful Living", description: "Cultivate mental clarity and emotional balance through mindfulness. Techniques and discussions for staying present and reducing stress." },
+            hi: { name: "Mindful Living (माइंडफुलनेस)", description: "माइंडफुलनेस, ध्यान और वर्तमान क्षण में रहने का अभ्यास करें। तनाव कम करने और मानसिक स्पष्टता के लिए चर्चाएँ।" }
+        },
+        "depression-support": {
+            en: { name: "Depression Support", description: "A compassionate community for those experiencing depression. Share your journey and find understanding, hope, and emotional resilience." },
+            hi: { name: "Depression Support (अवसाद सहायता)", description: "आप अकेले नहीं हैं। अवसाद से जूझ रहे लोगों के लिए एक गहरा सहायक समुदाय। अपनी यात्रा साझा करें और उम्मीद पाएं।" }
+        },
+        "social-confidence": {
+            en: { name: "Social Confidence", description: "Overcome fears of social interaction in a supportive environment. Practice connecting with others and building genuine self-confidence." },
+            hi: { name: "Social Confidence (सामाजिक आत्मविश्वास)", description: "सामाजिक स्थितियों में आत्मविश्वास बढ़ाएं। एक सहायक वातावरण में दूसरों के साथ जुड़ने का अभ्यास करें।" }
+        },
+        "sleep-insomnia": {
+            en: { name: "Sleep & Insomnia", description: "Explore natural ways to overcome insomnia and improve sleep quality. A place to discuss restful habits for a healthier mind and body." },
+            hi: { name: "Sleep & Insomnia (नींद और अनिद्रा)", description: "बेहतर आराम और नींद के लिए सुझाव और समर्थन। स्वस्थ दिमाग और शरीर के लिए आरामदायक आदतों पर चर्चा करने की जगह।" }
+        },
+        "work-stress": {
+            en: { name: "Work Stress", description: "Navigate professional challenges and prevent burnout. Share experiences and find solutions for maintaining a healthy work-life balance." },
+            hi: { name: "Work Stress (कार्य तनाव)", description: "बर्नआउट और कार्यस्थल के तनाव से निपटना। स्वस्थ कार्य-जीवन संतुलन बनाए रखने के लिए अनुभव और समाधान साझा करें।" }
+        }
+    };
+
+    const uiText = {
+        en: {
+            title: "Community Groups",
+            subtitle: "Connect with others who understand what you're going through.",
+            searchPlaceholder: "Find a group...",
+            noGroupsTitle: "No active groups found",
+            noGroupsDesc: "Check back later for new communities.",
+            members: "Members",
+            activeNow: "Active now",
+            joinGroup: "Join Group",
+            openChat: "Open Chat",
+            safeSpace: "Safe Space",
+            agreeJoin: "Agree & Join",
+        },
+        hi: {
+            title: "सामुदायिक समूह (Groups)",
+            subtitle: "उन लोगों से जुड़ें जो आपकी स्थिति को समझते हैं।",
+            searchPlaceholder: "समूह खोजें...",
+            noGroupsTitle: "कोई सक्रिय समूह नहीं मिला",
+            noGroupsDesc: "नए समुदायों के लिए बाद में देखें।",
+            members: "सदस्य",
+            activeNow: "अभी सक्रिय",
+            joinGroup: "समूह से जुड़ें",
+            openChat: "चैट खोलें",
+            safeSpace: "सुरक्षित स्थान",
+            agreeJoin: "सहमत हूँ और जुड़ें",
+        }
+    }
+
+    const t = uiText[language === 'hi' ? 'hi' : 'en'];
 
     const handleJoinGroup = async (groupId: string, closeDialog: () => void) => {
         console.log("✅ Agree & Join clicked");
@@ -161,12 +260,12 @@ export default function GroupsPage() {
         <div className="flex-1 overflow-y-auto p-6 md:p-8">
             <header className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold">Community Groups</h1>
-                    <p className="text-muted-foreground mt-1">Connect with others who understand what you're going through.</p>
+                    <h1 className="text-3xl font-bold">{t.title}</h1>
+                    <p className="text-muted-foreground mt-1">{t.subtitle}</p>
                 </div>
                 <div className="relative w-full md:w-72">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input placeholder="Find a group..." className="pl-9 bg-background" />
+                    <Input placeholder={t.searchPlaceholder} className="pl-9 bg-background" />
                 </div>
             </header>
 
@@ -176,13 +275,19 @@ export default function GroupsPage() {
                 </div>
             ) : groups.length === 0 ? (
                 <div className="text-center py-12">
-                    <h3 className="text-lg font-semibold">No active groups found</h3>
-                    <p className="text-muted-foreground">Check back later for new communities.</p>
+                    <h3 className="text-lg font-semibold">{t.noGroupsTitle}</h3>
+                    <p className="text-muted-foreground">{t.noGroupsDesc}</p>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {groups.map((group) => {
                         const isJoined = joinedGroups.has(group.id);
+
+                        // Resolve localized details
+                        const localized = STATIC_GROUP_DATA[group.id]?.[language === 'hi' ? 'hi' : 'en'] || {
+                            name: group.name,
+                            description: group.description
+                        };
 
                         return (
                             <Card key={group.id} className="group hover:shadow-lg transition-all duration-300 border-border/60 bg-card/50 backdrop-blur-sm flex flex-col">
@@ -191,17 +296,17 @@ export default function GroupsPage() {
                                         <Badge variant="secondary" className="bg-secondary/50 hover:bg-secondary/70">{group.topic}</Badge>
                                         {group.type === "Moderated" && (
                                             <Badge variant="outline" className="border-primary/20 text-primary bg-primary/5 flex gap-1 items-center">
-                                                <Shield className="h-3 w-3" /> Safe Space
+                                                <Shield className="h-3 w-3" /> {t.safeSpace}
                                             </Badge>
                                         )}
                                     </div>
-                                    <h3 className="text-xl font-semibold leading-tight group-hover:text-primary transition-colors">{group.name}</h3>
+                                    <h3 className="text-xl font-semibold leading-tight group-hover:text-primary transition-colors">{localized.name}</h3>
                                 </CardHeader>
                                 <CardContent className="flex-1">
-                                    <p className="text-muted-foreground text-sm line-clamp-3">{group.description}</p>
+                                    <p className="text-muted-foreground text-sm line-clamp-3">{localized.description}</p>
                                     <div className="flex items-center gap-4 mt-4 text-xs text-muted-foreground font-medium">
-                                        <span className="flex items-center gap-1"><Users className="h-3 w-3" /> {group.members} Members</span>
-                                        <span className="flex items-center gap-1"><MessageSquare className="h-3 w-3" /> Active now</span>
+                                        <span className="flex items-center gap-1"><Users className="h-3 w-3" /> {group.members} {t.members}</span>
+                                        <span className="flex items-center gap-1"><MessageSquare className="h-3 w-3" /> {t.activeNow}</span>
                                     </div>
                                 </CardContent>
                                 <CardFooter className="pt-0">

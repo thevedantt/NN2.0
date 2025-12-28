@@ -15,11 +15,16 @@ import { cn } from "@/lib/utils"
 // Firebase imports
 import { db } from "@/lib/firebase"
 import { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, Timestamp, getDocs } from "firebase/firestore"
+import { useLanguage } from "@/context/LanguageContext"
 
 // Mock Data for Group Info (could be fetched too, but keeping simple as per request)
 const GROUP_INFO = {
-    "1": { name: "Anxiety Warriors", members: 1205, topic: "Anxiety", description: "A safe space to share strategies for managing daily anxiety and panic attacks." },
-    "2": { name: "Mindful Living", members: 890, topic: "Wellness", description: "Practicing mindfulness, meditation, and staying present in the moment." },
+    "anxiety-warriors": { name: "Anxiety Warriors", members: 1205, topic: "Anxiety", description: "A safe space to share strategies for managing daily anxiety and panic attacks." },
+    "mindful-living": { name: "Mindful Living", members: 890, topic: "Wellness", description: "Practicing mindfulness, meditation, and staying present in the moment." },
+    "depression-support": { name: "Depression Support", members: 2300, topic: "Depression", description: "You are not alone. Deeply supportive community for those navigating depression." },
+    "social-confidence": { name: "Social Confidence", members: 450, topic: "Social Anxiety", description: "Building confidence in social situations step by step." },
+    "sleep-insomnia": { name: "Sleep & Insomnia", members: 670, topic: "Sleep", description: "Tips and support for better rest and sleep hygiene." },
+    "work-stress": { name: "Work Stress", members: 1500, topic: "Career", description: "Navigating burnout and workplace stress together." }
 }
 
 interface Message {
@@ -36,7 +41,101 @@ export default function GroupChatPage() {
     const params = useParams()
     const router = useRouter()
     const id = params?.id as string
-    const group = GROUP_INFO[id as keyof typeof GROUP_INFO] || { name: "Community Group", members: 0, topic: "Support", description: "Welcome to the group." }
+    // Use Language Context
+    const { language } = useLanguage()
+
+    const GROUP_DETAILS: Record<string, { en: string, hi: string }> = {
+        "anxiety-warriors": {
+            en: "Anxiety is a natural response to stress, but when it becomes overwhelming and persistent, it can interfere with daily life. This group focuses on understanding anxiety triggers, practicing grounding techniques, and sharing personal victories in overcoming panic and worry.",
+            hi: "चिंता (Anxiety) तनाव के लिए एक स्वाभाविक प्रतिक्रिया है, लेकिन जब यह भारी और लगातार हो जाती है, तो यह दैनिक जीवन में बाधा डाल सकती है। यह समूह चिंता को ट्रिगर करने वाले कारणों को समझने, ग्राउंडिंग तकनीकों का अभ्यास करने और घबराहट पर काबू पाने में व्यक्तिगत जीत साझा करने पर केंद्रित है।"
+        },
+        "mindful-living": {
+            en: "Mindfulness is the practice of being fully present and engaged in the moment, without judgment. In this group, we explore meditation, breathwork, and conscious living to reduce stress and enhance emotional well-being.",
+            hi: "माइंडफुलनेस (Mindfulness) बिना किसी निर्णय के पूरी तरह से वर्तमान क्षण में उपस्थित और व्यस्त रहने का अभ्यास है। इस समूह में, हम तनाव को कम करने और भावनात्मक भलाई को बढ़ाने के लिए ध्यान, सांस लेने के व्यायाम और सचेत जीवन जीने के तरीकों का पता लगाते हैं।"
+        },
+        "depression-support": {
+            en: "Depression is more than just feeling sad; it's a serious mood disorder that affects how you feel, think, and handle daily activities. Here, we offer a compassionate space to share experiences, find hope, and remind each other that we are not alone in this journey.",
+            hi: "अवसाद (Depression) केवल उदास महसूस करने से कहीं अधिक है; यह एक गंभीर मूड विकार है जो आपके महसूस करने, सोचने और दैनिक गतिविधियों को संभालने के तरीके को प्रभावित करता है। यहाँ, हम अनुभव साझा करने, उम्मीद खोजने और एक-दूसरे को याद दिलाने के लिए एक दयालु स्थान प्रदान करते हैं कि हम इस यात्रा में अकेले नहीं हैं।"
+        },
+        "social-confidence": {
+            en: "Social anxiety involves intense fear of being watched and judged by others. This group is dedicated to building self-assurance, practicing social skills in a safe environment, and celebrating small steps towards greater social freedom.",
+            hi: "सामाजिक चिंता (Social Anxiety) में दूसरों द्वारा देखे जाने और आंके जाने का तीव्र डर शामिल होता है। यह समूह आत्मविश्वास बनाने, सुरक्षित वातावरण में सामाजिक कौशल का अभ्यास करने और अधिक सामाजिक स्वतंत्रता की ओर छोटे कदमों का जश्न मनाने के लिए समर्पित है।"
+        },
+        "sleep-insomnia": {
+            en: "Insomnia and sleep disorders can significantly impact mental health. This community shares tips on sleep hygiene, relaxation routines, and cognitive behavioral strategies to help you get the restorative rest you need.",
+            hi: "अनिद्रा (Insomnia) और नींद संबंधी विकार मानसिक स्वास्थ्य को महत्वपूर्ण रूप से प्रभावित कर सकते हैं। यह समुदाय नींद की स्वच्छता, विश्राम दिनचर्या और संज्ञानात्मक व्यवहार रणनीतियों पर सुझाव साझा करता है ताकि आपको आवश्यक आराम मिल सके।"
+        },
+        "work-stress": {
+            en: "Burnout creates physical, emotional, and mental exhaustion caused by prolonged stress. We discuss setting boundaries, managing workload, and prioritizing self-care to maintain a healthy and sustainable career.",
+            hi: "बर्नआउट (Burnout) लंबे समय तक तनाव के कारण शारीरिक, भावनात्मक और मानसिक थकावट पैदा करता है। हम एक स्वस्थ और टिकाऊ करियर बनाए रखने के लिए सीमाएं निर्धारित करने, कार्यभार का प्रबंधन करने और आत्म-देखभाल को प्राथमिकता देने पर चर्चा करते हैं।"
+        }
+    };
+
+    const uiText = {
+        en: {
+            aboutGroup: "About this Group",
+            description: "Description",
+            members: "Members",
+            communityRules: "Community Rules",
+            rule1: "Respect everyone's journey. Zero tolerance for hate speech.",
+            rule2: "This is peer support, not professional medical advice.",
+            rule3: "Maintain anonymity and confidentiality.",
+            typeMessage: "Type a supportive message...",
+            leaveGroup: "Leave Group",
+            noMessages: "No messages yet. Be the first to say hi!",
+            aboutTitle: "About Group",
+            groupRulesTitle: "Group Rules",
+            ruleList: [
+                "Be respectful and kind.",
+                "No medical advice.",
+                "Respect privacy.",
+                "Report harmful content."
+            ]
+        },
+        hi: {
+            aboutGroup: "इस समूह के बारे में",
+            description: "विवरण",
+            members: "सदस्य",
+            communityRules: "सामुदायिक नियम",
+            rule1: "हर किसी की यात्रा का सम्मान करें। अभद्र भाषा के लिए शून्य सहिष्णुता।",
+            rule2: "यह सहकर्मी समर्थन है, पेशेवर चिकित्सा सलाह नहीं।",
+            rule3: "गुमनामी और गोपनीयता बनाए रखें।",
+            typeMessage: "एक सहायक संदेश लिखें...",
+            leaveGroup: "समूह छोड़ें",
+            noMessages: "अभी तक कोई संदेश नहीं। नमस्ते कहने वाले पहले व्यक्ति बनें!",
+            aboutTitle: "समूह के बारे में",
+            groupRulesTitle: "समूह के नियम",
+            ruleList: [
+                "सम्मानजनक और दयालु बनें।",
+                "कोई चिकित्सा सलाह नहीं।",
+                "गोपनीयता का सम्मान करें।",
+                "हानिकारक सामग्री की रिपोर्ट करें।"
+            ]
+        }
+    }
+
+    const t = uiText[language === 'hi' ? 'hi' : 'en'];
+
+    // Resolve group details based on language, falling back to English if needed
+    const baseGroup = GROUP_INFO[id as keyof typeof GROUP_INFO] || { name: "Community Group", members: 0, topic: "Support", description: "Welcome to the group." };
+
+    // If we have hindi names map them?
+    const localizedNames: Record<string, string> = {
+        "anxiety-warriors": "Anxiety Warriors (चिंता मुक्ति)",
+        "mindful-living": "Mindful Living (माइंडफुलनेस)",
+        "depression-support": "Depression Support (अवसाद सहायता)",
+        "social-confidence": "Social Confidence (सामाजिक आत्मविश्वास)",
+        "sleep-insomnia": "Sleep & Insomnia (नींद और अनिद्रा)",
+        "work-stress": "Work Stress (कार्य तनाव)"
+    };
+
+    const group = {
+        name: (language === 'hi' && localizedNames[id as string]) ? localizedNames[id as string] : baseGroup.name,
+        members: baseGroup.members,
+        topic: baseGroup.topic,
+        description: baseGroup.description, // We use detailedDescription mostly
+        detailedDescription: GROUP_DETAILS[id as string]?.[language === 'hi' ? 'hi' : 'en'] || baseGroup.description
+    }
 
     const [messages, setMessages] = React.useState<Message[]>([])
     const [inputValue, setInputValue] = React.useState("")
@@ -165,7 +264,7 @@ export default function GroupChatPage() {
                         <div>
                             <h1 className="font-semibold leading-none">{group.name}</h1>
                             <span className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-                                <Users className="h-3 w-3" /> {group.members} members
+                                <Users className="h-3 w-3" /> {group.members} {t.members}
                             </span>
                         </div>
                     </div>
@@ -178,26 +277,25 @@ export default function GroupChatPage() {
                             </SheetTrigger>
                             <SheetContent>
                                 <SheetHeader>
-                                    <SheetTitle>About Group</SheetTitle>
+                                    <SheetTitle>{t.aboutTitle}</SheetTitle>
                                 </SheetHeader>
                                 <div className="py-6 space-y-6">
                                     <div>
-                                        <h4 className="text-sm font-medium mb-2">Description</h4>
+                                        <h4 className="text-sm font-medium mb-2">{t.description}</h4>
                                         <p className="text-sm text-muted-foreground leading-relaxed">{group.description}</p>
                                     </div>
                                     <Separator />
                                     <div>
-                                        <h4 className="text-sm font-medium mb-2">Group Rules</h4>
+                                        <h4 className="text-sm font-medium mb-2">{t.groupRulesTitle}</h4>
                                         <ul className="text-sm text-muted-foreground space-y-2 list-disc list-inside">
-                                            <li>Be respectful and kind.</li>
-                                            <li>No medical advice.</li>
-                                            <li>Respect privacy.</li>
-                                            <li>Report harmful content.</li>
+                                            {t.ruleList.map((rule, idx) => (
+                                                <li key={idx}>{rule}</li>
+                                            ))}
                                         </ul>
                                     </div>
                                     <Separator />
                                     <div className="flex justify-center">
-                                        <Button variant="outline" className="w-full border-red-200 text-red-500 hover:bg-red-50 hover:text-red-600">Leave Group</Button>
+                                        <Button variant="outline" className="w-full border-red-200 text-red-500 hover:bg-red-50 hover:text-red-600">{t.leaveGroup}</Button>
                                     </div>
                                 </div>
                             </SheetContent>
@@ -208,7 +306,7 @@ export default function GroupChatPage() {
                 <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4">
                     {messages.length === 0 ? (
                         <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
-                            No messages yet. Be the first to say hi!
+                            {t.noMessages}
                         </div>
                     ) : (
                         messages.map((msg) => (
@@ -233,7 +331,7 @@ export default function GroupChatPage() {
                 <div className="p-4 md:p-6 border-t bg-background/95 backdrop-blur">
                     <div className="max-w-2xl mx-auto flex gap-2">
                         <Input
-                            placeholder="Type a supportive message..."
+                            placeholder={t.typeMessage}
                             value={inputValue}
                             onChange={(e) => setInputValue(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
@@ -248,19 +346,19 @@ export default function GroupChatPage() {
 
             {/* Right Panel (Desktop) */}
             <div className="hidden lg:block w-80 border-l p-6 bg-card/30">
-                <h3 className="font-semibold mb-6">About this Group</h3>
+                <h3 className="font-semibold mb-6">{t.aboutGroup}</h3>
                 <div className="space-y-6">
                     <div className="p-4 bg-background/50 rounded-lg border text-center">
                         <h4 className="font-medium text-2xl text-primary">{group.members}</h4>
-                        <span className="text-xs text-muted-foreground uppercase tracking-wider">Members</span>
+                        <span className="text-xs text-muted-foreground uppercase tracking-wider">{t.members}</span>
                     </div>
 
                     <div>
                         <h4 className="text-sm font-medium mb-3 flex items-center gap-2">
                             <Info className="h-4 w-4 text-primary" />
-                            Description
+                            {t.description}
                         </h4>
-                        <p className="text-sm text-muted-foreground leading-relaxed">{group.description}</p>
+                        <p className="text-sm text-muted-foreground leading-relaxed">{group.detailedDescription || group.description}</p>
                     </div>
 
                     <Separator />
@@ -268,20 +366,20 @@ export default function GroupChatPage() {
                     <div>
                         <h4 className="text-sm font-medium mb-3 flex items-center gap-2">
                             <Shield className="h-4 w-4 text-primary" />
-                            Community Rules
+                            {t.communityRules}
                         </h4>
                         <ul className="text-xs text-muted-foreground space-y-3">
                             <li className="flex gap-2">
                                 <div className="h-1.5 w-1.5 rounded-full bg-primary/40 mt-1.5 shrink-0" />
-                                Respect everyone's journey. Zero tolerance for hate speech.
+                                {t.rule1}
                             </li>
                             <li className="flex gap-2">
                                 <div className="h-1.5 w-1.5 rounded-full bg-primary/40 mt-1.5 shrink-0" />
-                                This is peer support, not professional medical advice.
+                                {t.rule2}
                             </li>
                             <li className="flex gap-2">
                                 <div className="h-1.5 w-1.5 rounded-full bg-primary/40 mt-1.5 shrink-0" />
-                                Maintain anonymity and confidentiality.
+                                {t.rule3}
                             </li>
                         </ul>
                     </div>

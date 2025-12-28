@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+
 import { DOCTORS } from "@/data/doctors"
 import { DoctorCard } from "@/components/doctors/DoctorCard"
 import { Button } from "@/components/ui/button"
@@ -8,37 +8,9 @@ import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 
 export default function DoctorsPage() {
-    const [doctors, setDoctors] = useState<any[]>([])
-    const [loading, setLoading] = useState(true)
-
-    useEffect(() => {
-        async function fetchDoctors() {
-            try {
-                const res = await fetch("/api/doctors")
-                const data = await res.json()
-                if (Array.isArray(data)) {
-                    // Map DB fields to Component fields
-                    const mapped = data.map((d: any) => ({
-                        id: d.profileId,
-                        name: d.fullName,
-                        specialization: Array.isArray(d.specializations) ? d.specializations.join(", ") : d.specializations,
-                        rating: 4.8, // Default or fetch reviews later
-                        reviews: 0,
-                        image: "/default-avatar.png", // detailed images later
-                        price: d.perSessionFee,
-                        isAvailable: true,
-                        nextAvailableSlot: "Today, 4:00 PM"
-                    }))
-                    setDoctors(mapped)
-                }
-            } catch (error) {
-                console.error("Failed to fetch doctors", error)
-            } finally {
-                setLoading(false)
-            }
-        }
-        fetchDoctors()
-    }, [])
+    // Use static data directly
+    const doctors = DOCTORS
+    const loading = false
 
     return (
         <div className="container mx-auto px-4 py-8">
@@ -56,20 +28,16 @@ export default function DoctorsPage() {
                 </div>
             </header>
 
-            {loading ? (
-                <div className="text-center py-10">Loading specialists...</div>
-            ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {doctors.map((doctor) => (
-                        <DoctorCard key={doctor.id} doctor={doctor} />
-                    ))}
-                    {doctors.length === 0 && (
-                        <div className="col-span-full text-center text-muted-foreground">
-                            No specialists found at the moment.
-                        </div>
-                    )}
-                </div>
-            )}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {doctors.map((doctor) => (
+                    <DoctorCard key={doctor.id} doctor={doctor} />
+                ))}
+                {doctors.length === 0 && (
+                    <div className="col-span-full text-center text-muted-foreground">
+                        No specialists found at the moment.
+                    </div>
+                )}
+            </div>
 
             <div className="mt-12 p-6 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/50 rounded-lg text-center">
                 <h3 className="text-lg font-semibold text-amber-800 dark:text-amber-200 mb-2">Need Immediate Help?</h3>
@@ -83,3 +51,5 @@ export default function DoctorsPage() {
         </div>
     )
 }
+
+
