@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import DoctorModel from "@/components/DoctorModel";
+import DoctorModelWrapper from "@/components/DoctorModelWrapper";
 
 export default function Home() {
   return (
@@ -46,7 +46,7 @@ export default function Home() {
 
           {/* 3D Model Embed */}
           <div className="flex-1 w-full max-w-[600px] aspect-square relative">
-            <DoctorModel />
+            <DoctorModelWrapper />
           </div>
         </section>
 
