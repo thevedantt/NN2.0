@@ -39,3 +39,34 @@ export const userProfiles = pgTable('user_profiles', {
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull().$onUpdate(() => new Date()),
 });
+
+// 4️⃣ AI Chat Sessions
+export const aiChatSessions = pgTable('ai_chat_sessions', {
+    sessionId: serial('session_id').primaryKey(),
+    userId: varchar('user_id', { length: 255 }).notNull(),
+    language: varchar('language', { length: 10 }).default('en').notNull(),
+    startedAt: timestamp('started_at').defaultNow().notNull(),
+    endedAt: timestamp('ended_at'),
+    summary: text('summary'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+// 5️⃣ AI Chat Messages
+export const aiChatMessages = pgTable('ai_chat_messages', {
+    messageId: serial('message_id').primaryKey(),
+    sessionId: integer('session_id').references(() => aiChatSessions.sessionId).notNull(),
+    sender: varchar('sender', { length: 20 }).notNull(), // 'user' | 'ai'
+    messageText: text('message_text').notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+// 6️⃣ AI Chat Insights
+export const aiChatInsights = pgTable('ai_chat_insights', {
+    insightId: serial('insight_id').primaryKey(),
+    sessionId: integer('session_id').references(() => aiChatSessions.sessionId).notNull(),
+    currentTopic: varchar('current_topic', { length: 255 }),
+    emotionalTone: json('emotional_tone'), // e.g. { "Calmness": 75, "Anxiety": 10 }
+    suggestionText: text('suggestion_text'),
+    language: varchar('language', { length: 10 }).default('en'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+});
