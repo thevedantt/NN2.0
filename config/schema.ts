@@ -1,5 +1,30 @@
 
-import { pgTable, serial, text, timestamp, json, boolean, varchar, integer, date } from 'drizzle-orm/pg-core';
+import { pgTable, serial, text, timestamp, json, boolean, varchar, integer, date, uuid } from 'drizzle-orm/pg-core';
+
+// 0️⃣ Users Auth Table
+export const users = pgTable('users', {
+    id: uuid('id').defaultRandom().primaryKey(),
+    email: varchar('email', { length: 255 }).notNull().unique(),
+    passwordHash: text('password_hash').notNull(),
+    role: varchar('role', { length: 20 }).default('user').notNull(), // 'user', 'therapist', 'buddy'
+    isOnboardingComplete: boolean('is_onboarding_complete').default(false).notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+// 1.5️⃣ Therapist Profiles Table
+export const therapistProfiles = pgTable('therapist_profiles', {
+    profileId: uuid('profile_id').defaultRandom().primaryKey(),
+    userId: uuid('user_id').references(() => users.id).notNull().unique(),
+    fullName: varchar('full_name', { length: 255 }).notNull(),
+    mobileNumber: varchar('mobile_number', { length: 20 }),
+    licenseNumber: varchar('license_number', { length: 100 }),
+    specializations: json('specializations').notNull(), // Array of strings
+    perSessionFee: integer('per_session_fee').notNull(),
+    preferredSessionType: varchar('preferred_session_type', { length: 50 }), // 'Video', 'Audio', 'Both'
+    isVerified: boolean('is_verified').default(false).notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull().$onUpdate(() => new Date()),
+});
 
 // 1️⃣ Doctors Table
 export const doctors = pgTable('doctors', {

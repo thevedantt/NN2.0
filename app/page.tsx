@@ -35,8 +35,8 @@ export default function Home() {
               Experience the future of mental wellness.
             </p>
             <div className="flex flex-wrap gap-4 justify-center md:justify-start">
-              <Link href="/chat-ai">
-                <Button size="lg" className="h-12 px-8">Start Chatting</Button>
+              <Link href="/auth/register">
+                <Button size="lg" className="h-12 px-8">Get Started</Button>
               </Link>
               <Link href="/doctors">
                 <Button variant="outline" size="lg" className="h-12 px-8">Book Consultation</Button>
