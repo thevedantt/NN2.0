@@ -8,14 +8,50 @@ import { verifyAccessToken } from '@/lib/auth';
 const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY;
 
 // Helper to get authenticated user ID
+// Helper to get authenticated user ID
 async function getUserId() {
     const cookieStore = await cookies();
     const token = cookieStore.get('auth_token')?.value;
 
-    if (!token) return null;
+    if (!token) {
+        console.log("[YouTube Feed API] Auth failed: No token found in cookies.");
+        return null; // No token
+    }
 
     const payload = await verifyAccessToken(token);
-    return payload ? (payload.sub as string) : null;
+
+    if (!payload) {
+        console.log("[YouTube Feed API] Auth failed: Token verification failed.");
+        return null;
+    }
+
+    return payload.sub as string;
+}
+
+// Helper to fetch from YouTube
+async function fetchFromYouTube(query: string, maxResults: number) {
+    if (!YOUTUBE_API_KEY) return [];
+
+    try {
+        const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=${maxResults}&q=${encodeURIComponent(query)}&type=video&videoEmbeddable=true&key=${YOUTUBE_API_KEY}`;
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (!res.ok) {
+            console.error("YouTube API Error for query:", query, data);
+            return [];
+        }
+
+        return data.items.map((item: any) => ({
+            id: item.id.videoId,
+            title: item.snippet.title,
+            thumbnail: item.snippet.thumbnails.medium.url,
+            channelTitle: item.snippet.channelTitle
+        }));
+    } catch (error) {
+        console.error("YouTube Fetch Error:", error);
+        return [];
+    }
 }
 
 export async function GET(req: Request) {
@@ -29,63 +65,53 @@ export async function GET(req: Request) {
         const profiles = await db.select().from(userProfiles).where(eq(userProfiles.userId, userId));
         const profile = profiles[0];
 
-        if (!profile) {
-            return NextResponse.json({ videos: [], message: "No profile found" });
+        // Defaults
+        let comedyQuery = "standup comedy";
+        let musicQuery = "relaxing music";
+
+        // Personalized Queries
+        if (profile) {
+            const entertainment = profile.entertainment as Record<string, any> | null;
+            const music = profile.musicDetails as Record<string, any> | null;
+
+            // 1. Comedy
+            const favComedian = entertainment?.favoriteComedian;
+            if (favComedian) {
+                comedyQuery = `${favComedian} standup comedy`;
+            }
+
+            // 2. Music (Comfort Artist)
+            const comfortArtist = entertainment?.comfortArtist || music?.artist;
+            if (comfortArtist) {
+                musicQuery = `${comfortArtist} most popular song`;
+            }
         }
 
-        // --- QUERY CONSTRUCTION LOGIC ---
+        // 3. Spiritual (Random Selection)
+        const spiritualQueries = ["Hanuman Chalisa", "Gayatri Mantra", "Peaceful Bhajan", "Calm Mediation Types"];
+        const spiritualQuery = spiritualQueries[Math.floor(Math.random() * spiritualQueries.length)];
 
-        let searchQuery = "";
-        const socialPrefs = profile.socialPreferences as Record<string, string> | null;
-        const entertainment = profile.entertainment as Record<string, any> | null;
+        console.log(`[YouTube API] Queries - Comedy: "${comedyQuery}", Music: "${musicQuery}", Spiritual: "${spiritualQuery}"`);
 
-        const youtubePref = socialPrefs?.['youtube'];
-        const favComedian = entertainment?.favoriteComedian;
-
-        if (youtubePref && favComedian) {
-            // Combine both for highly personalized result
-            // e.g. "Anubhav Singh Bassi Standup comedies videos"
-            searchQuery = `${favComedian} ${youtubePref}`;
-        } else if (favComedian) {
-            // Fallback: Comedian + context
-            searchQuery = `${favComedian} standup comedy`;
-        } else if (youtubePref) {
-            // Fallback: Just the preference
-            searchQuery = youtubePref;
-        } else {
-            // General Fallback if nothing specific
-            searchQuery = "motivational videos";
-        }
-
-        console.log(`[YouTube API] Generated Query for User ${userId}: "${searchQuery}"`);
-
-        // Call YouTube Data API
         if (!YOUTUBE_API_KEY) {
             console.error("Missing YOUTUBE_API_KEY env var");
-            return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
+            // Return mocks or empty if no key, but better to error so frontend handles it
+            // Actually, for dev without key, let's return a specific error
+            return NextResponse.json({ error: "Configuration Error: No YouTube API Key" }, { status: 500 });
         }
 
-        const ytUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=6&q=${encodeURIComponent(searchQuery)}&type=video&key=${YOUTUBE_API_KEY}`;
-
-        const ytRes = await fetch(ytUrl);
-        const ytData = await ytRes.json();
-
-        if (!ytRes.ok) {
-            console.error("YouTube API Error:", ytData);
-            return NextResponse.json({ error: "Failed to fetch videos" }, { status: ytRes.status });
-        }
-
-        // Transform results for frontend
-        const videos = ytData.items.map((item: any) => ({
-            id: item.id.videoId,
-            title: item.snippet.title,
-            thumbnail: item.snippet.thumbnails.medium.url,
-            channelTitle: item.snippet.channelTitle
-        }));
+        const [comedyVideos, musicVideos, spiritualVideos] = await Promise.all([
+            fetchFromYouTube(comedyQuery, 2),
+            fetchFromYouTube(musicQuery, 1),
+            fetchFromYouTube(spiritualQuery, 1)
+        ]);
 
         return NextResponse.json({
-            query: searchQuery,
-            videos
+            categories: {
+                comedy: comedyVideos,
+                music: musicVideos,
+                spiritual: spiritualVideos
+            }
         });
 
     } catch (error) {

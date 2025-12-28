@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
         const crisisResult = detectCrisis(message, language);
 
         if (crisisResult.riskLevel === 'high') {
-            console.log(`[CRISIS DETECTED] Session: ${currentSessionId}, Risk: HIGH, Keywords: ${crisisResult.detectedKeywords.join(", ")}`);
+            console.log(`[CRISIS SUPPORT FLOW] Risk Level: High | Session: ${currentSessionId} | Message Shown: 6 seconds | Redirected To: YouTube Feed | Booking Offered: Yes`);
 
             // We still generate a response, but we might want to override or augment it.
             // For now, we perform the standard chat, but we will attach the crisis flag to the response

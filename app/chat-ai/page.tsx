@@ -40,7 +40,7 @@ export default function ChatPage() {
             {
                 id: "1",
                 role: "ai",
-                content: greetings[language],
+                content: greetings[language as keyof typeof greetings] || greetings.en,
                 timestamp: new Date(),
                 emotion: "warmth"
             }
@@ -56,14 +56,14 @@ export default function ChatPage() {
 
     // Crisis Alert State
     const [showCrisisAlert, setShowCrisisAlert] = React.useState(false)
-    const [redirectCountdown, setRedirectCountdown] = React.useState(5)
+    const [redirectCountdown, setRedirectCountdown] = React.useState(6)
 
     React.useEffect(() => {
         let timer: NodeJS.Timeout
         if (showCrisisAlert && redirectCountdown > 0) {
             timer = setTimeout(() => setRedirectCountdown(prev => prev - 1), 1000)
         } else if (showCrisisAlert && redirectCountdown === 0) {
-            window.location.href = "/doctors"
+            window.location.href = "/youtube-feed"
         }
         return () => clearTimeout(timer)
     }, [showCrisisAlert, redirectCountdown])
@@ -157,7 +157,6 @@ export default function ChatPage() {
     }
 
     const handleSummarize = async () => {
-        // ... (existing implementation)
         if (!sessionId) return
         setIsSummarizing(true)
         try {
@@ -186,29 +185,32 @@ export default function ChatPage() {
         <div className="flex h-full max-h-screen overflow-hidden w-full relative">
             {/* Crisis Alert Overlay */}
             {showCrisisAlert && (
-                <div className="absolute inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-300">
-                    <Card className="w-full max-w-md p-6 border-red-200 bg-red-50/90 dark:bg-red-950/20 shadow-lg text-center space-y-4">
-                        <div className="h-12 w-12 rounded-full bg-red-100 text-red-600 mx-auto flex items-center justify-center">
-                            <span className="text-2xl">❤️</span>
-                        </div>
-                        <h2 className="text-xl font-semibold text-red-900 dark:text-red-200">
-                            {language === 'hi' ? "हम आपके साथ हैं" : "We are here for you"}
-                        </h2>
-                        <p className="text-sm text-red-800/80 dark:text-red-300/80 leading-relaxed">
-                            {language === 'hi'
-                                ? "ऐसा लगता है कि आप कठिन समय से गुजर रहे हैं। हम आपको एक पेशेवर से बात करने की सलाह देते हैं।"
-                                : "It sounds like you're going through a difficult time. We detected high distress and strongly recommend speaking with a professional."}
-                        </p>
+                <div className="absolute inset-0 z-50 bg-background/95 backdrop-blur-md flex items-center justify-center p-6 animate-in fade-in duration-500">
+                    <Card className="w-full max-w-2xl p-8 border-none bg-transparent shadow-none text-center space-y-6">
 
-                        <div className="py-2">
-                            <Button className="w-full bg-red-600 hover:bg-red-700 text-white" onClick={() => window.location.href = "/doctors"}>
-                                {language === 'hi' ? "विशेषज्ञ से अभी बात करें" : "Speak to a Professional Now"}
-                            </Button>
+                        <div className="space-y-4">
+                            <h2 className="text-2xl md:text-3xl font-semibold text-foreground tracking-tight leading-snug">
+                                {language === 'hi'
+                                    ? "आप जो महसूस कर रहे हैं, वह गंभीर है और महत्वपूर्ण है।"
+                                    : "What you’re feeling right now is serious, and it matters."}
+                            </h2>
+                            <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-xl mx-auto">
+                                {language === 'hi'
+                                    ? "खुद को नुकसान पहुँचाना समाधान नहीं है — मदद उपलब्ध है और आप इसके हक़दार हैं। चलिए कुछ पल शांति से लेते हैं।"
+                                    : "Hurting yourself is not the solution — support is available, and you deserve it. Let’s take a moment to slow things down together."}
+                            </p>
                         </div>
 
-                        <p className="text-xs text-muted-foreground">
-                            {language === 'hi' ? `आपको ${redirectCountdown} सेकंड में निर्देशित किया जा रहा है...` : `Redirecting you to help in ${redirectCountdown} seconds...`}
-                        </p>
+                        {/* Visual Timer Indicator */}
+                        <div className="flex justify-center py-6">
+                            <div className="h-1 w-24 bg-primary/20 rounded-full overflow-hidden">
+                                <div
+                                    className="h-full bg-primary transition-all duration-1000 ease-linear"
+                                    style={{ width: `${(redirectCountdown / 6) * 100}%` }}
+                                />
+                            </div>
+                        </div>
+
                     </Card>
                 </div>
             )}
@@ -354,11 +356,6 @@ export default function ChatPage() {
                             <Sparkles className="h-4 w-4 text-primary" />
                             Live Insights
                         </h3>
-                        {/* {sessionId && (
-                            <Button size="sm" variant="outline" className="h-7 text-xs" onClick={handleSummarize} disabled={isSummarizing}>
-                                {isSummarizing ? (language === 'hi' ? 'सारांश...' : 'Summarizing...') : (language === 'hi' ? 'सारांश' : 'Summarize')}
-                            </Button>
-                        )} */}
                     </div>
                     <div className="flex-1 overflow-y-auto p-4 space-y-4">
                         <Card className="p-4 bg-background/50 border-border/60 shadow-none">

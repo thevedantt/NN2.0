@@ -6,6 +6,7 @@ import { StreakCard } from "@/components/dashboard/streak-card"
 import { QuickActions } from "@/components/dashboard/quick-actions"
 import { UpcomingAppointments } from "@/components/dashboard/appointments"
 import { ProgressIndicators } from "@/components/dashboard/progress-indicators"
+import { YoutubeFeed } from "@/components/dashboard/YoutubeFeed"
 import { ModeToggle } from "@/components/mode-toggle"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -62,7 +63,13 @@ export default function DashboardPage() {
               Wait, ProgressIndicators returns a Fragment with 2 Cards. Each Card has `lg:col-span-2`.
               So passing them here will fill Row 3 nicely (2 + 2 = 4).
           */}
+                {/* Row 3: Progress Indicators */}
                 <ProgressIndicators />
+
+                {/* Row 4: Personalized Content */}
+                <div className="col-span-1 md:col-span-2 lg:col-span-4">
+                    <YoutubeFeed />
+                </div>
             </div>
         </div>
     )
