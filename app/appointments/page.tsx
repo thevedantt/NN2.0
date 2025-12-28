@@ -28,12 +28,12 @@ const APPOINTMENTS = [
     },
     {
         id: "2",
-        therapist: "Dr. Sneha Gupta",
+        therapist: "Dr. Rahul Mehta",
         type: "Video Session",
         date: new Date(2025, 11, 20, 10, 0),
         duration: "50 min",
         status: "completed",
-        avatar: "SG"
+        avatar: "RM"
     }
 ]
 

@@ -12,7 +12,12 @@ import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Bell, Search } from "lucide-react"
 
+import { LanguageToggle } from "@/components/language-toggle"
+import { useLanguage } from "@/context/LanguageContext"
+
 export default function DashboardPage() {
+    const { t } = useLanguage()
+
     return (
         <div className="flex flex-col h-full w-full bg-background p-6 space-y-6">
             {/* Header */}
@@ -20,19 +25,20 @@ export default function DashboardPage() {
                 <div className="flex items-center gap-2">
 
                     <div className="flex flex-col">
-                        <h1 className="text-2xl font-bold tracking-tight text-foreground">Good Morning, Alex!</h1>
-                        <p className="text-muted-foreground">Here&apos;s your wellness overview.</p>
+                        <h1 className="text-2xl font-bold tracking-tight text-foreground">{t('greeting')}</h1>
+                        <p className="text-muted-foreground">{t('greeting_subtitle')}</p>
                     </div>
                 </div>
 
                 <div className="flex items-center gap-2 w-full md:w-auto">
                     <div className="relative w-full md:w-64">
                         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <Input type="search" placeholder="Search..." className="pl-8 bg-card ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring" />
+                        <Input type="search" placeholder={t('search_placeholder')} className="pl-8 bg-card ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring" />
                     </div>
                     <Button variant="ghost" size="icon" className="shrink-0 text-muted-foreground hover:text-foreground">
                         <Bell className="h-5 w-5" />
                     </Button>
+                    <LanguageToggle />
                     <ModeToggle />
                     <Avatar>
                         <AvatarImage src="" alt="User" />

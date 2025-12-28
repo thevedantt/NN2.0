@@ -3,6 +3,7 @@ import { Poppins } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AppointmentProvider } from "@/context/AppointmentContext";
+import { LanguageProvider } from "@/context/LanguageContext";
 import { Toaster } from "@/components/ui/sonner";
 
 const poppins = Poppins({
@@ -32,10 +33,12 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <AppointmentProvider>
-            {children}
-            <Toaster />
-          </AppointmentProvider>
+          <LanguageProvider>
+            <AppointmentProvider>
+              {children}
+              <Toaster />
+            </AppointmentProvider>
+          </LanguageProvider>
         </ThemeProvider>
       </body>
     </html>

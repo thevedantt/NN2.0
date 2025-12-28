@@ -27,18 +27,6 @@ export const DOCTORS: Doctor[] = [
     },
     {
         id: "d2",
-        name: "Dr. Sneha Gupta",
-        image: "/thp3.jpg",
-        specialization: "Career Stress & Burnout",
-        experience: 12,
-        languages: ["English", "Hindi", "Gujarati"],
-        description: "Helping professionals navigate workplace stress, burnout, and career transitions.",
-        availability: ["Tue", "Thu"],
-        price: 699,
-        rating: 4.8
-    },
-    {
-        id: "d3",
         name: "Dr. Rahul Mehta",
         image: "/thp2.jpg",
         specialization: "Trauma & PTSD",
@@ -48,6 +36,18 @@ export const DOCTORS: Doctor[] = [
         availability: ["Mon", "Thu", "Sat"],
         price: 599,
         rating: 4.9
+    },
+    {
+        id: "d3",
+        name: "Dr. Sneha Gupta",
+        image: "/thp3.jpg",
+        specialization: "Career Stress & Burnout",
+        experience: 12,
+        languages: ["English", "Hindi", "Gujarati"],
+        description: "Helping professionals navigate workplace stress, burnout, and career transitions.",
+        availability: ["Tue", "Thu"],
+        price: 699,
+        rating: 4.8
     },
     {
         id: "d4",
