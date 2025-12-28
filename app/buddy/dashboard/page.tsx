@@ -46,7 +46,7 @@ const stories = [
 const recentConnections = [
     {
         id: "1",
-        name: "Alex M.",
+        name: "Aarav M.",
         image: "/avatars/01.png",
         lastMsg: "Thanks for listening yesterday!",
         time: "2h ago",
@@ -55,7 +55,7 @@ const recentConnections = [
     },
     {
         id: "2",
-        name: "Jordan T.",
+        name: "Jatin T.",
         image: "/avatars/02.png",
         lastMsg: "Can we reschedule?",
         time: "5h ago",
@@ -64,7 +64,7 @@ const recentConnections = [
     },
     {
         id: "3",
-        name: "Casey R.",
+        name: "Kavya R.",
         image: "/avatars/03.png",
         lastMsg: "I tried that breathing exercise.",
         time: "1d ago",
@@ -76,14 +76,14 @@ const recentConnections = [
 const pendingRequests = [
     {
         id: "r1",
-        name: "Sam Wilson",
+        name: "Sameer W.",
         image: "/avatars/04.png",
         interests: ["Gaming", "Anxiety"],
         match: 85,
     },
     {
         id: "r2",
-        name: "Taylor J.",
+        name: "Tanvi J.",
         image: "/avatars/05.png",
         interests: ["Art", "Depression"],
         match: 92,

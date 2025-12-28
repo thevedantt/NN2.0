@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { Search, MessageCircle, MoreHorizontal, UserCheck, Calendar } from "lucide-react"
+import { Search, MessageCircle, MoreHorizontal, UserCheck, Calendar, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -12,11 +12,11 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { cn } from "@/lib/utils"
 
 const CONNECTIONS = [
-    { id: "1", name: "Alex Rivers", handle: "@arivers", avatar: "AR", lastActive: "2 min ago", status: "online", mood: "Calm" },
-    { id: "2", name: "Jamie Chen", handle: "@jchen", avatar: "JC", lastActive: "1 hr ago", status: "offline", mood: "Reflective" },
-    { id: "3", name: "Sam Smith", handle: "@ssmith", avatar: "SS", lastActive: "Active today", status: "offline", mood: "Anxious" },
-    { id: "4", name: "Casey Wu", handle: "@cwu", avatar: "CW", lastActive: "Yesterday", status: "offline", mood: "Hopeful" },
-    { id: "5", name: "Jordan Lee", handle: "@jlee", avatar: "JL", lastActive: "2 days ago", status: "offline", mood: "Tired" },
+    { id: "1", name: "Aarav Rao", handle: "@arao", avatar: "AR", lastActive: "2 min ago", status: "online", mood: "Calm" },
+    { id: "2", name: "Jay Chopra", handle: "@jchopra", avatar: "JC", lastActive: "1 hr ago", status: "offline", mood: "Reflective" },
+    { id: "3", name: "Sameer S.", handle: "@sameer", avatar: "SS", lastActive: "Active today", status: "offline", mood: "Anxious" },
+    { id: "4", name: "Kavya Verma", handle: "@kavya", avatar: "KV", lastActive: "Yesterday", status: "offline", mood: "Hopeful" },
+    { id: "5", name: "Jatin L.", handle: "@jatin", avatar: "JL", lastActive: "2 days ago", status: "offline", mood: "Tired" },
 ]
 
 export default function ConnectionsPage() {

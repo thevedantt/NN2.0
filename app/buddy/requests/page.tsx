@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils"
 const REQUESTS = [
     {
         id: "1",
-        name: "Taylor Reed",
+        name: "Tanvi Rao",
         avatar: "TR",
         matchPercent: 95,
         sharedInterests: ["Anxiety Mgmt", "Meditation", "Art Therapy"],
@@ -22,7 +22,7 @@ const REQUESTS = [
     },
     {
         id: "2",
-        name: "Alex Morgan",
+        name: "Aarav Mehta",
         avatar: "AM",
         matchPercent: 82,
         sharedInterests: ["Work Stress", "Yoga"],
@@ -31,7 +31,7 @@ const REQUESTS = [
     },
     {
         id: "3",
-        name: "Chris P.",
+        name: "Chetan P.",
         avatar: "CP",
         matchPercent: 65,
         sharedInterests: ["General Support"],
