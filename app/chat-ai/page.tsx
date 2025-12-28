@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+// import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { cn } from "@/lib/utils"
 import { useLanguage } from "@/context/LanguageContext"
 
@@ -31,6 +32,8 @@ export default function ChatPage() {
 
     const [input, setInput] = React.useState("")
     const [messages, setMessages] = React.useState<Message[]>([])
+    const [sessionId, setSessionId] = React.useState<number | null>(null)
+    const [lastInsight, setLastInsight] = React.useState<any>(null)
 
     // Set initial greeting based on language
     React.useEffect(() => {
@@ -48,6 +51,9 @@ export default function ChatPage() {
     const [status, setStatus] = React.useState<"Listening" | "Thinking" | "Idle">("Listening")
     const [showInsight, setShowInsight] = React.useState(true)
     const [isTyping, setIsTyping] = React.useState(false)
+    const [summary, setSummary] = React.useState<string | null>(null)
+    const [isSummarizing, setIsSummarizing] = React.useState(false)
+    const [showSummaryDialog, setShowSummaryDialog] = React.useState(false)
 
     // Auto-scroll
     const scrollRef = React.useRef<HTMLDivElement>(null)
@@ -73,44 +79,6 @@ export default function ChatPage() {
         setStatus("Thinking")
         setIsTyping(true)
 
-        // define system prompt based on language
-        const systemPrompts = {
-            en: `Act as a qualified psychiatrist-style mental health professional, providing empathetic, supportive, and structured emotional guidance.
-Your responsibilities:
-- Listen actively and respond with empathy
-- Ask gentle, open-ended questions
-- Help users reflect on emotions and thoughts
-- Offer coping strategies and grounding techniques
-- Encourage professional help when needed
-
-Important rules:
-- Do NOT give medical diagnoses
-- Do NOT prescribe medication
-- Do NOT replace a real psychiatrist
-- Use simple, reassuring language
-- If user shows distress, respond calmly and supportively
-
-Your tone must always be:
-Calm, respectful, non-judgmental, and patient-centric.`,
-            hi: `एक अनुभवी मनोचिकित्सक (Psychiatrist) की तरह व्यवहार करें, जो उपयोगकर्ता को समझने, सहारा देने और भावनाओं को सुलझाने में मदद करता है।
-आपकी ज़िम्मेदारियाँ:
-- ध्यान से सुनना और सहानुभूति के साथ जवाब देना
-- धीरे-धीरे, खुले सवाल पूछना
-- भावनाओं और विचारों पर सोचने में मदद करना
-- सरल coping techniques और calming exercises सुझाना
-- ज़रूरत पड़ने पर पेशेवर मदद लेने के लिए प्रोत्साहित करना
-
-महत्वपूर्ण नियम:
-- कोई बीमारी का निदान (diagnosis) न करें
-- दवाइयों की सलाह न दें
-- खुद को असली डॉक्टर का विकल्प न बताएं
-- भाषा सरल और भरोसेमंद रखें
-- अगर उपयोगकर्ता परेशान लगे, तो शांत और सहायक जवाब दें
-
-आपका व्यवहार हमेशा:
-शांत, सम्मानजनक, बिना जजमेंट और उपयोगकर्ता-केंद्रित होना चाहिए।`
-        };
-
         try {
             const response = await fetch("/api/chat", {
                 method: "POST",
@@ -118,27 +86,44 @@ Calm, respectful, non-judgmental, and patient-centric.`,
                 body: JSON.stringify({
                     message: userMessage.content,
                     history: messages.map(m => ({ role: m.role, content: m.content })),
-                    systemPrompt: systemPrompts[language]
+                    sessionId: sessionId,
+                    language: language
                 })
             })
 
             const data = await response.json()
 
             if (response.ok) {
+                // Parse the content if it's a stringified JSON (handling double encoding if any)
+                // The API should preferrably return objects. 
+                // Assuming API returns { content: "...", emotion: "...", insight: {...}, sessionId: ... } directly if it parses AI output,
+                // OR if it returns raw AI JSON.
+
+                // Let's assume API returns standard fields:
+                if (data.sessionId) setSessionId(data.sessionId)
+                if (data.insight) setLastInsight(data.insight)
+
                 const aiMessage: Message = {
                     id: (Date.now() + 1).toString(),
                     role: "ai",
-                    content: data.content,
+                    content: data.content, // extracted text response
                     timestamp: new Date(),
                     emotion: data.emotion || "neutral"
                 }
                 setMessages(prev => [...prev, aiMessage])
             } else {
                 console.error("Failed to get response:", data.error)
+
+                let errorMessage = language === 'hi' ? "मुझे कनेक्ट करने में थोड़ी परेशानी हो रही है। क्या हम फिर से कोशिश कर सकते हैं?" : "I'm having a little trouble connecting right now. Can we try again?";
+
+                if (response.status === 429) {
+                    errorMessage = language === 'hi' ? "कोटा सीमा पार हो गई है। कृपया थोड़ी देर बाद प्रयास करें।" : "Quota limit exceeded. Please try again later.";
+                }
+
                 setMessages(prev => [...prev, {
                     id: Date.now().toString(),
                     role: "ai",
-                    content: language === 'hi' ? "मुझे कनेक्ट करने में थोड़ी परेशानी हो रही है। क्या हम फिर से कोशिश कर सकते हैं?" : "I'm having a little trouble connecting right now. Can we try again?",
+                    content: errorMessage,
                     timestamp: new Date(),
                     emotion: "neutral"
                 }])
@@ -155,6 +140,33 @@ Calm, respectful, non-judgmental, and patient-centric.`,
         } finally {
             setStatus("Listening")
             setIsTyping(false)
+        }
+    }
+
+    const handleSummarize = async () => {
+        if (!sessionId) return
+        setIsSummarizing(true)
+        try {
+            const res = await fetch("/api/chat/summarize", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ sessionId, language })
+            })
+            const data = await res.json()
+            if (res.ok) {
+                setSummary(data.summary)
+                // setShowSummaryDialog(true) // No longer using dialog
+            } else {
+                console.error("Summarization error:", data.error)
+                // Assuming status 429 logic might be handled in a more global way or here simply
+                if (res.status === 429) {
+                    setSummary(language === 'hi' ? "कोटा सीमा पार हो गई है। कृपया थोड़ी देर बाद प्रयास करें।" : "Quota limit exceeded. Please try again later.")
+                }
+            }
+        } catch (err) {
+            console.error("Summarization failed:", err)
+        } finally {
+            setIsSummarizing(false)
         }
     }
 
@@ -295,18 +307,24 @@ Calm, respectful, non-judgmental, and patient-centric.`,
             {/* Insight Panel (Right Sidebar) */}
             {showInsight && (
                 <div className="w-80 border-l bg-card/50 backdrop-blur-sm hidden md:flex flex-col h-full animate-in slide-in-from-right-5 duration-300">
-                    <div className="p-4 border-b">
+                    <div className="p-4 border-b flex justify-between items-center">
                         <h3 className="font-semibold text-sm flex items-center gap-2">
                             <Sparkles className="h-4 w-4 text-primary" />
                             Live Insights
                         </h3>
+                        {/* {sessionId && (
+                            <Button size="sm" variant="outline" className="h-7 text-xs" onClick={handleSummarize} disabled={isSummarizing}>
+                                {isSummarizing ? (language === 'hi' ? 'सारांश...' : 'Summarizing...') : (language === 'hi' ? 'सारांश' : 'Summarize')}
+                            </Button>
+                        )} */}
                     </div>
                     <div className="flex-1 overflow-y-auto p-4 space-y-4">
                         <Card className="p-4 bg-background/50 border-border/60 shadow-none">
                             <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Current Topic</h4>
                             <div className="flex flex-wrap gap-2">
-                                <Badge variant="secondary" className="bg-primary/10 hover:bg-primary/20 text-primary border-0">Mental Wellness</Badge>
-                                <Badge variant="secondary" className="bg-secondary/50 hover:bg-secondary/70 text-foreground">Anxiety</Badge>
+                                <Badge variant="secondary" className="bg-primary/10 hover:bg-primary/20 text-primary border-0">
+                                    {lastInsight?.topic || (language === 'hi' ? "प्रतीक्षा..." : "Waiting...")}
+                                </Badge>
                             </div>
                         </Card>
 
@@ -316,19 +334,25 @@ Calm, respectful, non-judgmental, and patient-centric.`,
                                 <div>
                                     <div className="flex justify-between text-xs mb-1">
                                         <span>Calmness</span>
-                                        <span className="font-medium">75%</span>
+                                        <span className="font-medium">{lastInsight?.tone?.Calmness || 0}%</span>
                                     </div>
                                     <div className="h-1.5 w-full bg-secondary/50 rounded-full overflow-hidden">
-                                        <div className="h-full bg-green-500/70 w-[75%] rounded-full" />
+                                        <div
+                                            className="h-full bg-green-500/70 rounded-full transition-all duration-500"
+                                            style={{ width: `${lastInsight?.tone?.Calmness || 0}%` }}
+                                        />
                                     </div>
                                 </div>
                                 <div>
                                     <div className="flex justify-between text-xs mb-1">
                                         <span>Openness</span>
-                                        <span className="font-medium">60%</span>
+                                        <span className="font-medium">{lastInsight?.tone?.Openness || 0}%</span>
                                     </div>
                                     <div className="h-1.5 w-full bg-secondary/50 rounded-full overflow-hidden">
-                                        <div className="h-full bg-blue-500/70 w-[60%] rounded-full" />
+                                        <div
+                                            className="h-full bg-blue-500/70 rounded-full transition-all duration-500"
+                                            style={{ width: `${lastInsight?.tone?.Openness || 0}%` }}
+                                        />
                                     </div>
                                 </div>
                             </div>
@@ -337,15 +361,53 @@ Calm, respectful, non-judgmental, and patient-centric.`,
                         <Card className="p-4 bg-primary/5 border-primary/10 shadow-none">
                             <h4 className="text-xs font-medium text-primary uppercase tracking-wider mb-2">Suggestion</h4>
                             <p className="text-xs text-muted-foreground leading-relaxed">
-                                Try breathing exercises if you feel overwhelmed. The AI can guide you through a session.
+                                {lastInsight?.suggestion || (language === 'hi' ? "बातचीत जारी रखें..." : "Continue conversation for insights...")}
                             </p>
-                            <Button variant="outline" size="sm" className="w-full mt-3 text-xs h-7 border-primary/20 hover:bg-primary/10 hover:text-primary bg-transparent text-foreground">
-                                Start Breathing
-                            </Button>
+                            {lastInsight?.suggestion && (
+                                <Button variant="outline" size="sm" className="w-full mt-3 text-xs h-7 border-primary/20 hover:bg-primary/10 hover:text-primary bg-transparent text-foreground">
+                                    {language === 'hi' ? "अभ्यास शुरू करें" : "Start Activity"}
+                                </Button>
+                            )}
                         </Card>
+
+                        {/* Summary Section */}
+                        {sessionId && (
+                            <Card className="p-4 bg-background/50 border-border/60 shadow-none">
+                                <div className="flex justify-between items-center mb-2">
+                                    <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{language === 'hi' ? 'सत्र सारांश' : 'Session Summary'}</h4>
+                                    <Button size="sm" variant="ghost" className="h-6 w-6 p-0" onClick={handleSummarize} disabled={isSummarizing}>
+                                        {isSummarizing ? <span className="animate-spin text-xs">⏳</span> : <Sparkles className="h-3 w-3" />}
+                                    </Button>
+                                </div>
+                                <div className="text-xs text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                                    {summary ? summary : (
+                                        <div className="flex flex-col gap-2 items-center justify-center py-4 text-muted-foreground/50">
+                                            <p>{language === 'hi' ? "सारांश देखने के लिए क्लिक करें" : "Click to generate summary"}</p>
+                                            <Button size="sm" variant="outline" className="h-7 text-xs" onClick={handleSummarize} disabled={isSummarizing}>
+                                                {isSummarizing ? (language === 'hi' ? 'सारांश...' : 'Summarizing...') : (language === 'hi' ? 'सारांश' : 'Summarize')}
+                                            </Button>
+                                        </div>
+                                    )}
+                                </div>
+                            </Card>
+                        )}
                     </div>
                 </div>
             )}
+
+            {/* <Dialog open={showSummaryDialog} onOpenChange={setShowSummaryDialog}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>{language === 'hi' ? 'सत्र सारांश' : 'Session Summary'}</DialogTitle>
+                        <DialogDescription>
+                            {language === 'hi' ? 'इस सत्र का संक्षिप्त सारांश' : 'Concise summary of this session'}
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="mt-4 whitespace-pre-wrap text-sm leading-relaxed">
+                        {summary}
+                    </div>
+                </DialogContent>
+            </Dialog> */}
         </div>
     )
 }
