@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { Doctor } from "@/data/doctors"
@@ -7,6 +8,8 @@ import { useAppointment } from "@/context/AppointmentContext"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Switch } from "@/components/ui/switch"
+import { Label } from "@/components/ui/label"
 import { Star, Clock, CalendarDays } from "lucide-react"
 
 interface DoctorCardProps {
@@ -16,6 +19,7 @@ interface DoctorCardProps {
 export function DoctorCard({ doctor }: DoctorCardProps) {
     const router = useRouter()
     const { setSelectedDoctor, setBookingStep } = useAppointment()
+    const [isUrgent, setIsUrgent] = useState(false)
 
     const handleBook = () => {
         setSelectedDoctor(doctor)
@@ -67,6 +71,13 @@ export function DoctorCard({ doctor }: DoctorCardProps) {
                         <span>{doctor.availability.join(", ")}</span>
                     </div>
                 </div>
+
+                <div className="flex items-center space-x-2 mt-4 pt-2 border-t border-border/40">
+                    <Switch id={`urgent-mode-${doctor.id}`} checked={isUrgent} onCheckedChange={setIsUrgent} />
+                    <Label htmlFor={`urgent-mode-${doctor.id}`} className={`text-xs font-medium cursor-pointer ${isUrgent ? 'text-red-500 font-bold' : 'text-muted-foreground'}`}>
+                        {isUrgent ? 'Urgent Priority On' : 'Enable Urgent Priority'}
+                    </Label>
+                </div>
             </CardContent>
 
             <CardFooter className="p-4 pt-0 flex items-center justify-between gap-3 mt-auto">
@@ -75,9 +86,9 @@ export function DoctorCard({ doctor }: DoctorCardProps) {
                 </div>
                 <Button
                     onClick={handleBook}
-                    className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-md"
+                    className={`shadow-md transition-colors ${isUrgent ? 'bg-red-600 hover:bg-red-700' : 'bg-primary hover:bg-primary/90'}`}
                 >
-                    Book Appointment
+                    {isUrgent ? 'Book Urgent' : 'Book Appointment'}
                 </Button>
             </CardFooter>
         </Card>

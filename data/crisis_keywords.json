@@ -6,14 +6,24 @@
         "en": {
             "high_risk": [
                 "suicide",
+                "sucide",
+                "suicde",
+                "suicid",
                 "kill myself",
+                "killing myself",
+                "kill me",
                 "end my life",
+                "ending my life",
                 "self harm",
                 "hurt myself",
                 "i want to die",
+                "wanna die",
                 "i don't want to live",
                 "take my life",
-                "ending everything"
+                "ending everything",
+                "better off dead",
+                "quit life",
+                "i want to suicide"
             ],
             "moderate_risk": [
                 "hopeless",

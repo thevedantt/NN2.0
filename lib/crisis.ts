@@ -10,28 +10,30 @@ interface CrisisDetectionResult {
 }
 
 export function detectCrisis(message: string, language: string = 'en'): CrisisDetectionResult {
-    const langCode = language === 'hi' ? 'hi' : 'en';
-    const keywords = crisisData.languages[langCode];
+    // Combine keywords from ALL languages for maximum safety
+    const allLanguages = Object.values(crisisData.languages);
     const normalizedMessage = message.toLowerCase();
 
     let detected: string[] = [];
     let highMatches = 0;
     let moderateMatches = 0;
 
-    // Check High Risk
-    keywords.high_risk.forEach((phrase) => {
-        if (normalizedMessage.includes(phrase.toLowerCase())) {
-            detected.push(phrase);
-            highMatches++;
-        }
-    });
+    allLanguages.forEach((langKeywords: any) => {
+        // Check High Risk
+        langKeywords.high_risk.forEach((phrase: string) => {
+            if (normalizedMessage.includes(phrase.toLowerCase())) {
+                detected.push(phrase);
+                highMatches++;
+            }
+        });
 
-    // Check Moderate Risk
-    keywords.moderate_risk.forEach((phrase) => {
-        if (normalizedMessage.includes(phrase.toLowerCase())) {
-            detected.push(phrase);
-            moderateMatches++;
-        }
+        // Check Moderate Risk
+        langKeywords.moderate_risk.forEach((phrase: string) => {
+            if (normalizedMessage.includes(phrase.toLowerCase())) {
+                detected.push(phrase);
+                moderateMatches++;
+            }
+        });
     });
 
     // Determine Risk Level based on rules
