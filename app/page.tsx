@@ -208,7 +208,7 @@ export default function NeuraNetLanding() {
                 <Globe size={16} />
                 <span className="text-sm font-medium">{isHindi ? 'HI' : 'EN'}</span>
               </button>
-              <button className={`hidden md:block px-6 py-2 rounded-full font-medium transition-all ${theme.primary}`}>
+              <button onClick={() => window.location.href = '/auth/login'} className={`hidden md:block px-6 py-2 rounded-full font-medium transition-all ${theme.primary}`}>
                 {t.nav.cta}
               </button>
               <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden p-2">
@@ -224,7 +224,7 @@ export default function NeuraNetLanding() {
               <a href="#how" className="py-2 hover:opacity-70">{t.nav.howItWorks}</a>
               <a href="#therapists" className="py-2 hover:opacity-70">{t.nav.therapists}</a>
               <a href="#about" className="py-2 hover:opacity-70">{t.nav.about}</a>
-              <button className={`px-6 py-2 rounded-full font-medium transition-all ${theme.primary} mt-2`}>
+              <button onClick={() => window.location.href = '/auth/login'} className={`px-6 py-2 rounded-full font-medium transition-all ${theme.primary} mt-2`}>
                 {t.nav.cta}
               </button>
             </div>
@@ -246,7 +246,7 @@ export default function NeuraNetLanding() {
               {t.hero.supporting}
             </p>
             <div className="flex flex-wrap gap-4 pt-4 justify-center md:justify-start">
-              <button className={`px-8 py-3 rounded-full font-semibold transition-all ${theme.primary}`}>
+              <button onClick={() => window.location.href = '/auth/login'} className={`px-8 py-3 rounded-full font-semibold transition-all ${theme.primary}`}>
                 {t.hero.primaryCta}
               </button>
               <button className={`px-8 py-3 rounded-full font-semibold transition-all ${theme.secondary}`}>
