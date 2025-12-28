@@ -62,9 +62,9 @@ export async function middleware(request: NextRequest) {
         // return redirectToDashboard(role, request)
         // }
         // Actually, let's stick to the prompt: "A therapist must not access user data".
-        if (isUserRoute && role === 'therapist') {
-            return redirectToDashboard(role, request)
-        }
+        // if (isUserRoute && role === 'therapist') {
+        //    return redirectToDashboard(role, request)
+        // }
         if (isUserRoute && role === 'buddy') {
             return redirectToDashboard(role, request)
         }
