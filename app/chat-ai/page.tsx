@@ -8,7 +8,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-// import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { cn } from "@/lib/utils"
 import { useLanguage } from "@/context/LanguageContext"
 
@@ -55,6 +54,21 @@ export default function ChatPage() {
     const [isSummarizing, setIsSummarizing] = React.useState(false)
     const [showSummaryDialog, setShowSummaryDialog] = React.useState(false)
 
+    // Crisis Alert State
+    const [showCrisisAlert, setShowCrisisAlert] = React.useState(false)
+    const [redirectCountdown, setRedirectCountdown] = React.useState(5)
+
+    React.useEffect(() => {
+        let timer: NodeJS.Timeout
+        if (showCrisisAlert && redirectCountdown > 0) {
+            timer = setTimeout(() => setRedirectCountdown(prev => prev - 1), 1000)
+        } else if (showCrisisAlert && redirectCountdown === 0) {
+            window.location.href = "/doctors"
+        }
+        return () => clearTimeout(timer)
+    }, [showCrisisAlert, redirectCountdown])
+
+
     // Auto-scroll
     const scrollRef = React.useRef<HTMLDivElement>(null)
 
@@ -94,19 +108,18 @@ export default function ChatPage() {
             const data = await response.json()
 
             if (response.ok) {
-                // Parse the content if it's a stringified JSON (handling double encoding if any)
-                // The API should preferrably return objects. 
-                // Assuming API returns { content: "...", emotion: "...", insight: {...}, sessionId: ... } directly if it parses AI output,
-                // OR if it returns raw AI JSON.
+                // Check for Crisis Action
+                if (data.action === "crisis_alert") {
+                    setShowCrisisAlert(true)
+                }
 
-                // Let's assume API returns standard fields:
                 if (data.sessionId) setSessionId(data.sessionId)
                 if (data.insight) setLastInsight(data.insight)
 
                 const aiMessage: Message = {
                     id: (Date.now() + 1).toString(),
                     role: "ai",
-                    content: data.content, // extracted text response
+                    content: data.content,
                     timestamp: new Date(),
                     emotion: data.emotion || "neutral"
                 }
@@ -144,6 +157,7 @@ export default function ChatPage() {
     }
 
     const handleSummarize = async () => {
+        // ... (existing implementation)
         if (!sessionId) return
         setIsSummarizing(true)
         try {
@@ -155,10 +169,8 @@ export default function ChatPage() {
             const data = await res.json()
             if (res.ok) {
                 setSummary(data.summary)
-                // setShowSummaryDialog(true) // No longer using dialog
             } else {
                 console.error("Summarization error:", data.error)
-                // Assuming status 429 logic might be handled in a more global way or here simply
                 if (res.status === 429) {
                     setSummary(language === 'hi' ? "कोटा सीमा पार हो गई है। कृपया थोड़ी देर बाद प्रयास करें।" : "Quota limit exceeded. Please try again later.")
                 }
@@ -171,8 +183,38 @@ export default function ChatPage() {
     }
 
     return (
-        <div className="flex h-full max-h-screen overflow-hidden w-full">
+        <div className="flex h-full max-h-screen overflow-hidden w-full relative">
+            {/* Crisis Alert Overlay */}
+            {showCrisisAlert && (
+                <div className="absolute inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-300">
+                    <Card className="w-full max-w-md p-6 border-red-200 bg-red-50/90 dark:bg-red-950/20 shadow-lg text-center space-y-4">
+                        <div className="h-12 w-12 rounded-full bg-red-100 text-red-600 mx-auto flex items-center justify-center">
+                            <span className="text-2xl">❤️</span>
+                        </div>
+                        <h2 className="text-xl font-semibold text-red-900 dark:text-red-200">
+                            {language === 'hi' ? "हम आपके साथ हैं" : "We are here for you"}
+                        </h2>
+                        <p className="text-sm text-red-800/80 dark:text-red-300/80 leading-relaxed">
+                            {language === 'hi'
+                                ? "ऐसा लगता है कि आप कठिन समय से गुजर रहे हैं। हम आपको एक पेशेवर से बात करने की सलाह देते हैं।"
+                                : "It sounds like you're going through a difficult time. We detected high distress and strongly recommend speaking with a professional."}
+                        </p>
+
+                        <div className="py-2">
+                            <Button className="w-full bg-red-600 hover:bg-red-700 text-white" onClick={() => window.location.href = "/doctors"}>
+                                {language === 'hi' ? "विशेषज्ञ से अभी बात करें" : "Speak to a Professional Now"}
+                            </Button>
+                        </div>
+
+                        <p className="text-xs text-muted-foreground">
+                            {language === 'hi' ? `आपको ${redirectCountdown} सेकंड में निर्देशित किया जा रहा है...` : `Redirecting you to help in ${redirectCountdown} seconds...`}
+                        </p>
+                    </Card>
+                </div>
+            )}
+
             {/* Main Chat Area */}
+
             <div className="flex-1 flex flex-col h-full bg-background relative w-full">
                 {/* Header */}
                 <header className="flex-none h-16 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-6 flex items-center justify-between z-10 w-full">
@@ -394,20 +436,6 @@ export default function ChatPage() {
                     </div>
                 </div>
             )}
-
-            {/* <Dialog open={showSummaryDialog} onOpenChange={setShowSummaryDialog}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>{language === 'hi' ? 'सत्र सारांश' : 'Session Summary'}</DialogTitle>
-                        <DialogDescription>
-                            {language === 'hi' ? 'इस सत्र का संक्षिप्त सारांश' : 'Concise summary of this session'}
-                        </DialogDescription>
-                    </DialogHeader>
-                    <div className="mt-4 whitespace-pre-wrap text-sm leading-relaxed">
-                        {summary}
-                    </div>
-                </DialogContent>
-            </Dialog> */}
         </div>
     )
 }

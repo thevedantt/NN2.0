@@ -5,6 +5,7 @@ import { db } from "@/config/db";
 import { aiChatSessions, aiChatMessages, aiChatInsights } from "@/config/schema";
 import { eq, desc } from "drizzle-orm";
 import { COMPANION_PROMPTS, INSIGHT_ENGINE_PROMPT } from "@/lib/gemini/prompts";
+import { detectCrisis } from "@/lib/crisis";
 
 export async function POST(req: NextRequest) {
     try {
@@ -34,7 +35,18 @@ export async function POST(req: NextRequest) {
             messageText: message,
         });
 
-        // --- STEP 1: AI COMPANION (Chat Response) ---
+        // --- CRISIS DETECTION ---
+        const crisisResult = detectCrisis(message, language);
+
+        if (crisisResult.riskLevel === 'high') {
+            console.log(`[CRISIS DETECTED] Session: ${currentSessionId}, Risk: HIGH, Keywords: ${crisisResult.detectedKeywords.join(", ")}`);
+
+            // We still generate a response, but we might want to override or augment it.
+            // For now, we perform the standard chat, but we will attach the crisis flag to the response
+            // so the frontend can handle the UI Actions (Redirect/Alert).
+            // However, strictly speaking, if it's high risk, maybe we should force a supportive message?
+            // Let's rely on the Companion Prompt to be supportive, but the Frontend will handle the "Action".
+        }
         // Uses strictly the Psychiatrist persona, NO analytics.
         const companionChat = model.startChat({
             history: [
@@ -135,7 +147,9 @@ GENERATE INSIGHT JSON:`;
             content: aiResponseText,
             emotion: "neutral", // Legacy field, frontend might use it but insights are better
             insight: aiInsight, // The new structured insight
-            sessionId: currentSessionId
+            sessionId: currentSessionId,
+            action: crisisResult.actionRequired ? "crisis_alert" : null,
+            riskLevel: crisisResult.riskLevel
         });
 
     } catch (error: any) {

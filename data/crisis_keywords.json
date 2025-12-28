@@ -1,0 +1,63 @@
+{
+    "version": "1.0",
+    "last_updated": "2025-01-01",
+    "notes": "Detection-only dataset for crisis risk. Do not show matched keywords to users.",
+    "languages": {
+        "en": {
+            "high_risk": [
+                "suicide",
+                "kill myself",
+                "end my life",
+                "self harm",
+                "hurt myself",
+                "i want to die",
+                "i don't want to live",
+                "take my life",
+                "ending everything"
+            ],
+            "moderate_risk": [
+                "hopeless",
+                "nothing matters",
+                "can't go on",
+                "overwhelmed",
+                "breaking down",
+                "no reason to live",
+                "giving up"
+            ]
+        },
+        "hi": {
+            "high_risk": [
+                "आत्महत्या",
+                "खुद को नुकसान",
+                "खुद को चोट पहुँचाना",
+                "मर जाना चाहता हूँ",
+                "जीना नहीं चाहता",
+                "सब खत्म करना चाहता हूँ"
+            ],
+            "moderate_risk": [
+                "बहुत निराश",
+                "सब बेकार लग रहा है",
+                "अब और नहीं हो पा रहा",
+                "बहुत थक गया हूँ",
+                "टूट सा गया हूँ"
+            ]
+        }
+    },
+    "rules": {
+        "case_insensitive": true,
+        "partial_match": true,
+        "window_messages": 3,
+        "high_risk_trigger": {
+            "min_strong_matches": 1,
+            "or_multiple_moderate": 2
+        },
+        "actions": {
+            "on_high_risk": [
+                "flag_user_high_risk",
+                "show_supportive_alert",
+                "offer_booking_option",
+                "auto_redirect_after_5_seconds"
+            ]
+        }
+    }
+}
