@@ -20,7 +20,7 @@ export default function DashboardPage() {
     const { t } = useLanguage()
 
     return (
-        <div className="flex flex-col h-full w-full bg-background p-6 space-y-6">
+        <div className="flex flex-col h-full w-full bg-background p-4 md:p-6 space-y-6">
             {/* Header */}
             <header className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                 <div className="flex items-center gap-2">

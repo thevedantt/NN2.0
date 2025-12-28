@@ -233,9 +233,9 @@ export default function NeuraNetLanding() {
       </nav>
 
       {/* Hero Section */}
-      <section className="pt-32 pb-20 px-6">
+      <section className="pt-24 md:pt-32 pb-12 md:pb-20 px-6">
         <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
-          <div className="space-y-6">
+          <div className="space-y-6 text-center md:text-left">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
               {t.hero.headline}
             </h1>
@@ -245,7 +245,7 @@ export default function NeuraNetLanding() {
             <p className={`text-sm md:text-base font-medium ${theme.softAccent}`}>
               {t.hero.supporting}
             </p>
-            <div className="flex flex-wrap gap-4 pt-4">
+            <div className="flex flex-wrap gap-4 pt-4 justify-center md:justify-start">
               <button className={`px-8 py-3 rounded-full font-semibold transition-all ${theme.primary}`}>
                 {t.hero.primaryCta}
               </button>
@@ -253,7 +253,7 @@ export default function NeuraNetLanding() {
                 {t.hero.secondaryCta}
               </button>
             </div>
-            <div className="flex flex-wrap gap-6 pt-6">
+            <div className="flex flex-wrap gap-6 pt-6 justify-center md:justify-start">
               {t.hero.trust.map((item, i) => (
                 <div key={i} className="flex items-center gap-2 text-sm">
                   <CheckCircle className={theme.accent} size={18} />
@@ -264,7 +264,7 @@ export default function NeuraNetLanding() {
           </div>
           <div className="flex items-center justify-center">
             {/* 3D Model Integrated Here */}
-            <div className="w-full max-w-[600px] aspect-square relative z-0">
+            <div className="w-full max-w-[400px] md:max-w-[600px] aspect-square relative z-0 mx-auto">
               <div className="absolute inset-0 bg-gradient-to-tr from-current/5 to-transparent rounded-full blur-3xl -z-10" />
               <DoctorModelWrapper />
             </div>
@@ -273,7 +273,7 @@ export default function NeuraNetLanding() {
       </section>
 
       {/* Why NeuraNet */}
-      <section id="features" className="py-20 px-6">
+      <section id="features" className="py-12 md:py-20 px-6">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-16">{t.why.heading}</h2>
           <div className="grid md:grid-cols-3 gap-8">
@@ -294,7 +294,7 @@ export default function NeuraNetLanding() {
       </section>
 
       {/* How It Works */}
-      <section id="how" className="py-20 px-6">
+      <section id="how" className="py-12 md:py-20 px-6">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold mb-16">{t.how.heading}</h2>
           <div className="space-y-12">
@@ -314,7 +314,7 @@ export default function NeuraNetLanding() {
       </section>
 
       {/* For Therapists & Buddies */}
-      <section id="therapists" className="py-20 px-6">
+      <section id="therapists" className="py-12 md:py-20 px-6">
         <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-8">
           {[t.roles.therapist, t.roles.buddy].map((role, i) => (
             <div key={i} className={`p-10 rounded-2xl border-2 ${theme.card}`}>
@@ -337,7 +337,7 @@ export default function NeuraNetLanding() {
       </section>
 
       {/* NGOs Section */}
-      <section id="ngos" className="py-20 px-6">
+      <section id="ngos" className="py-12 md:py-20 px-6">
         <div className="max-w-5xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold mb-6">{t.ngo.heading}</h2>
           <p className="text-lg opacity-80 mb-12 leading-relaxed">{t.ngo.desc}</p>
@@ -372,7 +372,7 @@ export default function NeuraNetLanding() {
       </section>
 
       {/* Business Model */}
-      <section className="py-20 px-6">
+      <section className="py-12 md:py-20 px-6">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-12">{t.business.heading}</h2>
           <div className="grid md:grid-cols-2 gap-6 mb-8">
@@ -388,7 +388,7 @@ export default function NeuraNetLanding() {
       </section>
 
       {/* About */}
-      <section id="about" className="py-20 px-6">
+      <section id="about" className="py-12 md:py-20 px-6">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-8">{t.about.heading}</h2>
           <p className="text-lg md:text-xl opacity-80 leading-relaxed">{t.about.text}</p>
