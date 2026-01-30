@@ -55,7 +55,7 @@ export async function POST(req: Request) {
         const {
             gender, preferredLanguage, primaryConcern, therapyPreference, previousExperience,
             sleepPattern, supportSystem, stressLevel,
-            socialPlatforms, socialPreferences, hobbies, musicDetails, entertainment
+            socialPlatforms, socialPreferences, hobbies, musicDetails, entertainment, inputMetadata
         } = body;
 
         // Create a type-safe object with potential undefined values
@@ -73,6 +73,7 @@ export async function POST(req: Request) {
             hobbies,
             musicDetails,
             entertainment,
+            inputMetadata,
             updatedAt: new Date(),
         };
 

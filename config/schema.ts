@@ -66,6 +66,7 @@ export const userProfiles = pgTable('user_profiles', {
     hobbies: json('hobbies'), // Array of hobbies
     musicDetails: json('music_details'), // { genre, artist } if applicable
     entertainment: json('entertainment'), // { bingeType, bingeList, comfortArtist, favoriteComedian }
+    inputMetadata: json('input_metadata'), // Stores { fieldId: { inputMethod: 'voice' | 'typed', language: 'en' } }
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull().$onUpdate(() => new Date()),
 });

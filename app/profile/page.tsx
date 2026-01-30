@@ -7,26 +7,95 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Separator } from "@/components/ui/separator";
+import { InterviewField } from "@/components/profile/InterviewField";
+import { useLanguage } from "@/context/LanguageContext";
 
 const DROPDOWN_OPTIONS = {
-    gender: ["Male", "Female", "Prefer not to say"],
-    preferredLanguage: ["English", "Hindi", "Both"],
-    primaryConcern: ["Anxiety & Stress", "Low Mood", "Career Direction"],
-    therapyPreference: ["Chat", "Video", "Both"],
-    previousExperience: ["Yes", "No", "Not sure"],
-    sleepPattern: ["Good", "Average", "Poor"],
-    supportSystem: ["Friends/Family", "Limited", "None"],
-    stressLevel: ["Low", "Medium", "High"]
+    gender: [
+        { value: "Male", labels: { en: "Male", hi: "पुरुष", mr: "पुरुष" } },
+        { value: "Female", labels: { en: "Female", hi: "महिला", mr: "महिला" } },
+        { value: "Prefer not to say", labels: { en: "Prefer not to say", hi: "कहना पसंद नहीं", mr: "सांगणे पसंत नाही" } }
+    ],
+    preferredLanguage: [
+        { value: "English", labels: { en: "English", hi: "अंग्रेजी", mr: "इंग्रजी" } },
+        { value: "Hindi", labels: { en: "Hindi", hi: "हिंदी", mr: "हिंदी" } },
+        { value: "Both", labels: { en: "Both", hi: "दोनों", mr: "दोन्ही" } }
+    ],
+    primaryConcern: [
+        { value: "Anxiety & Stress", labels: { en: "Anxiety & Stress", hi: "चिंता और तनाव", mr: "चिंता आणि तणाव" } },
+        { value: "Low Mood", labels: { en: "Low Mood", hi: "उदास मन", mr: "उदासीनता" } },
+        { value: "Career Direction", labels: { en: "Career Direction", hi: "करियर दिशा", mr: "करिअर दिशा" } }
+    ],
+    therapyPreference: [
+        { value: "Chat", labels: { en: "Chat", hi: "चैट", mr: "चॅट" } },
+        { value: "Video", labels: { en: "Video", hi: "वीडियो", mr: "व्हिडिओ" } },
+        { value: "Both", labels: { en: "Both", hi: "दोनों", mr: "दोन्ही" } }
+    ],
+    previousExperience: [
+        { value: "Yes", labels: { en: "Yes", hi: "हाँ", mr: "हो" } },
+        { value: "No", labels: { en: "No", hi: "नहीं", mr: "नाही" } },
+        { value: "Not sure", labels: { en: "Not sure", hi: "पता नहीं", mr: "खात्री नाही" } }
+    ],
+    sleepPattern: [
+        { value: "Good", labels: { en: "Good", hi: "अच्छा", mr: "चांगले" } },
+        { value: "Average", labels: { en: "Average", hi: "औसत", mr: "सरासरी" } },
+        { value: "Poor", labels: { en: "Poor", hi: "खराब", mr: "खराब" } }
+    ],
+    supportSystem: [
+        { value: "Friends/Family", labels: { en: "Friends/Family", hi: "मित्र/परिवार", mr: "मित्र/कुटुंब" } },
+        { value: "Limited", labels: { en: "Limited", hi: "सीमित", mr: "मर्यादित" } },
+        { value: "None", labels: { en: "None", hi: "कोई नहीं", mr: "कोणीही नाही" } }
+    ],
+    stressLevel: [
+        { value: "Low", labels: { en: "Low", hi: "कम", mr: "कमी" } },
+        { value: "Medium", labels: { en: "Medium", hi: "मध्यम", mr: "मध्यम" } },
+        { value: "High", labels: { en: "High", hi: "उच्च", mr: "उच्च" } }
+    ]
 };
 
 const SOCIAL_PLATFORMS = [
-    { id: "youtube", label: "YouTube", question: "What do you like to watch on YouTube? (e.g., Podcasts, Motivational)" },
-    { id: "instagram", label: "Instagram", question: "What content do you enjoy on Instagram? (e.g., Reels, Quotes)" },
-    { id: "twitter", label: "Twitter (X)", question: "What do you follow on Twitter? (e.g., Tech, News)" },
-    { id: "reddit", label: "Reddit", question: "Which topics do you follow on Reddit? (e.g., Career, Hobbies)" },
+    {
+        id: "youtube",
+        label: "YouTube",
+        question: "What do you like to watch on YouTube?",
+        prompts: {
+            en: "What kind of videos do you usually watch on YouTube? Podcasts, Vlogs, or something else?",
+            hi: "आप YouTube पर आमतौर पर किस तरह के वीडियो देखते हैं? पॉडकास्ट, व्लॉग, या कुछ और?",
+            mr: "तुम्ही YouTube वर साधारणपणे कोणत्या प्रकारचे व्हिडिओ पाहता? पॉडकास्ट, व्लॉग्स की आणखी काही?"
+        }
+    },
+    {
+        id: "instagram",
+        label: "Instagram",
+        question: "What content do you enjoy on Instagram?",
+        prompts: {
+            en: "What type of content do you engage with on Instagram? Reels, Memes, or Stories?",
+            hi: "आप Instagram पर किस तरह की सामग्री पसंद करते हैं? रील्स, मीम्स या स्टोरीज?",
+            mr: "तुम्ही Instagram वर कोणत्या प्रकारची सामग्री पाहणे पसंत करता? रील्स, मीम्स की स्टोरीज?"
+        }
+    },
+    {
+        id: "twitter",
+        label: "Twitter (X)",
+        question: "What do you follow on Twitter?",
+        prompts: {
+            en: "What topics do you follow on Twitter? Tech, Politics, or News?",
+            hi: "आप Twitter पर किन विषयों को फॉलो करते हैं? तकनीक, राजनीति या समाचार?",
+            mr: "तुम्ही Twitter वर कोणत्या विषयांचे अनुसरण करता? तंत्रज्ञान, राजकारण की बातम्या?"
+        }
+    },
+    {
+        id: "reddit",
+        label: "Reddit",
+        question: "Which topics do you follow on Reddit?",
+        prompts: {
+            en: "Which communities or subreddits are you active in?",
+            hi: "आप किन कम्युनिटीज़ या सबरेडिट्स में सक्रिय हैं?",
+            mr: "तुम्ही कोणत्या कम्युनिटीज किंवा सबरेडिट्समध्ये सक्रिय आहात?"
+        }
+    },
 ];
 
 const HOBBIES = ["Watching videos", "Listening to music", "Drawing", "Exploring / traveling", "Reading", "Gaming"];
@@ -45,6 +114,7 @@ const DEFAULT_PROFILE = {
 };
 
 export default function ProfilePage() {
+    const { language } = useLanguage(); // Get current language context
     const [formData, setFormData] = useState<Record<string, string>>({});
     const [socialPlatforms, setSocialPlatforms] = useState<string[]>([]);
     const [socialPreferences, setSocialPreferences] = useState<Record<string, string>>({});
@@ -56,7 +126,10 @@ export default function ProfilePage() {
     const [bingeList, setBingeList] = useState(["", "", ""]);
     const [comfortArtist, setComfortArtist] = useState("");
     const [favoriteComedian, setFavoriteComedian] = useState("");
-    const [loading, setLoading] = useState(true); // Start loading true to fetch data
+    const [loading, setLoading] = useState(true);
+
+    // Metadata for voice inputs (optional storage, currently just checking state)
+    const [inputMetadata, setInputMetadata] = useState<Record<string, { inputMethod: 'typed' | 'voice', language: string }>>({});
 
     // Fetch Profile Data on Mount
     useEffect(() => {
@@ -73,7 +146,7 @@ export default function ProfilePage() {
                     console.log("Fetched Profile Data:", data);
 
                     // Basic Details
-                    const { socialPlatforms, socialPreferences, hobbies, musicDetails, entertainment, ...basicData } = data;
+                    const { socialPlatforms, socialPreferences, hobbies, musicDetails, entertainment, inputMetadata: savedMeta, ...basicData } = data;
 
                     // Filter out non-basic fields from formData spread
                     const cleanBasicData = { ...basicData };
@@ -105,6 +178,10 @@ export default function ProfilePage() {
                         setComfortArtist(entertainment.comfortArtist || "");
                         setFavoriteComedian(entertainment.favoriteComedian || "");
                     }
+
+                    if (savedMeta) {
+                        setInputMetadata(savedMeta);
+                    }
                 }
             } catch (error) {
                 console.error("Failed to load profile", error);
@@ -131,6 +208,10 @@ export default function ProfilePage() {
 
     const handlePreferenceChange = (platformId: string, value: string) => {
         setSocialPreferences(prev => ({ ...prev, [platformId]: value }));
+    };
+
+    const handleMetadataChange = (fieldId: string, meta: { inputMethod: 'typed' | 'voice', language: string }) => {
+        setInputMetadata(prev => ({ ...prev, [fieldId]: meta }));
     };
 
     const handleHobbyToggle = (hobby: string) => {
@@ -187,12 +268,11 @@ export default function ProfilePage() {
                 bingeList: bingeType !== "None" ? bingeList : [],
                 comfortArtist,
                 favoriteComedian
-            }
+            },
+            inputMetadata // Save metadata to DB to support structured storage requirement
         };
 
         console.log("[FRONTEND] Saving Profile Payload:", finalData);
-        // Alert for debugging (remove in prod)
-        // alert(JSON.stringify(finalData, null, 2));
 
         try {
             const response = await fetch("/api/profile", {
@@ -201,9 +281,7 @@ export default function ProfilePage() {
                 body: JSON.stringify(finalData),
             });
 
-            console.log("[FRONTEND] Response Status:", response.status);
             const responseData = await response.json();
-            console.log("[FRONTEND] Response Body:", responseData);
 
             if (!response.ok) {
                 console.error("[FRONTEND] Save failed:", responseData);
@@ -251,8 +329,8 @@ export default function ProfilePage() {
                                     </SelectTrigger>
                                     <SelectContent>
                                         {options.map((option) => (
-                                            <SelectItem key={option} value={option}>
-                                                {option}
+                                            <SelectItem key={option.value} value={option.value}>
+                                                {option.labels[language as 'en' | 'hi' | 'mr'] || option.labels.en}
                                             </SelectItem>
                                         ))}
                                     </SelectContent>
@@ -290,12 +368,13 @@ export default function ProfilePage() {
                                 <h3 className="tex-sm font-semibold text-muted-foreground">Tell us a bit more...</h3>
                                 {SOCIAL_PLATFORMS.filter(p => socialPlatforms.includes(p.id)).map(platform => (
                                     <div key={`pref-${platform.id}`} className="space-y-2">
-                                        <Label className="text-sm font-medium">{platform.question}</Label>
-                                        <Textarea
-                                            placeholder="Type here..."
-                                            className="h-20"
+                                        <InterviewField
+                                            label={platform.label}
                                             value={socialPreferences[platform.id] || ""}
-                                            onChange={(e) => handlePreferenceChange(platform.id, e.target.value)}
+                                            onChange={(val) => handlePreferenceChange(platform.id, val)}
+                                            prompt={platform.prompts}
+                                            language={language}
+                                            onMetadataChange={(meta) => handleMetadataChange(`social_${platform.id}`, meta)}
                                         />
                                     </div>
                                 ))}
@@ -352,11 +431,20 @@ export default function ProfilePage() {
                         )}
 
                         <div className="pt-2">
-                            <Label className="mb-2 block text-sm font-medium">Other (Optional)</Label>
-                            <Input
-                                placeholder="e.g., Photography, Cooking..."
+                            <Label className="mb-2 block text-sm font-medium">Other Hobbies (Optional)</Label>
+
+                            <InterviewField
+                                label="Other Hobbies"
                                 value={otherHobby}
-                                onChange={(e) => setOtherHobby(e.target.value)}
+                                onChange={setOtherHobby}
+                                prompt={{
+                                    en: "Do you have any other hobbies or passions? Like photography, cooking, or sports?",
+                                    hi: "क्या आपके कोई अन्य शौक या जुनून हैं? जैसे फोटोग्राफी, खाना बनाना या खेल?",
+                                    mr: "तुम्हाला इतर काही छंद किंवा आवडी आहेत का? जसे की फोटोग्राफी, स्वयंपाक किंवा खेळ?"
+                                }}
+                                language={language}
+                                onMetadataChange={(meta) => handleMetadataChange('otherHobby', meta)}
+                                placeholder="e.g., Photography, Cooking..."
                             />
                         </div>
                     </CardContent>
@@ -398,25 +486,35 @@ export default function ProfilePage() {
 
                         <Separator />
 
-                        {/* Playlist Link */}
-                        {/* Comfort Artist & Comedian */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label>Favorite Comfort Artist</Label>
-                                <Input
-                                    placeholder="e.g. Prateek Kuhad"
-                                    value={comfortArtist}
-                                    onChange={(e) => setComfortArtist(e.target.value)}
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label>Favorite Comedian</Label>
-                                <Input
-                                    placeholder="e.g. Zakir Khan"
-                                    value={favoriteComedian}
-                                    onChange={(e) => setFavoriteComedian(e.target.value)}
-                                />
-                            </div>
+                        {/* Interview Fields for Comfort */}
+                        <div className="space-y-6">
+                            <InterviewField
+                                label="Favorite Comfort Artist"
+                                value={comfortArtist}
+                                onChange={setComfortArtist}
+                                prompt={{
+                                    en: "Who is your go-to comfort artist or musician when you want to relax?",
+                                    hi: "जब आप आराम करना चाहते हैं तो आपका पसंदीदा कलाकार या संगीतकार कौन है?",
+                                    mr: "जेव्हा तुम्हाला आराम करायचा असतो तेव्हा तुमचा आवडता कलाकार किंवा संगीतकार कोण असतो?"
+                                }}
+                                language={language}
+                                onMetadataChange={(meta) => handleMetadataChange('comfortArtist', meta)}
+                                placeholder="e.g. Prateek Kuhad"
+                            />
+
+                            <InterviewField
+                                label="Favorite Comedian"
+                                value={favoriteComedian}
+                                onChange={setFavoriteComedian}
+                                prompt={{
+                                    en: "Who makes you laugh the most? Any favorite stand-up comedians?",
+                                    hi: "आपको सबसे ज्यादा कौन हँसाता है? कोई पसंदीदा स्टैंड-अप कॉमेडियन?",
+                                    mr: "तुम्हाला सर्वात जास्त कोण हसवते? कोणताही आवडता स्टँड-अप कॉमेडीयन?"
+                                }}
+                                language={language}
+                                onMetadataChange={(meta) => handleMetadataChange('favoriteComedian', meta)}
+                                placeholder="e.g. Zakir Khan"
+                            />
                         </div>
                     </CardContent>
                     <CardFooter className="flex justify-between border-t pt-6">

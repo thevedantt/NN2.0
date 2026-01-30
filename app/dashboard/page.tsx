@@ -15,9 +15,16 @@ import { Bell, Search } from "lucide-react"
 
 import { LanguageToggle } from "@/components/language-toggle"
 import { useLanguage } from "@/context/LanguageContext"
+import { useOffline } from "@/context/OfflineContext"
+import { OfflineLanding } from "@/components/offline-landing"
 
 export default function DashboardPage() {
     const { t } = useLanguage()
+    const { isOffline } = useOffline()
+
+    if (isOffline) {
+        return <OfflineLanding />
+    }
 
     return (
         <div className="flex flex-col h-full w-full bg-background p-4 md:p-6 space-y-6">
@@ -59,10 +66,6 @@ export default function DashboardPage() {
                 <QuickActions />
                 <UpcomingAppointments />
 
-                {/* Row 3: Progress Indicators (2 cards, each taking 2 cols in their original component but here they are placed in the grid directly?) 
-              Wait, ProgressIndicators returns a Fragment with 2 Cards. Each Card has `lg:col-span-2`.
-              So passing them here will fill Row 3 nicely (2 + 2 = 4).
-          */}
                 {/* Row 3: Progress Indicators */}
                 <ProgressIndicators />
 

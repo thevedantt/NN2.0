@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AppointmentProvider } from "@/context/AppointmentContext";
 import { LanguageProvider } from "@/context/LanguageContext";
+import { OfflineProvider } from "@/context/OfflineContext";
 import { Toaster } from "@/components/ui/sonner";
 
 const poppins = Poppins({
@@ -38,8 +39,10 @@ export default function RootLayout({
         >
           <LanguageProvider>
             <AppointmentProvider>
-              {children}
-              <Toaster />
+              <OfflineProvider>
+                {children}
+                <Toaster />
+              </OfflineProvider>
             </AppointmentProvider>
           </LanguageProvider>
         </ThemeProvider>

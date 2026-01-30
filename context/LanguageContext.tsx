@@ -18,7 +18,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     // Load language from local storage on mount
     useEffect(() => {
         const savedLang = localStorage.getItem('neuranet-lang') as Language;
-        if (savedLang && (savedLang === 'en' || savedLang === 'hi')) {
+        if (savedLang && ['en', 'hi', 'mr'].includes(savedLang)) {
             setLanguageState(savedLang);
         }
     }, []);

@@ -1,15 +1,18 @@
 "use client"
 
 import * as React from "react"
-import { Send, Sparkles, User, PanelRightOpen, PanelRightClose, Smile, Paperclip, Mic, Globe } from "lucide-react"
+import { Sparkles, User, PanelRightOpen, PanelRightClose, Globe } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { VoiceChatInput } from "@/components/chat/VoiceChatInput"
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 import { useLanguage } from "@/context/LanguageContext"
+import { getOfflineResponse } from "@/lib/offline-support"
 
 // Types
 type Message = {
@@ -18,16 +21,13 @@ type Message = {
     content: string
     timestamp: Date
     emotion?: string
+    isOffline?: boolean
 }
 
 export default function ChatPage() {
-    const { language } = useLanguage()
+    const { language, t } = useLanguage()
 
-    // Language-specific greetings
-    const greetings = React.useMemo(() => ({
-        en: "Hello, I’m your AI mental health companion.\nI’m here to listen, understand, and support you in a calm and respectful way.\nYou can share anything that’s on your mind.",
-        hi: "नमस्ते, मैं आपका AI मानसिक स्वास्थ्य साथी हूँ।\nमैं आपकी बात ध्यान से सुनने और आपको शांत तरीके से समझने के लिए यहाँ हूँ।\nआप जो भी महसूस कर रहे हैं, खुलकर साझा कर सकते हैं।"
-    }), [])
+    // Language-specific greetings handled via t() now
 
     const [input, setInput] = React.useState("")
     const [messages, setMessages] = React.useState<Message[]>([])
@@ -40,12 +40,12 @@ export default function ChatPage() {
             {
                 id: "1",
                 role: "ai",
-                content: greetings[language as keyof typeof greetings] || greetings.en,
+                content: t("chat_greeting"),
                 timestamp: new Date(),
                 emotion: "warmth"
             }
         ])
-    }, [language, greetings])
+    }, [language, t])
 
     const [status, setStatus] = React.useState<"Listening" | "Thinking" | "Idle">("Listening")
     const [showInsight, setShowInsight] = React.useState(true)
@@ -93,6 +93,29 @@ export default function ChatPage() {
         setStatus("Thinking")
         setIsTyping(true)
 
+        // OFFLINE CHECK
+        if (typeof navigator !== 'undefined' && !navigator.onLine) {
+            // Simulate short processing delay for UX consistency
+            setTimeout(() => {
+                const offlineRes = getOfflineResponse(userMessage.content, language);
+
+                const aiMessage: Message = {
+                    id: (Date.now() + 1).toString(),
+                    role: "ai",
+                    content: offlineRes.content,
+                    timestamp: new Date(),
+                    emotion: "neutral",
+                    isOffline: true
+                }
+
+                setMessages(prev => [...prev, aiMessage])
+                setStatus("Listening") // Reset status
+                setIsTyping(false)     // Reset typing
+            }, 600) // 600ms delay
+
+            return; // EXIT early, do not fetch
+        }
+
         try {
             const response = await fetch("/api/chat", {
                 method: "POST",
@@ -127,10 +150,10 @@ export default function ChatPage() {
             } else {
                 console.error("Failed to get response:", data.error)
 
-                let errorMessage = language === 'hi' ? "मुझे कनेक्ट करने में थोड़ी परेशानी हो रही है। क्या हम फिर से कोशिश कर सकते हैं?" : "I'm having a little trouble connecting right now. Can we try again?";
+                let errorMessage = t("chat_error_connect");
 
                 if (response.status === 429) {
-                    errorMessage = language === 'hi' ? "कोटा सीमा पार हो गई है। कृपया थोड़ी देर बाद प्रयास करें।" : "Quota limit exceeded. Please try again later.";
+                    errorMessage = t("chat_error_quota");
                 }
 
                 setMessages(prev => [...prev, {
@@ -146,7 +169,7 @@ export default function ChatPage() {
             setMessages(prev => [...prev, {
                 id: Date.now().toString(),
                 role: "ai",
-                content: language === 'hi' ? "क्षमा करें, मैं सर्वर तक नहीं पहुँच सका। कृपया अपना कनेक्शन जांचें।" : "I'm sorry, I couldn't reach the server. Please check your connection.",
+                content: t("chat_error_server"),
                 timestamp: new Date(),
                 emotion: "neutral"
             }])
@@ -279,6 +302,7 @@ export default function ChatPage() {
                                         "text-[10px] absolute bottom-1 right-3",
                                         msg.role === "user" ? "text-primary-foreground/70" : "text-muted-foreground/50"
                                     )}>
+                                        {msg.isOffline && <span className="mr-2 opacity-80 italic">{t("chat_offline_mode")}</span>}
                                         {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                     </span>
                                 </div>
@@ -309,35 +333,12 @@ export default function ChatPage() {
                 {/* Input Area */}
                 <div className="flex-none p-4 md:p-6 bg-background/95 backdrop-blur border-t z-10 w-full">
                     <div className="mx-auto max-w-3xl relative w-full">
-                        <div className="relative flex items-end gap-2 bg-card border shadow-sm rounded-xl p-2 focus-within:ring-1 focus-within:ring-primary/20 transition-all">
-                            <Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground hover:text-primary rounded-lg shrink-0">
-                                <Paperclip className="h-5 w-5" />
-                            </Button>
-                            <textarea
-                                value={input}
-                                onChange={(e) => setInput(e.target.value)}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter' && !e.shiftKey) {
-                                        e.preventDefault()
-                                        handleSend()
-                                    }
-                                }}
-                                placeholder="Type your message here..."
-                                className="flex-1 min-h-[44px] max-h-[120px] bg-transparent border-0 focus:ring-0 focus:outline-none p-2 text-sm md:text-base resize-none placeholder:text-muted-foreground/70"
-                                rows={1}
-                            />
-                            <Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground hover:text-primary rounded-lg shrink-0">
-                                <Smile className="h-5 w-5" />
-                            </Button>
-                            <Button
-                                onClick={handleSend}
-                                disabled={!input.trim()}
-                                size="icon"
-                                className="h-9 w-9 rounded-lg shadow-sm shrink-0 transition-all bg-primary text-primary-foreground hover:bg-primary/90"
-                            >
-                                <Send className="h-4 w-4" />
-                            </Button>
-                        </div>
+                        <VoiceChatInput
+                            value={input}
+                            onChange={setInput}
+                            onSend={handleSend}
+                            disabled={status === "Thinking" || isTyping}
+                        />
                         <div className="text-center mt-2">
                             <p className="text-[10px] text-muted-foreground/60">
                                 AI is trained to be supportive but is not a substitute for professional therapy.
