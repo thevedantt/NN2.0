@@ -19,8 +19,7 @@ const DROPDOWN_OPTIONS = {
     previousExperience: ["Yes", "No", "Not sure"],
     sleepPattern: ["Good", "Average", "Poor"],
     supportSystem: ["Friends/Family", "Limited", "None"],
-    stressLevel: ["Low", "Medium", "High"],
-    spirituality: ["Yes", "No", "Somewhat"]
+    stressLevel: ["Low", "Medium", "High"]
 };
 
 const SOCIAL_PLATFORMS = [
@@ -42,8 +41,7 @@ const DEFAULT_PROFILE = {
     previousExperience: "No",
     sleepPattern: "Average",
     supportSystem: "Friends/Family",
-    stressLevel: "Medium",
-    spirituality: "Somewhat"
+    stressLevel: "Medium"
 };
 
 export default function ProfilePage() {
@@ -192,7 +190,9 @@ export default function ProfilePage() {
             }
         };
 
-        console.log("[USER PROFILE UPDATE]", finalData);
+        console.log("[FRONTEND] Saving Profile Payload:", finalData);
+        // Alert for debugging (remove in prod)
+        // alert(JSON.stringify(finalData, null, 2));
 
         try {
             const response = await fetch("/api/profile", {
@@ -201,8 +201,13 @@ export default function ProfilePage() {
                 body: JSON.stringify(finalData),
             });
 
+            console.log("[FRONTEND] Response Status:", response.status);
+            const responseData = await response.json();
+            console.log("[FRONTEND] Response Body:", responseData);
+
             if (!response.ok) {
-                throw new Error("Failed to save profile");
+                console.error("[FRONTEND] Save failed:", responseData);
+                throw new Error("Failed to save profile: " + (responseData.error || response.statusText));
             }
 
             toast("Profile Saved", {
@@ -211,7 +216,7 @@ export default function ProfilePage() {
         } catch (error) {
             console.error("Error saving profile:", error);
             toast("Error", {
-                description: "Could not save profile. Please try again.",
+                description: "Could not save profile. Check console for details.",
             });
         } finally {
             setLoading(false);

@@ -40,34 +40,88 @@ export async function POST(req: Request) {
     try {
         const userId = await getUserId();
         if (!userId) {
+            console.log("[API] Unauthorized access to POST /api/profile");
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
+        console.log(`[API] Saving profile for UserID: ${userId}`);
 
         const body = await req.json();
         console.log("Received profile data for user:", userId, body);
 
+
         // Check if profile exists
         const existingProfile = await db.select().from(userProfiles).where(eq(userProfiles.userId, userId));
 
+        const {
+            gender, preferredLanguage, primaryConcern, therapyPreference, previousExperience,
+            sleepPattern, supportSystem, stressLevel,
+            socialPlatforms, socialPreferences, hobbies, musicDetails, entertainment
+        } = body;
+
+        // Create a type-safe object with potential undefined values
+        const rawProfileData = {
+            gender,
+            preferredLanguage,
+            primaryConcern,
+            therapyPreference,
+            previousExperience,
+            sleepPattern,
+            supportSystem,
+            stressLevel,
+            socialPlatforms,
+            socialPreferences,
+            hobbies,
+            musicDetails,
+            entertainment,
+            updatedAt: new Date(),
+        };
+
+        // Remove undefined keys to avoid Drizzle issues or unintentional NULLs
+        const profileData = Object.fromEntries(
+            Object.entries(rawProfileData).filter(([_, v]) => v !== undefined)
+        );
+
+        console.log("Saving Profile Data (Sanitized):", JSON.stringify(profileData, null, 2));
+
+        let savedProfile;
+
         if (existingProfile.length > 0) {
             // Update existing
-            await db.update(userProfiles).set({
-                ...body,
-                updatedAt: new Date(),
-            }).where(eq(userProfiles.userId, userId));
-            console.log("Updated profile for user:", userId);
+            console.log("Updating existing profile for user:", userId);
+            try {
+                const result = await db.update(userProfiles)
+                    .set(profileData)
+                    .where(eq(userProfiles.userId, userId))
+                    .returning();
+                savedProfile = result[0];
+                console.log("Updated profile result:", JSON.stringify(savedProfile, null, 2));
+            } catch (updateError) {
+                console.error("DB Update Error:", updateError);
+                throw updateError;
+            }
         } else {
             // Create new
-            await db.insert(userProfiles).values({
-                userId,
-                ...body,
-            });
-            console.log("Created new profile for user:", userId);
+            console.log("Creating new profile for user:", userId);
+            console.log("Insert Payload:", JSON.stringify({ userId, ...profileData }, null, 2));
+            try {
+                const result = await db.insert(userProfiles)
+                    .values({
+                        userId,
+                        ...profileData,
+                        createdAt: new Date(),
+                    })
+                    .returning();
+                savedProfile = result[0];
+                console.log("Created new profile result:", JSON.stringify(savedProfile, null, 2));
+            } catch (insertError) {
+                console.error("DB Insert Error:", insertError);
+                throw insertError;
+            }
         }
 
-        return NextResponse.json({ success: true });
+        return NextResponse.json({ success: true, profile: savedProfile });
     } catch (error) {
-        console.error('Profile save error:', error);
+        console.error('Profile save error (General):', error);
         return NextResponse.json({ success: false, error: (error as Error).message }, { status: 500 });
     }
 }

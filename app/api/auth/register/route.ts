@@ -7,6 +7,7 @@ import { eq } from 'drizzle-orm';
 export async function POST(req: Request) {
     try {
         const { email, password, role } = await req.json();
+        console.log(`[REGISTER ATTEMPT] Email: ${email}, Role: ${role}`);
 
         // Validation
         if (!email || !password || !role) {

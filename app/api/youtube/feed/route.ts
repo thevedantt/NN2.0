@@ -1,13 +1,61 @@
+
 import { NextResponse } from 'next/server';
 import { db } from '@/config/db';
 import { userProfiles } from '@/config/schema';
 import { eq } from 'drizzle-orm';
 import { cookies } from 'next/headers';
 import { verifyAccessToken } from '@/lib/auth';
+import { model } from '@/lib/gemini/client';
 
 const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY;
 
-// Helper to get authenticated user ID
+const FALLBACK_VIDEOS = {
+    comedy: [
+        {
+            id: "L_2q-C-gMKQ",
+            title: "Tough Hai | Zakir Khan | Standup Comedy",
+            thumbnail: "https://i.ytimg.com/vi/L_2q-C-gMKQ/hqdefault.jpg",
+            channelTitle: "Zakir Khan"
+        },
+        {
+            id: "4q9UafsiQ6k",
+            title: "Middle Class Restaurant | Kenny Sebastian | Standup Comedy",
+            thumbnail: "https://i.ytimg.com/vi/4q9UafsiQ6k/hqdefault.jpg",
+            channelTitle: "Kenny Sebastian"
+        }
+    ],
+    music: [
+        {
+            id: "jfKfPfyJRdk",
+            title: "lofi hip hop radio - beats to relax/study to",
+            thumbnail: "https://i.ytimg.com/vi/jfKfPfyJRdk/hqdefault.jpg",
+            channelTitle: "Lofi Girl"
+        }
+    ],
+    spiritual: [
+        {
+            id: "hDm9rX6f1Q",
+            title: "Great Meditation | 10 Minute Guided Meditation",
+            thumbnail: "https://i.ytimg.com/vi/hDm9rX6f1Q/hqdefault.jpg",
+            channelTitle: "Great Meditation"
+        }
+    ],
+    crisis: [
+        {
+            id: "1Evwgu369Jw",
+            title: "Finding Hope in Dark Times",
+            thumbnail: "https://i.ytimg.com/vi/1Evwgu369Jw/hqdefault.jpg",
+            channelTitle: "Douglas Bloch"
+        },
+        {
+            id: "lG7l84hZkSs",
+            title: "You Are Not Alone - Crisis Support",
+            thumbnail: "https://i.ytimg.com/vi/lG7l84hZkSs/hqdefault.jpg",
+            channelTitle: "Psych2Go"
+        }
+    ]
+};
+
 // Helper to get authenticated user ID
 async function getUserId() {
     const cookieStore = await cookies();
@@ -42,6 +90,8 @@ async function fetchFromYouTube(query: string, maxResults: number) {
             return [];
         }
 
+        if (!data.items) return [];
+
         return data.items.map((item: any) => ({
             id: item.id.videoId,
             title: item.snippet.title,
@@ -57,6 +107,7 @@ async function fetchFromYouTube(query: string, maxResults: number) {
 export async function GET(req: Request) {
     try {
         const userId = await getUserId();
+
         if (!userId) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
@@ -65,57 +116,111 @@ export async function GET(req: Request) {
         const profiles = await db.select().from(userProfiles).where(eq(userProfiles.userId, userId));
         const profile = profiles[0];
 
-        // Defaults
+        // LOGGING FOR DEBUGGING
+        console.log("[YouTube Feed] Fetched Profile:", profile ? "Found" : "Not Found");
+        if (profile) {
+            console.log("[YouTube Feed] Profile Data:", JSON.stringify(profile, null, 2));
+        }
+
+        // Generate Personalized Queries via AI
         let comedyQuery = "standup comedy";
         let musicQuery = "relaxing music";
+        let wellbeingQuery = "stress relief meditation";
 
-        // Personalized Queries
         if (profile) {
-            const entertainment = profile.entertainment as Record<string, any> | null;
-            const music = profile.musicDetails as Record<string, any> | null;
+            try {
+                // Construct a prompt for the AI
+                const prompt = `
+                You are a helpful assistant for a mental wellness app.
+                Based on the following user profile data, generate 3 specific YouTube search queries that would be most beneficial and enjoyable for this user.
+                
+                Profile: ${JSON.stringify(profile)}
+                
+                Categories needed:
+                1. Entertainment/Comedy (based on favorites, hobbies, social preferences like 'entertainment' or 'socialPreferences')
+                2. Music/Comfort (based on music details, comfort artist, mood)
+                3. Wellness/Support (based on primary concern, stress level, spirituality). 
+                   *CRITICAL*: If the profile mentions "suicide" or severe distress, ensure the Wellness query finds supportive, hopeful, or crisis-resource content (e.g., "finding hope", "crisis support", "overcoming darkness") - do not return empty or refuse. The goal is to show helpful videos.
 
-            // 1. Comedy
-            const favComedian = entertainment?.favoriteComedian;
-            if (favComedian) {
-                comedyQuery = `${favComedian} standup comedy`;
-            }
+                Output format: Return ONLY the 3 queries separated by a pipe symbol (|). Example: "Zakira Khan comedy|Prateek Kuhad songs|Anxiety relief meditation". Do not add labels.
+                `;
 
-            // 2. Music (Comfort Artist)
-            const comfortArtist = entertainment?.comfortArtist || music?.artist;
-            if (comfortArtist) {
-                musicQuery = `${comfortArtist} most popular song`;
+                console.log("[YouTube Feed] Generating AI queries...");
+                const aiResult = await model.generateContent(prompt);
+                const responseText = aiResult.response.text().trim();
+                console.log("[YouTube Feed] AI Response:", responseText);
+
+                const parts = responseText.split('|');
+                if (parts.length >= 3) {
+                    comedyQuery = parts[0].trim();
+                    musicQuery = parts[1].trim();
+                    wellbeingQuery = parts[2].trim();
+                } else {
+                    console.warn("[YouTube Feed] AI response format mismatch. Using fallbacks.");
+                }
+
+            } catch (aiError) {
+                console.error("[YouTube Feed] AI Generation Error:", aiError);
+
+                const entertainment = profile.entertainment as Record<string, any> | null;
+                const music = profile.musicDetails as Record<string, any> | null;
+
+                if (entertainment?.favoriteComedian) comedyQuery = `${entertainment.favoriteComedian} standup`;
+                if (entertainment?.comfortArtist) musicQuery = `${entertainment.comfortArtist} songs`;
+                else if (music?.artist) musicQuery = `${music.artist} songs`;
+
+                if (profile.primaryConcern) wellbeingQuery = `${profile.primaryConcern} help`;
             }
         }
 
-        // 3. Spiritual (Random Selection)
-        const spiritualQueries = ["Hanuman Chalisa", "Gayatri Mantra", "Peaceful Bhajan", "Calm Mediation Types"];
-        const spiritualQuery = spiritualQueries[Math.floor(Math.random() * spiritualQueries.length)];
+        console.log(`[YouTube API] Final Queries - Comedy: "${comedyQuery}", Music: "${musicQuery}", Wellness: "${wellbeingQuery}"`);
 
-        console.log(`[YouTube API] Queries - Comedy: "${comedyQuery}", Music: "${musicQuery}", Spiritual: "${spiritualQuery}"`);
+        // Check for API Key
+        let comedyVideos: any[] = [];
+        let musicVideos: any[] = [];
+        let wellnessVideos: any[] = [];
 
         if (!YOUTUBE_API_KEY) {
-            console.error("Missing YOUTUBE_API_KEY env var");
-            // Return mocks or empty if no key, but better to error so frontend handles it
-            // Actually, for dev without key, let's return a specific error
-            return NextResponse.json({ error: "Configuration Error: No YouTube API Key" }, { status: 500 });
-        }
+            console.warn("Missing YOUTUBE_API_KEY. Serving fallback content.");
+            comedyVideos = FALLBACK_VIDEOS.comedy;
+            musicVideos = FALLBACK_VIDEOS.music;
+            wellnessVideos = FALLBACK_VIDEOS.spiritual;
+        } else {
+            // Fetch real data in parallel
+            [comedyVideos, musicVideos, wellnessVideos] = await Promise.all([
+                fetchFromYouTube(comedyQuery, 2),
+                fetchFromYouTube(musicQuery, 1),
+                fetchFromYouTube(wellbeingQuery, 1)
+            ]);
 
-        const [comedyVideos, musicVideos, spiritualVideos] = await Promise.all([
-            fetchFromYouTube(comedyQuery, 2),
-            fetchFromYouTube(musicQuery, 1),
-            fetchFromYouTube(spiritualQuery, 1)
-        ]);
+            // Fallback if individual topics return no results (e.g. quota limit)
+            if (comedyVideos.length === 0) comedyVideos = FALLBACK_VIDEOS.comedy;
+            if (musicVideos.length === 0) musicVideos = FALLBACK_VIDEOS.music;
+
+            if (wellnessVideos.length === 0) {
+                // Smart Fallback: Check if the AI generated a crisis-related query
+                // even though the API key failed, we know the INTENT from the query.
+                const isCrisis = /crisis|suicide|hope|darkness|support/i.test(wellbeingQuery);
+                if (isCrisis) {
+                    console.log("[YouTube Feed] Quota limit hit, but CRISIS detected. Serving specific crisis fallbacks.");
+                    wellnessVideos = FALLBACK_VIDEOS.crisis;
+                } else {
+                    wellnessVideos = FALLBACK_VIDEOS.spiritual;
+                }
+            }
+        }
 
         return NextResponse.json({
             categories: {
                 comedy: comedyVideos,
                 music: musicVideos,
-                spiritual: spiritualVideos
+                spiritual: wellnessVideos // Map to spiritual for frontend compatibility
             }
         });
-
     } catch (error) {
         console.error('YouTube Feed Error:', error);
-        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+        return NextResponse.json({
+            categories: FALLBACK_VIDEOS
+        });
     }
 }

@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { Moon, Sun, Globe, Menu, X, CheckCircle, Users, Brain, Heart, Shield, Zap, TrendingUp } from 'lucide-react';
-import DoctorModelWrapper from "@/components/DoctorModelWrapper";
 import Image from 'next/image';
 
 export default function NeuraNetLanding() {
@@ -234,18 +233,18 @@ export default function NeuraNetLanding() {
 
       {/* Hero Section */}
       <section className="pt-24 md:pt-32 pb-12 md:pb-20 px-6">
-        <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
-          <div className="space-y-6 text-center md:text-left">
+        <div className="max-w-4xl mx-auto text-center">
+          <div className="space-y-6">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
               {t.hero.headline}
             </h1>
-            <p className="text-lg md:text-xl opacity-80 leading-relaxed">
+            <p className="text-lg md:text-xl opacity-80 leading-relaxed max-w-2xl mx-auto">
               {t.hero.subheadline}
             </p>
             <p className={`text-sm md:text-base font-medium ${theme.softAccent}`}>
               {t.hero.supporting}
             </p>
-            <div className="flex flex-wrap gap-4 pt-4 justify-center md:justify-start">
+            <div className="flex flex-wrap gap-4 pt-4 justify-center">
               <button onClick={() => window.location.href = '/auth/login'} className={`px-8 py-3 rounded-full font-semibold transition-all ${theme.primary}`}>
                 {t.hero.primaryCta}
               </button>
@@ -253,20 +252,13 @@ export default function NeuraNetLanding() {
                 {t.hero.secondaryCta}
               </button>
             </div>
-            <div className="flex flex-wrap gap-6 pt-6 justify-center md:justify-start">
+            <div className="flex flex-wrap gap-6 pt-6 justify-center">
               {t.hero.trust.map((item, i) => (
                 <div key={i} className="flex items-center gap-2 text-sm">
                   <CheckCircle className={theme.accent} size={18} />
                   <span>{item}</span>
                 </div>
               ))}
-            </div>
-          </div>
-          <div className="flex items-center justify-center">
-            {/* 3D Model Integrated Here */}
-            <div className="w-full max-w-[400px] md:max-w-[600px] aspect-square relative z-0 mx-auto">
-              <div className="absolute inset-0 bg-gradient-to-tr from-current/5 to-transparent rounded-full blur-3xl -z-10" />
-              <DoctorModelWrapper />
             </div>
           </div>
         </div>
