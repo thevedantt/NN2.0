@@ -24,6 +24,7 @@ export default function NeuraNetLanding() {
         therapists: 'For Therapists',
         ngos: 'For NGOs',
         about: 'About Us',
+        neuropet: 'Pet Companion',
         cta: 'Get Started'
       },
       hero: {
@@ -94,6 +95,7 @@ export default function NeuraNetLanding() {
         therapists: 'चिकित्सकों के लिए',
         ngos: 'एनजीओ के लिए',
         about: 'हमारे बारे में',
+        neuropet: 'PET साथी',
         cta: 'शुरू करें'
       },
       hero: {
@@ -196,6 +198,10 @@ export default function NeuraNetLanding() {
               <a href="#how" className="hover:opacity-70 transition-opacity">{t.nav.howItWorks}</a>
               <a href="#therapists" className="hover:opacity-70 transition-opacity">{t.nav.therapists}</a>
               <a href="#about" className="hover:opacity-70 transition-opacity">{t.nav.about}</a>
+              <a href="/neuropet" className="px-4 py-1.5 rounded-full border border-current hover:bg-current hover:text-white transition-all transition-colors flex items-center gap-2">
+                <Heart size={16} />
+                {t.nav.neuropet}
+              </a>
             </div>
 
             {/* Actions */}
@@ -248,8 +254,9 @@ export default function NeuraNetLanding() {
               <button onClick={() => window.location.href = '/auth/login'} className={`px-8 py-3 rounded-full font-semibold transition-all ${theme.primary}`}>
                 {t.hero.primaryCta}
               </button>
-              <button className={`px-8 py-3 rounded-full font-semibold transition-all ${theme.secondary}`}>
-                {t.hero.secondaryCta}
+              <button onClick={() => window.location.href = '/neuropet'} className={`px-8 py-3 rounded-full font-semibold transition-all ${theme.secondary} flex items-center gap-2`}>
+                <span className="text-xl">🐾</span>
+                Meet Your NeuroPet
               </button>
             </div>
             <div className="flex flex-wrap gap-6 pt-6 justify-center">

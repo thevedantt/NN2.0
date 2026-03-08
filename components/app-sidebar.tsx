@@ -15,6 +15,7 @@ import {
   Lightbulb,
   Phone,
   Lock,
+  Dog,
 } from "lucide-react"
 
 import { useLanguage } from "@/context/LanguageContext"
@@ -62,6 +63,12 @@ export function AppSidebar() {
       url: "/chat-ai",
       icon: Bot,
       disabled: isOffline,
+    },
+    {
+      title: "NeuroPet",
+      url: "/neuropet",
+      icon: Dog,
+      disabled: false,
     },
     {
       title: t("qa_assessment"),
