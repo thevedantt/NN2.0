@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { MoreHorizontal, ArrowUpDown, Filter, Search, Plus } from "lucide-react"
+import { MoreHorizontal, ArrowUpDown, Filter, Search, Plus, Shield } from "lucide-react"
 import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
@@ -18,75 +18,75 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-// Mock Data
-const patients = [
-    {
-        id: "1",
-        name: "Arjun Watsa",
-        email: "arjun@example.com",
-        status: "Active",
-        risk: "Low",
-        lastSession: "2024-03-25",
-        nextSession: "Today, 08:00 AM",
-        image: "/avatars/01.png",
-    },
-    {
-        id: "2",
-        name: "Chandni Bakshi",
-        email: "chandni@example.com",
-        status: "Active",
-        risk: "Moderate",
-        lastSession: "2024-03-20",
-        nextSession: "Today, 09:00 AM",
-        image: "/avatars/02.png",
-    },
-    {
-        id: "3",
-        name: "Jai Chopra",
-        email: "jai@example.com",
-        status: "Inactive",
-        risk: "High",
-        lastSession: "2024-03-10",
-        nextSession: "Pending",
-        image: "/avatars/03.png",
-    },
-    {
-        id: "4",
-        name: "Girish M.",
-        email: "girish@example.com",
-        status: "Active",
-        risk: "Low",
-        lastSession: "2024-03-22",
-        nextSession: "Tomorrow, 11:30 AM",
-        image: "/avatars/04.png",
-    },
-    {
-        id: "5",
-        name: "Saanvi J.",
-        email: "saanvi.j@example.com",
-        status: "Active",
-        risk: "High",
-        lastSession: "2024-03-26",
-        nextSession: "Mar 29, 02:00 PM",
-        image: "/avatars/05.png",
-    },
-    {
-        id: "6",
-        name: "Manish Reddy",
-        email: "manish.r@example.com",
-        status: "On Hold",
-        risk: "Moderate",
-        lastSession: "2024-03-15",
-        nextSession: "Unscheduled",
-        image: "/avatars/06.png",
-    }
+type PatientRow = {
+    id: string
+    name: string
+    email: string
+    status: string
+    risk: string
+    lastSession: string
+    nextSession: string
+    image: string
+    hasSharedData?: boolean
+}
+
+// Mock Data (existing patients)
+const mockPatients: PatientRow[] = [
+    { id: "1", name: "Arjun Watsa", email: "arjun@example.com", status: "Active", risk: "Low", lastSession: "2024-03-25", nextSession: "Today, 08:00 AM", image: "/avatars/01.png" },
+    { id: "2", name: "Chandni Bakshi", email: "chandni@example.com", status: "Active", risk: "Moderate", lastSession: "2024-03-20", nextSession: "Today, 09:00 AM", image: "/avatars/02.png" },
+    { id: "3", name: "Jai Chopra", email: "jai@example.com", status: "Inactive", risk: "High", lastSession: "2024-03-10", nextSession: "Pending", image: "/avatars/03.png" },
+    { id: "4", name: "Girish M.", email: "girish@example.com", status: "Active", risk: "Low", lastSession: "2024-03-22", nextSession: "Tomorrow, 11:30 AM", image: "/avatars/04.png" },
 ]
 
 export default function PatientsPage() {
     const [searchTerm, setSearchTerm] = React.useState("")
     const [riskFilter, setRiskFilter] = React.useState<string | null>(null)
+    const [realPatients, setRealPatients] = React.useState<PatientRow[]>([])
 
-    const filteredPatients = patients.filter(patient => {
+    // Fetch real patients who have shared data with this therapist
+    React.useEffect(() => {
+        async function fetchSharedPatients() {
+            try {
+                const res = await fetch("/api/therapist/shared-records")
+                const data = await res.json()
+                if (res.ok && data.grants?.length > 0) {
+                    // Get unique patient IDs from grants
+                    const patientIds = [...new Set(data.grants.map((g: any) => g.patientUserId))] as string[]
+
+                    // Fetch patient info for each
+                    const patientRows: PatientRow[] = []
+                    for (const pid of patientIds) {
+                        try {
+                            const pRes = await fetch(`/api/therapist/patient-info?patientId=${pid}`)
+                            const pData = await pRes.json()
+                            if (pRes.ok) {
+                                const grantCount = data.grants.filter((g: any) => g.patientUserId === pid).length
+                                patientRows.push({
+                                    id: pid,
+                                    name: pData.email?.split("@")[0] || "Patient",
+                                    email: pData.email || "Unknown",
+                                    status: "Active",
+                                    risk: "—",
+                                    lastSession: `${grantCount} shared session(s)`,
+                                    nextSession: "—",
+                                    image: "/avatars/01.png",
+                                    hasSharedData: true,
+                                })
+                            }
+                        } catch {}
+                    }
+                    setRealPatients(patientRows)
+                }
+            } catch (err) {
+                console.error("Failed to fetch shared patients:", err)
+            }
+        }
+        fetchSharedPatients()
+    }, [])
+
+    const allPatients = [...realPatients, ...mockPatients]
+
+    const filteredPatients = allPatients.filter(patient => {
         const matchesSearch = patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             patient.email.toLowerCase().includes(searchTerm.toLowerCase())
         const matchesRisk = riskFilter ? patient.risk === riskFilter : true
@@ -162,10 +162,18 @@ export default function PatientsPage() {
                                                 <div className="flex items-center gap-3">
                                                     <Avatar className="h-9 w-9">
                                                         <AvatarImage src={patient.image} />
-                                                        <AvatarFallback>{patient.name.substring(0, 2)}</AvatarFallback>
+                                                        <AvatarFallback>{patient.name.substring(0, 2).toUpperCase()}</AvatarFallback>
                                                     </Avatar>
                                                     <div className="flex flex-col">
-                                                        <span className="font-medium">{patient.name}</span>
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="font-medium">{patient.name}</span>
+                                                            {patient.hasSharedData && (
+                                                                <Badge variant="outline" className="text-[9px] bg-primary/5 text-primary border-primary/20">
+                                                                    <Shield className="h-2.5 w-2.5 mr-0.5" />
+                                                                    Shared Data
+                                                                </Badge>
+                                                            )}
+                                                        </div>
                                                         <span className="text-xs text-muted-foreground">{patient.email}</span>
                                                     </div>
                                                 </div>
@@ -205,6 +213,13 @@ export default function PatientsPage() {
                                                         <Link href={`/therapist/patients/${patient.id}`}>
                                                             <DropdownMenuItem className="cursor-pointer">View Details</DropdownMenuItem>
                                                         </Link>
+                                                        {patient.hasSharedData && (
+                                                            <Link href={`/therapist/patients/${patient.id}?tab=chat`}>
+                                                                <DropdownMenuItem className="cursor-pointer">
+                                                                    <Shield className="h-3.5 w-3.5 mr-2" />View Shared Chat
+                                                                </DropdownMenuItem>
+                                                            </Link>
+                                                        )}
                                                         <DropdownMenuItem>View Notes</DropdownMenuItem>
                                                         <DropdownMenuSeparator />
                                                         <DropdownMenuItem>Schedule Session</DropdownMenuItem>
@@ -219,7 +234,7 @@ export default function PatientsPage() {
                     </div>
                     <div className="flex items-center justify-end space-x-2 py-4">
                         <div className="text-sm text-muted-foreground flex-1">
-                            Showing {filteredPatients.length} of {patients.length} patients
+                            Showing {filteredPatients.length} of {allPatients.length} patients
                         </div>
                         <Button variant="outline" size="sm" disabled>Previous</Button>
                         <Button variant="outline" size="sm" disabled>Next</Button>

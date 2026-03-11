@@ -17,6 +17,9 @@ export default function ProfilePage() {
     const [isLoading, setIsLoading] = React.useState(true);
     const [copied, setCopied] = React.useState(false);
 
+    // Use Web3Auth wallet if connected, otherwise fall back to DB-stored wallet
+    const effectiveWallet = walletAddress || profile?.walletAddress || null;
+
     React.useEffect(() => {
         async function fetchProfile() {
             const token = localStorage.getItem("token");
@@ -41,10 +44,10 @@ export default function ProfilePage() {
         fetchProfile();
     }, []);
 
-    // Fallbacks
-    const name = profile?.fullName || "Dr. Mary Grey";
-    const fee = profile?.perSessionFee || "150";
-    const specs = (profile?.specializations as string[]) || ["Anxiety", "Depression", "CBT", "Trauma"];
+    // Fallbacks - use empty/loading states instead of fake names
+    const name = profile?.fullName || (isLoading ? "Loading..." : "Not Set");
+    const fee = profile?.perSessionFee || "0";
+    const specs = (profile?.specializations as string[]) || [];
     const mobile = profile?.mobileNumber || "N/A";
     const license = profile?.licenseNumber || "Pending";
 
@@ -194,7 +197,7 @@ export default function ProfilePage() {
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            {walletAddress ? (
+                            {effectiveWallet ? (
                                 <>
                                     <div className="flex items-center gap-2 p-3 border rounded-lg bg-green-500/5 border-green-500/20">
                                         <div className="h-8 w-8 rounded-full bg-green-500/10 flex items-center justify-center">
@@ -202,14 +205,14 @@ export default function ProfilePage() {
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <p className="text-xs text-muted-foreground">Connected Wallet</p>
-                                            <p className="text-sm font-mono truncate">{walletAddress}</p>
+                                            <p className="text-sm font-mono truncate">{effectiveWallet}</p>
                                         </div>
                                         <Button
                                             variant="ghost"
                                             size="sm"
                                             className="h-8 w-8 p-0"
                                             onClick={() => {
-                                                navigator.clipboard.writeText(walletAddress)
+                                                navigator.clipboard.writeText(effectiveWallet)
                                                 setCopied(true)
                                                 setTimeout(() => setCopied(false), 2000)
                                             }}

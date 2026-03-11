@@ -23,7 +23,6 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { useWeb3 } from "@/context/Web3Context"
-import { grantAccessOnChain, revokeAccessOnChain, storeRecordOnChain } from "@/lib/web3/contract"
 
 type ShareStep = "idle" | "uploading" | "granting" | "done" | "error"
 
@@ -48,6 +47,10 @@ export function ShareAccessDialog({ sessionId, language = "en" }: ShareAccessDia
     const [txHash, setTxHash] = React.useState<string | null>(null)
     const [error, setError] = React.useState<string | null>(null)
 
+    // DB-stored wallet (fallback when Web3Auth is not connected)
+    const [dbWallet, setDbWallet] = React.useState<string | null>(null)
+    const effectiveWallet = walletAddress || dbWallet
+
     // Therapist selection
     const [therapists, setTherapists] = React.useState<TherapistOption[]>([])
     const [selectedTherapist, setSelectedTherapist] = React.useState<string>("")
@@ -56,6 +59,15 @@ export function ShareAccessDialog({ sessionId, language = "en" }: ShareAccessDia
     // Active grants for this session
     const [grants, setGrants] = React.useState<any[]>([])
     const [loadingGrants, setLoadingGrants] = React.useState(false)
+
+    // Fetch DB wallet on dialog open
+    React.useEffect(() => {
+        if (open && !walletAddress) {
+            fetch("/api/web3/wallet").then(r => r.json()).then(d => {
+                if (d.walletAddress) setDbWallet(d.walletAddress)
+            }).catch(() => {})
+        }
+    }, [open, walletAddress])
 
     const isHindi = language === "hi"
 
@@ -103,11 +115,9 @@ export function ShareAccessDialog({ sessionId, language = "en" }: ShareAccessDia
     }, [open, sessionId, fetchTherapists, fetchGrants])
 
     const handleShare = async () => {
-        if (!sessionId || !selectedTherapistData || !walletAddress) return
+        if (!sessionId || !selectedTherapistData || !effectiveWallet) return
         if (!selectedTherapistData.walletAddress) return
         setError(null)
-
-        const provider = getProvider()
 
         try {
             // Step 1: Upload encrypted chat to IPFS
@@ -121,20 +131,8 @@ export function ShareAccessDialog({ sessionId, language = "en" }: ShareAccessDia
             if (!uploadRes.ok) throw new Error(uploadData.error || "Upload failed")
             setCid(uploadData.cid)
 
-            // Step 2: Store CID on-chain + grant access on-chain
+            // Step 2: Record access grant in DB (wallets used for encryption, not on-chain tx)
             setStep("granting")
-            let onChainTxHash: string | null = null
-            if (provider) {
-                try {
-                    await storeRecordOnChain(provider, uploadData.cid)
-                    onChainTxHash = await grantAccessOnChain(provider, selectedTherapistData.walletAddress, uploadData.cid)
-                    setTxHash(onChainTxHash)
-                } catch (chainErr: any) {
-                    console.warn("[Web3] On-chain tx failed (continuing with DB grant):", chainErr.message)
-                }
-            }
-
-            // Step 3: Record grant in DB
             const grantRes = await fetch("/api/web3/access", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -142,9 +140,9 @@ export function ShareAccessDialog({ sessionId, language = "en" }: ShareAccessDia
                     therapistUserId: selectedTherapistData.userId,
                     sessionId,
                     ipfsCid: uploadData.cid,
-                    patientWallet: walletAddress,
+                    patientWallet: effectiveWallet,
                     therapistWallet: selectedTherapistData.walletAddress,
-                    txHash: onChainTxHash,
+                    txHash: null,
                 }),
             })
             const grantData = await grantRes.json()
@@ -161,15 +159,6 @@ export function ShareAccessDialog({ sessionId, language = "en" }: ShareAccessDia
 
     const handleRevoke = async (grantId: number, grant?: any) => {
         try {
-            const provider = getProvider()
-            if (provider && grant?.therapistWallet && grant?.ipfsCid) {
-                try {
-                    await revokeAccessOnChain(provider, grant.therapistWallet, grant.ipfsCid)
-                } catch (chainErr: any) {
-                    console.warn("[Web3] On-chain revoke failed:", chainErr.message)
-                }
-            }
-
             const res = await fetch("/api/web3/access", {
                 method: "DELETE",
                 headers: { "Content-Type": "application/json" },
@@ -219,7 +208,7 @@ export function ShareAccessDialog({ sessionId, language = "en" }: ShareAccessDia
                 </DialogHeader>
 
                 {/* Wallet Connection Status */}
-                {!walletAddress && step === "idle" && (
+                {!effectiveWallet && step === "idle" && (
                     <Card className="p-3 bg-orange-500/5 border-orange-500/20">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
@@ -240,12 +229,12 @@ export function ShareAccessDialog({ sessionId, language = "en" }: ShareAccessDia
                         </div>
                     </Card>
                 )}
-                {walletAddress && step === "idle" && (
+                {effectiveWallet && step === "idle" && (
                     <Card className="p-3 bg-green-500/5 border-green-500/20">
                         <div className="flex items-center gap-2">
                             <Wallet className="h-4 w-4 text-green-500" />
                             <p className="text-xs font-mono text-muted-foreground truncate">
-                                {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
+                                {effectiveWallet.slice(0, 6)}...{effectiveWallet.slice(-4)}
                             </p>
                             <Badge variant="outline" className="text-[10px] bg-green-500/10 text-green-600 border-green-500/20 ml-auto">Connected</Badge>
                         </div>
@@ -428,7 +417,7 @@ export function ShareAccessDialog({ sessionId, language = "en" }: ShareAccessDia
                     {step === "idle" && (
                         <Button
                             onClick={handleShare}
-                            disabled={!selectedTherapist || !selectedTherapistData?.walletAddress || !sessionId || !walletAddress}
+                            disabled={!selectedTherapist || !selectedTherapistData?.walletAddress || !sessionId || !effectiveWallet}
                             className="w-full gap-2"
                         >
                             <Unlock className="h-4 w-4" />
