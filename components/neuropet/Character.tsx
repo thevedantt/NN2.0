@@ -16,10 +16,18 @@ interface CharacterProps {
 const Character = forwardRef<CharacterRef, CharacterProps>(({ onAnimationsLoad }, ref) => {
     const group = useRef<THREE.Group>(null)
 
-    const { scene, animations } = useGLTF("/puppy.glb")
+    const { scene, animations } = useGLTF("/neuropet/test_pet.glb")
 
-    // Clone the scene so we get our own independent copy (avoids shared-reference issues from useGLTF cache)
-    const clone = useMemo(() => SkeletonUtils.clone(scene), [scene])
+    // Clone the scene and ground it
+    const clone = useMemo(() => {
+        const c = SkeletonUtils.clone(scene)
+        // Calculate bounding box to find the bottom point
+        const box = new THREE.Box3().setFromObject(c)
+        const minY = box.min.y
+        // Offset the model down so its feet are at y=0
+        c.position.y = -minY
+        return c
+    }, [scene])
 
     // Use the cloned scene as the mixer root
     const { actions, names, mixer } = useAnimations(animations, clone)
@@ -113,5 +121,5 @@ const Character = forwardRef<CharacterRef, CharacterProps>(({ onAnimationsLoad }
 Character.displayName = "Character"
 export default Character
 
-useGLTF.preload("/puppy.glb")
+useGLTF.preload("/neuropet/test_pet.glb")
 

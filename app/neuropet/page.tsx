@@ -9,15 +9,22 @@ import EmojiReaction from '@/components/neuropet/EmojiReaction'
 import VoiceChat from '@/components/neuropet/VoiceChat'
 import RewardShowcase from '@/components/neuropet/RewardShowcase'
 import ActionButtons from '@/components/neuropet/ActionButtons'
+import MiniGames from '@/components/neuropet/MiniGames'
 import { usePetStore } from '@/lib/neuropet/store/petStore'
 import { getEmotion } from '@/lib/neuropet/data/emotionMap'
 import { toast } from 'sonner'
 import * as THREE from 'three'
+import { Button } from '@/components/ui/button'
+import { Gamepad2 } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
 
 export default function Page() {
     const [animations, setAnimations] = useState<string[]>([])
     const characterRef = useRef<Character2Ref>(null)
     const performAction = usePetStore((s) => s.performAction)
+    const addXP = usePetStore((s) => s.addXP)
+
+    const [isGaming, setIsGaming] = useState(false)
 
     // Emoji reaction state
     const [reactionEmojis, setReactionEmojis] = useState<string[]>([])
@@ -115,7 +122,7 @@ export default function Page() {
             }}
         >
             <Canvas
-                camera={{ position: [0.05, 0.634, 1.776], fov: 50 }}
+                camera={{ position: [1.311, 0.337, 0.302], fov: 40 }}
                 shadows
                 gl={{
                     toneMapping: THREE.ACESFilmicToneMapping,
@@ -125,7 +132,14 @@ export default function Page() {
                 {/* Scene environment: lighting, ground, sky dome, particles */}
                 <SceneEnvironment />
 
-                <OrbitControls target={[0, 0, 0]} />
+                <OrbitControls 
+                    target={[0, 0, 0]} 
+                    enableZoom={false} 
+                    enablePan={false}
+                    enableRotate={true}
+                    minPolarAngle={Math.PI / 2.5}
+                    maxPolarAngle={Math.PI / 2}
+                />
                 <Character2
                     ref={characterRef}
                     onAnimationsLoad={handleAnimationsLoad}
@@ -151,6 +165,41 @@ export default function Page() {
 
             {/* Level 50 Reward: BMW M4 */}
             <RewardShowcase />
+
+            {/* Play Games Trigger (bottom-left) */}
+            <div className="absolute bottom-6 left-6 z-20">
+                <Button 
+                    onClick={() => setIsGaming(true)}
+                    className="bg-yellow-400 hover:bg-yellow-500 text-black font-black px-6 py-6 rounded-2xl shadow-[0_0_20px_rgba(250,204,21,0.3)] flex items-center gap-3 group transition-all hover:scale-105 active:scale-95 uppercase tracking-widest text-xs"
+                >
+                    <Gamepad2 className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+                    Play Training Games
+                </Button>
+            </div>
+
+            {/* Full Screen Game Overlay */}
+            <AnimatePresence>
+                {isGaming && (
+                    <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="absolute inset-0 z-[100] bg-black/60 backdrop-blur-md flex items-center justify-center p-4"
+                    >
+                        <motion.div 
+                            initial={{ scale: 0.8, opacity: 0, y: 20 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.8, opacity: 0, y: 20 }}
+                            className="w-full max-w-md h-[500px]"
+                        >
+                            <MiniGames 
+                                onXPGain={(amount, action) => addXP(amount, action)} 
+                                onClose={() => setIsGaming(false)}
+                            />
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             {/* Voice Conversation System */}
             <VoiceChat

@@ -39,7 +39,7 @@ interface Character2Props {
 const Character2 = forwardRef<Character2Ref, Character2Props>(({ onAnimationsLoad }, ref) => {
     const group = useRef<THREE.Group>(null)
 
-    const { scene, animations } = useGLTF("/neuropet/pet.glb")
+    const { scene, animations } = useGLTF("/neuropet/test_pet.glb")
 
     // Clone the scene and ground it
     const clone = useMemo(() => {
@@ -81,6 +81,7 @@ const Character2 = forwardRef<Character2Ref, Character2Props>(({ onAnimationsLoa
     // Play the first NLA clip to hold the natural rest pose (prevents T-posing)
     useEffect(() => {
         if (clipNames.length > 0 && actions) {
+            console.log(`[Character2] Available animations:`, clipNames)
             const firstClipName = clipNames[0]
             const action = actions[firstClipName]
             if (action) {
@@ -105,10 +106,43 @@ const Character2 = forwardRef<Character2Ref, Character2Props>(({ onAnimationsLoa
     useImperativeHandle(ref, () => ({
         playAnimation: (name: string) => {
             console.log(`[Character2] Switching to: "${name}"`)
+            
+            // Try to play GLB animation if it exists
+            if (actions) {
+                // Find action with flexible name matching (exact, lower, capitalized, or substring)
+                const foundKey = Object.keys(actions).find(k => k.toLowerCase().includes(name.toLowerCase()))
+                const action = actions[name] || 
+                             actions[name.toLowerCase()] || 
+                             actions[name.charAt(0).toUpperCase() + name.slice(1).toLowerCase()] ||
+                             (foundKey ? actions[foundKey] : null);
+                
+                if (action) {
+                    console.log(`[Character2] Found GLB animation for "${name}", playing it.`)
+                    // Stop others
+                    Object.values(actions).forEach(a => {
+                        if (a && a.isRunning()) a.fadeOut(0.3)
+                    })
+                    action.reset().fadeIn(0.3).play()
+                } else {
+                    console.log(`[Character2] No GLB animation found for "${name}", relying on procedural.`)
+                }
+            }
+
             animTime.current = 0
             currentAnimation.current = name as AnimationName
         }
-    }), [])
+    }), [actions])
+
+    // Add a parallax rotation effect to the character
+    useFrame((state) => {
+        if (group.current) {
+            // Gently rotate the character based on mouse X/Y for depth
+            const targetRotationY = state.mouse.x * 0.2
+            const targetRotationX = -state.mouse.y * 0.1
+            group.current.rotation.y = THREE.MathUtils.lerp(group.current.rotation.y, targetRotationY, 0.05)
+            group.current.rotation.x = THREE.MathUtils.lerp(group.current.rotation.x, targetRotationX, 0.05)
+        }
+    })
 
     // Procedural animation loop — runs AFTER the mixer (which sets the rest pose each frame)
     // We apply ADDITIVE offsets on top of the rest pose
@@ -384,7 +418,7 @@ const Character2 = forwardRef<Character2Ref, Character2Props>(({ onAnimationsLoa
     }, [clone])
 
     return (
-        <group ref={group} dispose={null}>
+        <group ref={group} dispose={null} scale={0.4}>
             <primitive object={clone} />
         </group>
     )
@@ -393,4 +427,4 @@ const Character2 = forwardRef<Character2Ref, Character2Props>(({ onAnimationsLoa
 Character2.displayName = "Character2"
 export default Character2
 
-useGLTF.preload("/neuropet/pet.glb")
+useGLTF.preload("/neuropet/test_pet.glb")

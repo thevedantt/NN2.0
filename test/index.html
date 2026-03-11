@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Model Animations</title>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #222 url('bg.png') no-repeat center center fixed;
+            background-size: cover;
+            font-family: Arial, sans-serif;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        #ui {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            max-height: 90vh;
+            overflow-y: auto;
+            min-width: 200px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        #ui h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            border-bottom: 1px solid #555;
+            padding-bottom: 5px;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            margin-bottom: 8px;
+            padding: 10px;
+            background: #444;
+            color: white;
+            border: 1px solid #666;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 0.95rem;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background: #666;
+        }
+
+        button.active {
+            background: #4CAF50;
+            border-color: #4CAF50;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="ui">
+        <h3>Animations</h3>
+        <div id="animation-buttons"></div>
+    </div>
+    <script type="module" src="main.js"></script>
+</body>
+
+</html>

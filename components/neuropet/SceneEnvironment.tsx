@@ -3,7 +3,7 @@
 import React, { useRef, useMemo } from "react"
 import * as THREE from "three"
 import { useFrame } from "@react-three/fiber"
-import { Environment, ContactShadows, Sphere } from "@react-three/drei"
+import { Environment, ContactShadows, Sphere, useTexture } from "@react-three/drei"
 
 /**
  * SceneEnvironment — adds depth, atmosphere, and grounding to the 3D scene.
@@ -97,13 +97,13 @@ function GroundPlane() {
             position={[0, 0, 0]}
             receiveShadow
         >
-            <circleGeometry args={[6, 64]} />
+            <circleGeometry args={[1.5, 64]} />
             <meshStandardMaterial
                 color="#c4a882"
-                roughness={0.85}
-                metalness={0.05}
+                roughness={0.8}
+                metalness={0.1}
                 transparent
-                opacity={0.9}
+                opacity={0.8}
             />
         </mesh>
     )
@@ -111,51 +111,35 @@ function GroundPlane() {
 
 /* ────────────────────────────────────────────────────
  * Sky Dome
- * A large inverted sphere with a gradient shader,
- * warm horizon color fading to dark top.
+ * Uses the provided bg.png as a textured 3D environment.
  * ──────────────────────────────────────────────────── */
 function SkyDome() {
-    const uniforms = useMemo(
-        () => ({
-            uTopColor: { value: new THREE.Color("#0a0a1a") },
-            uBottomColor: { value: new THREE.Color("#3d2b1a") },
-            uHorizonColor: { value: new THREE.Color("#ff8c47") },
-            uOffset: { value: 0.4 },
-            uExponent: { value: 0.6 },
-        }),
-        []
-    )
+    const texture = useTexture("/neuropet/bg.png")
+    const meshRef = useRef<THREE.Mesh>(null)
+    
+    // Ensure the texture wraps correctly and is high quality
+    texture.colorSpace = THREE.SRGBColorSpace
+    texture.mapping = THREE.EquirectangularReflectionMapping 
+
+    // Add a very subtle parallax effect to make the background feel "alive" and 3D
+    useFrame((state) => {
+        if (meshRef.current) {
+            // Slow idle rotation
+            meshRef.current.rotation.y += 0.0001
+            // Subtle reaction to mouse movement for depth
+            meshRef.current.position.x = THREE.MathUtils.lerp(meshRef.current.position.x, state.mouse.x * 0.3, 0.05)
+            meshRef.current.position.y = THREE.MathUtils.lerp(meshRef.current.position.y, state.mouse.y * 0.2, 0.05)
+        }
+    })
 
     return (
-        <Sphere args={[30, 32, 32]} scale={[-1, 1, 1]}>
-            <shaderMaterial
-                side={THREE.BackSide}
-                depthWrite={false}
-                uniforms={uniforms}
-                vertexShader={`
-          varying vec3 vWorldPosition;
-          void main() {
-            vec4 worldPos = modelMatrix * vec4(position, 1.0);
-            vWorldPosition = worldPos.xyz;
-            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-          }
-        `}
-                fragmentShader={`
-          uniform vec3 uTopColor;
-          uniform vec3 uBottomColor;
-          uniform vec3 uHorizonColor;
-          uniform float uOffset;
-          uniform float uExponent;
-          varying vec3 vWorldPosition;
-          void main() {
-            float h = normalize(vWorldPosition).y;
-            float t = max(0.0, h + uOffset);
-            t = pow(t, uExponent);
-            vec3 col = mix(uBottomColor, uHorizonColor, smoothstep(0.0, 0.3, t));
-            col = mix(col, uTopColor, smoothstep(0.3, 1.0, t));
-            gl_FragColor = vec4(col, 1.0);
-          }
-        `}
+        <Sphere ref={meshRef} args={[45, 64, 64]} rotation={[0, -Math.PI / 2, 0]}>
+            <meshBasicMaterial 
+                map={texture} 
+                side={THREE.BackSide} 
+                toneMapped={false}
+                transparent={true}
+                opacity={1}
             />
         </Sphere>
     )
