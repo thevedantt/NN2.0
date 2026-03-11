@@ -4,224 +4,137 @@ import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Gamepad2, Play, Trophy, ArrowLeft, RotateCcw } from "lucide-react"
+import { Gamepad2, X, ArrowLeft } from "lucide-react"
 
-interface MiniGameProps {
-    onXPGain: (amount: number, action: string) => void;
-    onClose: () => void;
+import ColorGameShared from "@/components/games/ColorGame"
+import ShapeGameShared from "@/components/games/ShapeGame"
+import BreathingGameShared from "@/components/games/BreathingGame"
+import BubblePopShared from "@/components/games/BubblePop"
+import TracePathShared from "@/components/games/TracePath"
+import { useLanguage } from "@/context/LanguageContext"
+
+interface MiniGamesProps {
+    onXPGain: (amount: number, action: string) => void
+    onClose: () => void
 }
 
-export default function MiniGames({ onXPGain, onClose }: MiniGameProps) {
-    const [activeGame, setActiveGame] = useState<'menu' | 'color' | 'shape'>('menu')
+type ActiveGame = 'menu' | 'color' | 'shape' | 'breath' | 'bubble' | 'trace'
+
+export default function MiniGames({ onXPGain, onClose }: MiniGamesProps) {
+    const [activeGame, setActiveGame] = useState<ActiveGame>('menu')
+    const { t } = useLanguage()
+
+    const GAMES = [
+        { id: 'color', name: t('offline_game_color'), icon: '🎨', color: 'bg-green-500' },
+        { id: 'shape', name: t('offline_game_shape'), icon: '📐', color: 'bg-orange-500' },
+        { id: 'breath', name: t('offline_game_breath'), icon: '🌬️', color: 'bg-blue-500' },
+        { id: 'bubble', name: t('offline_game_bubble'), icon: '🫧', color: 'bg-cyan-500' },
+        { id: 'trace', name: t('offline_game_trace'), icon: '✨', color: 'bg-indigo-500' },
+    ] as const
 
     return (
-        <Card className="w-full h-full bg-white/20 backdrop-blur-xl border-white/30 overflow-hidden flex flex-col shadow-2xl relative">
-            <AnimatePresence mode="wait">
-                {activeGame === 'menu' && (
-                    <motion.div 
-                        key="menu"
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 1.1 }}
-                        className="p-8 flex flex-col h-full items-center justify-center space-y-6"
-                    >
-                        <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            onClick={onClose} 
-                            className="absolute top-4 right-4 text-white/40 hover:text-white hover:bg-white/10"
-                        >
-                            <ArrowLeft className="h-5 w-5 rotate-90" />
-                        </Button>
+        <Card className="w-full h-full bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl border-none shadow-2xl overflow-hidden flex flex-col">
+            <div className="p-4 border-b flex justify-between items-center bg-zinc-50/50 dark:bg-zinc-800/50">
+                <div className="flex items-center gap-2">
+                    <Gamepad2 className="w-5 h-5 text-primary" />
+                    <div>
+                        <h2 className="text-lg font-black tracking-tight text-zinc-900 dark:text-zinc-50 uppercase leading-none opacity-60">Neuro Microtasks</h2>
+                        <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-widest mt-0.5 opacity-40">Complete tasks to earn XP</p>
+                    </div>
+                </div>
+                <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full hover:bg-black/5 dark:hover:bg-white/5">
+                    <X className="w-5 h-5" />
+                </Button>
+            </div>
 
-                        <div className="text-center">
-                            <div className="w-16 h-16 bg-yellow-400/20 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-yellow-400/30">
-                                <Gamepad2 className="w-8 h-8 text-yellow-400" />
+            <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
+                <AnimatePresence mode="wait">
+                    {activeGame === 'menu' ? (
+                        <motion.div 
+                            key="menu"
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            className="grid grid-cols-2 gap-3 h-full content-start"
+                        >
+                            {GAMES.map((g) => (
+                                <button
+                                    key={g.id}
+                                    onClick={() => setActiveGame(g.id)}
+                                    className="group relative flex flex-col items-center justify-center p-4 rounded-2xl bg-zinc-100/50 dark:bg-zinc-800/50 border-2 border-transparent hover:border-primary/20 hover:bg-white dark:hover:bg-zinc-800 transition-all duration-300 overflow-hidden"
+                                >
+                                    <div className={`w-12 h-12 rounded-2xl ${g.color} flex items-center justify-center text-2xl shadow-lg mb-3 group-hover:scale-110 transition-transform`}>
+                                        {g.icon}
+                                    </div>
+                                    <span className="text-[10px] font-black tracking-widest uppercase text-zinc-600 dark:text-zinc-400 text-center">
+                                        {g.name}
+                                    </span>
+                                </button>
+                            ))}
+                        </motion.div>
+                    ) : (
+                        <motion.div 
+                            key="game"
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 1.05 }}
+                            className="h-full flex flex-col"
+                        >
+                             <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                onClick={() => setActiveGame('menu')}
+                                className="self-start mb-4 text-[10px] font-bold uppercase tracking-widest text-muted-foreground hover:text-primary"
+                            >
+                                <ArrowLeft className="w-3 h-3 mr-1" /> Back to tasks
+                            </Button>
+                            
+                            <div className="flex-1 overflow-hidden">
+                                {activeGame === 'color' && (
+                                    <ColorGameShared 
+                                        isMini 
+                                        t={t} 
+                                        onScore={(p) => onXPGain(p, 'Color Tap')} 
+                                        onEnd={() => setActiveGame('menu')} 
+                                    />
+                                )}
+                                {activeGame === 'shape' && (
+                                    <ShapeGameShared 
+                                        isMini 
+                                        t={t} 
+                                        onScore={(p) => onXPGain(p, 'Shape Match')} 
+                                        onEnd={() => setActiveGame('menu')} 
+                                    />
+                                )}
+                                {activeGame === 'breath' && (
+                                    <BreathingGameShared 
+                                        isMini 
+                                        t={t} 
+                                        onScore={(p) => onXPGain(p, 'Breathing Circle')} 
+                                        onEnd={() => setActiveGame('menu')} 
+                                    />
+                                )}
+                                {activeGame === 'bubble' && (
+                                    <BubblePopShared 
+                                        isMini 
+                                        t={t} 
+                                        onScore={(p) => onXPGain(p, 'Bubble Pop')} 
+                                        onEnd={() => setActiveGame('menu')} 
+                                    />
+                                )}
+                                {activeGame === 'trace' && (
+                                    <TracePathShared 
+                                        isMini 
+                                        t={t} 
+                                        onScore={(p) => onXPGain(p, 'Trace Path')} 
+                                        onEnd={() => setActiveGame('menu')} 
+                                    />
+                                )}
                             </div>
-                            <h3 className="font-bold text-white uppercase tracking-[0.2em] text-lg">Neuro Microtasks</h3>
-                            <p className="text-sm text-white/40">Complete tasks to earn XP</p>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4 w-full">
-                            <Button 
-                                variant="outline" 
-                                className="bg-white/5 border-white/10 hover:bg-white/20 h-28 flex flex-col gap-3 group transition-all"
-                                onClick={() => setActiveGame('color')}
-                            >
-                                <div className="flex gap-2 group-hover:scale-110 transition-transform">
-                                    <div className="w-3 h-3 rounded-full bg-red-400 shadow-[0_0_10px_rgba(248,113,113,0.5)]" />
-                                    <div className="w-3 h-3 rounded-full bg-blue-400 shadow-[0_0_10px_rgba(96,165,250,0.5)]" />
-                                </div>
-                                <span className="text-xs font-black tracking-widest">COLOR TAP</span>
-                            </Button>
-                            <Button 
-                                variant="outline" 
-                                className="bg-white/5 border-white/10 hover:bg-white/20 h-28 flex flex-col gap-3 group transition-all"
-                                onClick={() => setActiveGame('shape')}
-                            >
-                                <div className="flex gap-2 group-hover:scale-110 transition-transform">
-                                    <div className="w-3 h-3 border-2 border-white/60" />
-                                    <div className="w-3 h-3 rounded-full border-2 border-white/60" />
-                                </div>
-                                <span className="text-xs font-black tracking-widest">SHAPE MATCH</span>
-                            </Button>
-                        </div>
-                    </motion.div>
-                )}
-
-                {activeGame === 'color' && (
-                    <ColorGame 
-                        key="color"
-                        onExit={() => setActiveGame('menu')} 
-                        onXPGain={onXPGain}
-                    />
-                )}
-
-                {activeGame === 'shape' && (
-                    <ShapeGame 
-                        key="shape"
-                        onExit={() => setActiveGame('menu')} 
-                        onXPGain={onXPGain}
-                    />
-                )}
-            </AnimatePresence>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </div>
         </Card>
-    )
-}
-
-function ColorGame({ onExit, onXPGain }: { onExit: () => void, onXPGain: (a: number, s: string) => void }) {
-    const [score, setScore] = useState(0)
-    const [targetColor, setTargetColor] = useState('')
-    const [colors, setColors] = useState<string[]>([])
-    const [message, setMessage] = useState("")
-
-    const palette = ['bg-red-400', 'bg-blue-400', 'bg-green-400', 'bg-yellow-400', 'bg-purple-400', 'bg-orange-400']
-    const colorNames: Record<string, string> = {
-        'bg-red-400': 'RED', 'bg-blue-400': 'BLUE', 'bg-green-400': 'GREEN', 
-        'bg-yellow-400': 'YELLOW', 'bg-purple-400': 'PURPLE', 'bg-orange-400': 'ORANGE'
-    }
-
-    const startRound = () => {
-        const shuffled = [...palette].sort(() => 0.5 - Math.random()).slice(0, 4)
-        setColors(shuffled)
-        const target = shuffled[Math.floor(Math.random() * shuffled.length)]
-        setTargetColor(target)
-        setMessage(`TAP THE ${colorNames[target]}`)
-    }
-
-    useEffect(() => { startRound() }, [])
-
-    const handleTap = (color: string) => {
-        if (color === targetColor) {
-            setScore(s => s + 1)
-            onXPGain(2, "MiniGame Success")
-            setMessage("EXCELLENT!")
-            setTimeout(startRound, 400)
-        } else {
-            setMessage("WRONG COLOR")
-            setTimeout(() => setMessage(`TAP THE ${colorNames[targetColor]}`), 800)
-        }
-    }
-
-    return (
-        <motion.div 
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            className="flex flex-col h-full p-3"
-        >
-            <div className="flex justify-between items-center mb-2">
-                <Button variant="ghost" size="icon" onClick={onExit} className="h-6 w-6 text-white/60 hover:text-white">
-                    <ArrowLeft className="h-3 w-3" />
-                </Button>
-                <div className="flex items-center gap-1">
-                    <Trophy className="w-3 h-3 text-yellow-400" />
-                    <span className="text-[10px] font-bold text-white">{score}</span>
-                </div>
-            </div>
-
-            <div className="flex-1 flex flex-col items-center justify-center space-y-4">
-                <p className="text-[10px] font-black tracking-widest text-white/80">{message}</p>
-                <div className="grid grid-cols-2 gap-2">
-                    {colors.map((c, i) => (
-                        <motion.button
-                            key={i}
-                            whileTap={{ scale: 0.95 }}
-                            className={`w-14 h-14 rounded-lg ${c} shadow-md border-2 border-white/10`}
-                            onClick={() => handleTap(c)}
-                        />
-                    ))}
-                </div>
-            </div>
-        </motion.div>
-    )
-}
-
-function ShapeGame({ onExit, onXPGain }: { onExit: () => void, onXPGain: (a: number, s: string) => void }) {
-    const [score, setScore] = useState(0)
-    const [targetShape, setTargetShape] = useState('')
-    const [shapes, setShapes] = useState<string[]>([])
-    const [message, setMessage] = useState("")
-
-    const allShapes = ['circle', 'square', 'triangle', 'diamond']
-
-    const startRound = () => {
-        const shuffled = [...allShapes].sort(() => 0.5 - Math.random()).slice(0, 3)
-        setShapes(shuffled)
-        const target = shuffled[Math.floor(Math.random() * shuffled.length)]
-        setTargetShape(target)
-        setMessage(`FIND THE ${target.toUpperCase()}`)
-    }
-
-    useEffect(() => { startRound() }, [])
-
-    const handleTap = (shape: string) => {
-        if (shape === targetShape) {
-            setScore(s => s + 1)
-            onXPGain(3, "MiniGame Success")
-            setMessage("GREAT MATCH!")
-            setTimeout(startRound, 400)
-        } else {
-            setMessage("TRY AGAIN")
-            setTimeout(() => setMessage(`FIND THE ${targetShape.toUpperCase()}`), 800)
-        }
-    }
-
-    return (
-        <motion.div 
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            className="flex flex-col h-full p-3"
-        >
-            <div className="flex justify-between items-center mb-2">
-                <Button variant="ghost" size="icon" onClick={onExit} className="h-6 w-6 text-white/60 hover:text-white">
-                    <ArrowLeft className="h-3 w-3" />
-                </Button>
-                <div className="flex items-center gap-1">
-                    <Trophy className="w-3 h-3 text-yellow-400" />
-                    <span className="text-[10px] font-bold text-white">{score}</span>
-                </div>
-            </div>
-
-            <div className="flex-1 flex flex-col items-center justify-center space-y-4">
-                <p className="text-[10px] font-black tracking-widest text-white/80">{message}</p>
-                <div className="flex gap-2">
-                    {shapes.map((s, i) => (
-                        <motion.button
-                            key={i}
-                            whileTap={{ scale: 0.95 }}
-                            className="w-14 h-14 flex items-center justify-center bg-white/5 border-2 border-white/10 rounded-lg hover:bg-white/10"
-                            onClick={() => handleTap(s)}
-                        >
-                            {s === 'circle' && <div className="w-6 h-6 rounded-full bg-white/80" />}
-                            {s === 'square' && <div className="w-6 h-6 bg-white/80" />}
-                            {s === 'triangle' && <div className="w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-b-[24px] border-b-white/80" />}
-                            {s === 'diamond' && <div className="w-6 h-6 bg-white/80 rotate-45" />}
-                        </motion.button>
-                    ))}
-                </div>
-            </div>
-        </motion.div>
     )
 }

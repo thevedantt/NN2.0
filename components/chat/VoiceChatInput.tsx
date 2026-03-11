@@ -54,21 +54,34 @@ export function VoiceChatInput({
 
     // Ref to hold the text *before* current speech session
     const baseTextRef = React.useRef(value)
+    // Track whether we're in an active voice session (avoids race conditions with voiceState)
+    const isVoiceSessionRef = React.useRef(false)
 
     const handleVoiceToggle = () => {
         if (disabled || !isSupported) return
 
         if (voiceState === "listening") {
+            isVoiceSessionRef.current = false
             stopListening()
         } else {
             baseTextRef.current = value
+            isVoiceSessionRef.current = true
             startListening()
         }
     }
 
-    // Effect: Update parent `onChange` when `transcript` updates
+    // When voice session ends (state goes back to idle), clean up
     React.useEffect(() => {
-        if (voiceState === 'listening' && transcript) {
+        if (voiceState === 'idle' || voiceState === 'error') {
+            isVoiceSessionRef.current = false
+        }
+    }, [voiceState])
+
+    // Effect: Update parent `onChange` when `transcript` updates
+    // Uses isVoiceSessionRef to avoid race condition where voiceState
+    // goes to 'idle' before the final transcript is processed
+    React.useEffect(() => {
+        if (transcript && (voiceState === 'listening' || isVoiceSessionRef.current)) {
             const spacer = baseTextRef.current && !baseTextRef.current.endsWith(' ') ? ' ' : ''
             onChange(baseTextRef.current + spacer + transcript)
         }
