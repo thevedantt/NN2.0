@@ -45,7 +45,7 @@ export default function LoginPage() {
                 } else if (data.role === "buddy") {
                     router.push("/buddy/dashboard")
                 } else {
-                    router.push("/dashboard")
+                    router.push("/editprofile")
                 }
             } else {
                 toast.error("Login failed", {

@@ -12,7 +12,7 @@ export async function middleware(request: NextRequest) {
     // 1. Define guarded routes
     const isTherapistRoute = path.startsWith('/therapist')
     const isBuddyRoute = path.startsWith('/buddy')
-    const isUserRoute = path.startsWith('/dashboard') || path.startsWith('/chat-ai') || path.startsWith('/profile') || path.startsWith('/assessment') || path.startsWith('/doctors')
+    const isUserRoute = path.startsWith('/dashboard') || path.startsWith('/chat-ai') || path.startsWith('/profile') || path.startsWith('/editprofile') || path.startsWith('/assessment') || path.startsWith('/doctors')
 
     // 2. Exclude auth routes and public assets
     if (path.startsWith('/api') || path.startsWith('/_next') || path.startsWith('/static') || path.startsWith('/auth') || path === '/') {
@@ -98,7 +98,7 @@ function redirectToDashboard(role: string, request: NextRequest) {
     } else if (role === 'buddy') {
         return NextResponse.redirect(new URL('/buddy/dashboard', request.url))
     } else {
-        return NextResponse.redirect(new URL('/dashboard', request.url))
+        return NextResponse.redirect(new URL('/editprofile', request.url))
     }
 }
 

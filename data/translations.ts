@@ -5,7 +5,7 @@ export const translations = {
         app_name: "NeuraNet",
 
         // Dashboard Header
-        greeting: "Good Morning, Vedant!",
+        greeting: "Good Morning, {name}!",
         greeting_subtitle: "Here's your wellness overview.",
         search_placeholder: "Search...",
 
@@ -175,7 +175,7 @@ export const translations = {
         app_name: "न्यूरानेट",
 
         // Dashboard Header
-        greeting: "शुभ प्रभात, वेदांत!",
+        greeting: "शुभ प्रभात, {name}!",
         greeting_subtitle: "यहाँ आपकी स्वास्थ्य झलक है।",
         search_placeholder: "खोजें...",
 
@@ -345,7 +345,7 @@ export const translations = {
         app_name: "न्यूरानेट",
 
         // Dashboard Header
-        greeting: "शुभ प्रभात, वेदांत!",
+        greeting: "शुभ प्रभात, {name}!",
         greeting_subtitle: "येथे आपला आरोग्य आढावा आहे.",
         search_placeholder: "शोधा...",
 

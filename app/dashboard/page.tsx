@@ -1,6 +1,7 @@
 "use client"
 
-import { SidebarTrigger } from "@/components/ui/sidebar"
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { MoodChart } from "@/components/dashboard/mood-chart"
 import { StreakCard } from "@/components/dashboard/streak-card"
 import { QuickActions } from "@/components/dashboard/quick-actions"
@@ -18,13 +19,54 @@ import { useLanguage } from "@/context/LanguageContext"
 import { useOffline } from "@/context/OfflineContext"
 import { OfflineLanding } from "@/components/offline-landing"
 
+function getInitials(name: string | undefined): string {
+    if (!name) return "U"
+    const parts = name.trim().split(/\s+/)
+    if (parts.length === 1) return parts[0][0].toUpperCase()
+    return (parts[0][0] + parts[1][0]).toUpperCase()
+}
+
+function getDisplayName(email: string | undefined): string {
+    if (!email) return "User"
+    const local = email.split("@")[0]
+    // Capitalize first letter
+    return local.charAt(0).toUpperCase() + local.slice(1)
+}
+
 export default function DashboardPage() {
     const { t } = useLanguage()
     const { isOffline } = useOffline()
+    const router = useRouter()
+    const [userName, setUserName] = useState<string>("")
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const token = localStorage.getItem("token")
+                if (!token) return
+
+                const res = await fetch("/api/auth/me", {
+                    headers: { Authorization: `Bearer ${token}` },
+                })
+
+                if (res.ok) {
+                    const data = await res.json()
+                    setUserName(getDisplayName(data.email))
+                }
+            } catch (error) {
+                console.error("Failed to fetch user:", error)
+            }
+        }
+
+        fetchUser()
+    }, [])
 
     if (isOffline) {
         return <OfflineLanding />
     }
+
+    const greetingText = t('greeting').replace('{name}', userName || 'User')
+    const initials = getInitials(userName)
 
     return (
         <div className="flex flex-col h-full w-full bg-background p-4 md:p-6 space-y-6">
@@ -33,7 +75,7 @@ export default function DashboardPage() {
                 <div className="flex items-center gap-2">
 
                     <div className="flex flex-col">
-                        <h1 className="text-2xl font-bold tracking-tight text-foreground">{t('greeting')}</h1>
+                        <h1 className="text-2xl font-bold tracking-tight text-foreground">{greetingText}</h1>
                         <p className="text-muted-foreground">{t('greeting_subtitle')}</p>
                     </div>
                 </div>
@@ -48,10 +90,16 @@ export default function DashboardPage() {
                     </Button>
                     <LanguageToggle />
                     <ModeToggle />
-                    <Avatar>
-                        <AvatarImage src="" alt="User" />
-                        <AvatarFallback className="bg-primary text-primary-foreground">AL</AvatarFallback>
-                    </Avatar>
+                    <button
+                        onClick={() => router.push("/profile")}
+                        className="focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-full"
+                        aria-label="Go to profile"
+                    >
+                        <Avatar className="cursor-pointer hover:opacity-80 transition-opacity">
+                            <AvatarImage src="" alt={userName || "User"} />
+                            <AvatarFallback className="bg-primary text-primary-foreground">{initials}</AvatarFallback>
+                        </Avatar>
+                    </button>
                 </div>
             </header>
 
@@ -77,3 +125,4 @@ export default function DashboardPage() {
         </div>
     )
 }
+
