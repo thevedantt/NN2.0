@@ -109,20 +109,23 @@ const Character2 = forwardRef<Character2Ref, Character2Props>(({ onAnimationsLoa
             
             // Try to play GLB animation if it exists
             if (actions) {
-                // Find action with flexible name matching (exact, lower, capitalized, or substring)
+                // Find action with flexible name matching
                 const foundKey = Object.keys(actions).find(k => k.toLowerCase().includes(name.toLowerCase()))
                 const action = actions[name] || 
                              actions[name.toLowerCase()] || 
                              actions[name.charAt(0).toUpperCase() + name.slice(1).toLowerCase()] ||
                              (foundKey ? actions[foundKey] : null);
                 
-                if (action) {
+                // Stop others
+                Object.values(actions).forEach(a => {
+                    if (a && a.isRunning()) a.fadeOut(0.3)
+                })
+
+                if (action && name !== "Idle") {
                     console.log(`[Character2] Found GLB animation for "${name}", playing it.`)
-                    // Stop others
-                    Object.values(actions).forEach(a => {
-                        if (a && a.isRunning()) a.fadeOut(0.3)
-                    })
                     action.reset().fadeIn(0.3).play()
+                } else if (name === "Idle") {
+                    console.log(`[Character2] Idle requested - staying in static pose.`)
                 } else {
                     console.log(`[Character2] No GLB animation found for "${name}", relying on procedural.`)
                 }
@@ -157,15 +160,7 @@ const Character2 = forwardRef<Character2Ref, Character2Props>(({ onAnimationsLoa
 
         switch (anim) {
             case "Idle": {
-                // Gentle breathing + slight sway
-                const breathe = Math.sin(t * 2) * 0.02
-                const sway = Math.sin(t * 1.2) * 0.015
-                if (b.Spine01) b.Spine01.rotation.x += breathe
-                if (b.Spine02) b.Spine02.rotation.x += breathe * 0.5
-                if (b.Head) {
-                    b.Head.rotation.z += sway
-                    b.Head.rotation.x += Math.sin(t * 1.5) * 0.01
-                }
+                // Static standing pose - no movements
                 break
             }
 

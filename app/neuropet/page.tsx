@@ -114,6 +114,15 @@ export default function Page() {
         characterRef.current?.playAnimation("Idle")
     }, [])
 
+    // Trigger Dance animation when starting games
+    useEffect(() => {
+        if (isGaming) {
+            characterRef.current?.playAnimation("Dance")
+        } else {
+            characterRef.current?.playAnimation("Idle")
+        }
+    }, [isGaming])
+
     return (
         <div
             className='w-full h-full relative'
@@ -184,7 +193,7 @@ export default function Page() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="absolute inset-0 z-[100] bg-black/60 backdrop-blur-md flex items-center justify-center p-4"
+                        className="absolute inset-0 z-[15] bg-white/20 backdrop-blur-[2px] flex items-center justify-center p-4"
                     >
                         <motion.div 
                             initial={{ scale: 0.8, opacity: 0, y: 20 }}

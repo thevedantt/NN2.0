@@ -15,7 +15,7 @@ export default function MiniGames({ onXPGain, onClose }: MiniGameProps) {
     const [activeGame, setActiveGame] = useState<'menu' | 'color' | 'shape'>('menu')
 
     return (
-        <Card className="w-full h-full bg-black/40 backdrop-blur-xl border-white/20 overflow-hidden flex flex-col shadow-2xl relative">
+        <Card className="w-full h-full bg-white/20 backdrop-blur-xl border-white/30 overflow-hidden flex flex-col shadow-2xl relative">
             <AnimatePresence mode="wait">
                 {activeGame === 'menu' && (
                     <motion.div 
