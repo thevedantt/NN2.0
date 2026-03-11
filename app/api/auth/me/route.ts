@@ -45,6 +45,7 @@ export async function GET(req: Request) { // This handles GET /auth/me
             id: user.id,
             email: user.email,
             role: user.role,
+            walletAddress: user.walletAddress || null,
             ...profileData
         });
 

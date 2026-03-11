@@ -8,6 +8,7 @@ export const users = pgTable('users', {
     passwordHash: text('password_hash').notNull(),
     role: varchar('role', { length: 20 }).default('user').notNull(), // 'user', 'therapist', 'buddy'
     isOnboardingComplete: boolean('is_onboarding_complete').default(false).notNull(),
+    walletAddress: varchar('wallet_address', { length: 255 }),
     createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
@@ -100,4 +101,19 @@ export const aiChatInsights = pgTable('ai_chat_insights', {
     suggestionText: text('suggestion_text'),
     language: varchar('language', { length: 10 }).default('en'),
     createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+// 7️⃣ Chat Access Grants (mirrors on-chain access control for fast queries)
+export const chatAccessGrants = pgTable('chat_access_grants', {
+    grantId: serial('grant_id').primaryKey(),
+    patientUserId: varchar('patient_user_id', { length: 255 }).notNull(),       // User who owns the data
+    therapistUserId: varchar('therapist_user_id', { length: 255 }).notNull(),   // Therapist who was granted access
+    patientWallet: varchar('patient_wallet', { length: 255 }).notNull(),         // Patient's wallet address
+    therapistWallet: varchar('therapist_wallet', { length: 255 }).notNull(),     // Therapist's wallet address
+    sessionId: integer('session_id').references(() => aiChatSessions.sessionId).notNull(),
+    ipfsCid: varchar('ipfs_cid', { length: 255 }).notNull(),                    // The IPFS CID that was shared
+    txHash: varchar('tx_hash', { length: 255 }),                                // On-chain transaction hash
+    isActive: boolean('is_active').default(true).notNull(),                      // Soft-delete for revocation
+    grantedAt: timestamp('granted_at').defaultNow().notNull(),
+    revokedAt: timestamp('revoked_at'),
 });

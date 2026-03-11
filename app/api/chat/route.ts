@@ -33,17 +33,15 @@ async function runBackgroundJobs(
         // We log BOTH user and AI message here to remove DB writes from the hot path.
         // NOTE: This introduces a tiny risk of data loss if the server crashes exactly here,
         // but it drastically improves latency.
-        await db.transaction(async (tx) => {
-            await tx.insert(aiChatMessages).values({
-                sessionId: sessionId,
-                sender: 'user',
-                messageText: userMessage,
-            });
-            await tx.insert(aiChatMessages).values({
-                sessionId: sessionId,
-                sender: 'ai',
-                messageText: aiResponseText,
-            });
+        await db.insert(aiChatMessages).values({
+            sessionId: sessionId,
+            sender: 'user',
+            messageText: userMessage,
+        });
+        await db.insert(aiChatMessages).values({
+            sessionId: sessionId,
+            sender: 'ai',
+            messageText: aiResponseText,
         });
 
         monitor("Background:DB_Persist", jobStart);

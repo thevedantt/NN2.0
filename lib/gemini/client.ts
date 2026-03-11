@@ -34,6 +34,7 @@ export const model = {
             sendMessage: async (message: string) => {
                 // Add user message to history
                 sessionHistory.push({ role: "user", content: message });
+                console.log(sessionHistory);
 
                 try {
                     const completion = await openai.chat.completions.create({

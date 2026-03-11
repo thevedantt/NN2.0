@@ -1,0 +1,94 @@
+[
+    {
+        "anonymous": false,
+        "inputs": [
+            { "indexed": true, "internalType": "address", "name": "user", "type": "address" },
+            { "indexed": false, "internalType": "string", "name": "ipfsHash", "type": "string" },
+            { "indexed": false, "internalType": "uint256", "name": "index", "type": "uint256" }
+        ],
+        "name": "RecordStored",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            { "indexed": true, "internalType": "address", "name": "patient", "type": "address" },
+            { "indexed": true, "internalType": "address", "name": "therapist", "type": "address" },
+            { "indexed": false, "internalType": "string", "name": "ipfsHash", "type": "string" }
+        ],
+        "name": "AccessGranted",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            { "indexed": true, "internalType": "address", "name": "patient", "type": "address" },
+            { "indexed": true, "internalType": "address", "name": "therapist", "type": "address" },
+            { "indexed": false, "internalType": "string", "name": "ipfsHash", "type": "string" }
+        ],
+        "name": "AccessRevoked",
+        "type": "event"
+    },
+    {
+        "inputs": [{ "internalType": "string", "name": "ipfsHash", "type": "string" }],
+        "name": "storeRecord",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "getRecords",
+        "outputs": [{ "internalType": "string[]", "name": "", "type": "string[]" }],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "getRecordCount",
+        "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            { "internalType": "address", "name": "therapist", "type": "address" },
+            { "internalType": "string", "name": "ipfsHash", "type": "string" }
+        ],
+        "name": "grantAccess",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            { "internalType": "address", "name": "therapist", "type": "address" },
+            { "internalType": "string", "name": "ipfsHash", "type": "string" }
+        ],
+        "name": "revokeAccess",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            { "internalType": "address", "name": "patient", "type": "address" },
+            { "internalType": "address", "name": "therapist", "type": "address" },
+            { "internalType": "string", "name": "ipfsHash", "type": "string" }
+        ],
+        "name": "hasAccess",
+        "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "getSharedRecords",
+        "outputs": [
+            { "internalType": "address[]", "name": "patients", "type": "address[]" },
+            { "internalType": "string[]", "name": "cids", "type": "string[]" }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    }
+]

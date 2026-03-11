@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { CheckCircle2, Globe, GraduationCap, Languages, Mail, MapPin, Pencil, Shield, Star, Wallet } from "lucide-react"
+import { CheckCircle2, Globe, GraduationCap, Languages, Mail, MapPin, Pencil, Shield, Star, Wallet, Copy, CheckCheck, Loader2, Link2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -9,10 +9,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
+import { useWeb3 } from "@/context/Web3Context"
 
 export default function ProfilePage() {
+    const { walletAddress, connectWallet, isConnecting } = useWeb3()
     const [profile, setProfile] = React.useState<any>(null);
     const [isLoading, setIsLoading] = React.useState(true);
+    const [copied, setCopied] = React.useState(false);
 
     React.useEffect(() => {
         async function fetchProfile() {
@@ -177,6 +180,65 @@ export default function ProfilePage() {
                             <Button variant="ghost">Cancel</Button>
                             <Button>Save Changes</Button>
                         </CardFooter>
+                    </Card>
+
+                    {/* Web3 Wallet Section */}
+                    <Card className="border-none shadow-sm border-l-4 border-l-primary">
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <Link2 className="h-5 w-5 text-primary" />
+                                Web3 Wallet
+                            </CardTitle>
+                            <CardDescription>
+                                Connect your wallet so patients can securely share encrypted chat data with you.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            {walletAddress ? (
+                                <>
+                                    <div className="flex items-center gap-2 p-3 border rounded-lg bg-green-500/5 border-green-500/20">
+                                        <div className="h-8 w-8 rounded-full bg-green-500/10 flex items-center justify-center">
+                                            <Wallet className="h-4 w-4 text-green-500" />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-xs text-muted-foreground">Connected Wallet</p>
+                                            <p className="text-sm font-mono truncate">{walletAddress}</p>
+                                        </div>
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className="h-8 w-8 p-0"
+                                            onClick={() => {
+                                                navigator.clipboard.writeText(walletAddress)
+                                                setCopied(true)
+                                                setTimeout(() => setCopied(false), 2000)
+                                            }}
+                                        >
+                                            {copied ? <CheckCheck className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+                                        </Button>
+                                    </div>
+                                    <p className="text-[10px] text-muted-foreground leading-relaxed">
+                                        ✅ Patients can now share encrypted chat sessions with you. Their data is end-to-end encrypted using IPFS and verified on Polygon Amoy blockchain.
+                                    </p>
+                                </>
+                            ) : (
+                                <>
+                                    <div className="flex items-center gap-2 p-3 border rounded-lg bg-orange-500/5 border-orange-500/20">
+                                        <div className="h-8 w-8 rounded-full bg-orange-500/10 flex items-center justify-center">
+                                            <Wallet className="h-4 w-4 text-orange-500" />
+                                        </div>
+                                        <div className="flex-1">
+                                            <p className="text-sm font-medium">No Wallet Connected</p>
+                                            <p className="text-xs text-muted-foreground">Required to receive encrypted patient data</p>
+                                        </div>
+                                    </div>
+                                    <Button onClick={connectWallet} disabled={isConnecting} className="w-full gap-2">
+                                        {isConnecting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wallet className="h-4 w-4" />}
+                                        {isConnecting ? "Connecting..." : "Connect Wallet"}
+                                    </Button>
+                                </>
+                            )}
+                        </CardContent>
                     </Card>
 
                     {/* Availability Settings (Mini) */}

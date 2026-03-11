@@ -5,6 +5,7 @@ import { Sparkles, User, PanelRightOpen, PanelRightClose, Globe } from "lucide-r
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { VoiceChatInput } from "@/components/chat/VoiceChatInput"
+import { ShareAccessDialog } from "@/components/chat/ShareAccessDialog"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -429,6 +430,19 @@ export default function ChatPage() {
                                         </div>
                                     )}
                                 </div>
+                            </Card>
+                        )}
+
+                        {/* Share with Therapist */}
+                        {sessionId && (
+                            <Card className="p-4 bg-background/50 border-border/60 shadow-none">
+                                <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">🔐 {language === 'hi' ? 'डेटा स्वामित्व' : 'Data Ownership'}</h4>
+                                <p className="text-[10px] text-muted-foreground mb-3 leading-relaxed">
+                                    {language === 'hi'
+                                        ? 'आपका चैट डेटा आपका है। एन्क्रिप्ट करें और अपने थेरेपिस्ट के साथ सुरक्षित रूप से साझा करें।'
+                                        : 'Your chat data belongs to you. Encrypt and securely share with your therapist.'}
+                                </p>
+                                <ShareAccessDialog sessionId={sessionId} language={language} />
                             </Card>
                         )}
                     </div>
