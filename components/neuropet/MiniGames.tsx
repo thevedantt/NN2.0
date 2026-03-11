@@ -38,8 +38,8 @@ export default function MiniGames({ onXPGain, onClose }: MiniGameProps) {
                             <div className="w-16 h-16 bg-yellow-400/20 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-yellow-400/30">
                                 <Gamepad2 className="w-8 h-8 text-yellow-400" />
                             </div>
-                            <h3 className="font-bold text-white uppercase tracking-[0.2em] text-lg">Neuro Training</h3>
-                            <p className="text-sm text-white/40">Boost your pet's cognitive XP</p>
+                            <h3 className="font-bold text-white uppercase tracking-[0.2em] text-lg">Neuro Microtasks</h3>
+                            <p className="text-sm text-white/40">Complete tasks to earn XP</p>
                         </div>
 
                         <div className="grid grid-cols-2 gap-4 w-full">

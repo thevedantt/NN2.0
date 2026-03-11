@@ -172,9 +172,6 @@ export default function Page() {
                 />
             </PetProgressPanel>
 
-            {/* Level 50 Reward: BMW M4 */}
-            <RewardShowcase />
-
             {/* Play Games Trigger (bottom-left) */}
             <div className="absolute bottom-6 left-6 z-20">
                 <Button 
@@ -182,7 +179,7 @@ export default function Page() {
                     className="bg-yellow-400 hover:bg-yellow-500 text-black font-black px-6 py-6 rounded-2xl shadow-[0_0_20px_rgba(250,204,21,0.3)] flex items-center gap-3 group transition-all hover:scale-105 active:scale-95 uppercase tracking-widest text-xs"
                 >
                     <Gamepad2 className="w-5 h-5 group-hover:rotate-12 transition-transform" />
-                    Play Training Games
+                    Complete Microtasks
                 </Button>
             </div>
 

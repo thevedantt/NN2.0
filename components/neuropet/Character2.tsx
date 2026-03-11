@@ -121,11 +121,9 @@ const Character2 = forwardRef<Character2Ref, Character2Props>(({ onAnimationsLoa
                     if (a && a.isRunning()) a.fadeOut(0.3)
                 })
 
-                if (action && name !== "Idle") {
+                if (action) {
                     console.log(`[Character2] Found GLB animation for "${name}", playing it.`)
                     action.reset().fadeIn(0.3).play()
-                } else if (name === "Idle") {
-                    console.log(`[Character2] Idle requested - staying in static pose.`)
                 } else {
                     console.log(`[Character2] No GLB animation found for "${name}", relying on procedural.`)
                 }
@@ -160,7 +158,10 @@ const Character2 = forwardRef<Character2Ref, Character2Props>(({ onAnimationsLoa
 
         switch (anim) {
             case "Idle": {
-                // Static standing pose - no movements
+                // Very simple, gentle breathing
+                const breathe = Math.sin(t * 1.5) * 0.015
+                if (b.Spine01) b.Spine01.rotation.x += breathe
+                if (b.Head) b.Head.rotation.x += breathe * 0.3
                 break
             }
 
