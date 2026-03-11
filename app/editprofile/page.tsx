@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { Separator } from "@/components/ui/separator";
 import { InterviewField } from "@/components/profile/InterviewField";
 import { useLanguage } from "@/context/LanguageContext";
+import { EditProfileOverlay } from "@/components/onboarding/EditProfileOverlay";
 
 const DROPDOWN_OPTIONS = {
     gender: [
@@ -115,6 +116,7 @@ const DEFAULT_PROFILE = {
 
 export default function ProfilePage() {
     const { language } = useLanguage(); // Get current language context
+    const formRef = useRef<HTMLDivElement>(null);
     const [formData, setFormData] = useState<Record<string, string>>({});
     const [socialPlatforms, setSocialPlatforms] = useState<string[]>([]);
     const [socialPreferences, setSocialPreferences] = useState<Record<string, string>>({});
@@ -127,6 +129,9 @@ export default function ProfilePage() {
     const [comfortArtist, setComfortArtist] = useState("");
     const [favoriteComedian, setFavoriteComedian] = useState("");
     const [loading, setLoading] = useState(true);
+
+    // Onboarding state
+    const [showOnboarding, setShowOnboarding] = useState(false);
 
     // Metadata for voice inputs (optional storage, currently just checking state)
     const [inputMetadata, setInputMetadata] = useState<Record<string, { inputMethod: 'typed' | 'voice', language: string }>>({});
@@ -181,6 +186,21 @@ export default function ProfilePage() {
 
                     if (savedMeta) {
                         setInputMetadata(savedMeta);
+                    }
+
+                    // Check if key profile fields are filled
+                    const hasRequiredFields = data.gender && data.preferredLanguage && data.primaryConcern;
+                    if (!hasRequiredFields) {
+                        const onboardingDone = localStorage.getItem("nn_onboarding_editprofile_done");
+                        if (onboardingDone !== "true") {
+                            setShowOnboarding(true);
+                        }
+                    }
+                } else {
+                    // Profile is empty — check if onboarding was already completed
+                    const onboardingDone = localStorage.getItem("nn_onboarding_editprofile_done");
+                    if (onboardingDone !== "true") {
+                        setShowOnboarding(true);
                     }
                 }
             } catch (error) {
@@ -291,6 +311,12 @@ export default function ProfilePage() {
             toast("Profile Saved", {
                 description: "Your profile has been successfully updated.",
             });
+
+            // Dismiss onboarding overlay on successful save
+            if (showOnboarding) {
+                setShowOnboarding(false);
+                localStorage.setItem("nn_onboarding_editprofile_done", "true");
+            }
         } catch (error) {
             console.error("Error saving profile:", error);
             toast("Error", {
@@ -302,7 +328,13 @@ export default function ProfilePage() {
     };
 
     return (
-        <div className="container mx-auto py-10 max-w-3xl animate-in fade-in-50">
+        <>
+        {showOnboarding && <EditProfileOverlay formRef={formRef} />}
+        <div
+            ref={formRef}
+            className="container mx-auto py-10 max-w-3xl animate-in fade-in-50"
+            style={showOnboarding ? { position: "relative", zIndex: 100000 } : undefined}
+        >
             <h1 className="text-3xl font-bold mb-6">Edit Profile</h1>
             <div className="space-y-6">
 
@@ -528,5 +560,6 @@ export default function ProfilePage() {
                 </Card>
             </div>
         </div>
+        </>
     );
 }
