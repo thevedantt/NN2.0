@@ -52,17 +52,29 @@ type DecryptedChat = {
     exportedAt: string
 }
 
-export default function PatientDetailPage({ params }: { params: { id: string } }) {
-    // In a real app, fetch data based on params.id
-    const patient = {
-        name: "Augustine Watts",
-        age: 28,
-        diagnosis: "Generalized Anxiety Disorder",
-        status: "Active",
-        risk: "Low",
-        image: "/avatars/01.png",
-        nextSession: "Tomorrow, 2:00 PM"
+export default function PatientDetailPage({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = React.use(params)
+
+    // Mock patients lookup for non-UUID ids
+    const mockPatients: Record<string, any> = {
+        "1": { name: "Arjun Watsa", age: 28, diagnosis: "Generalized Anxiety Disorder", status: "Active", risk: "Low", image: "/avatars/01.png", nextSession: "Tomorrow, 2:00 PM" },
+        "2": { name: "Chandni Bakshi", age: 32, diagnosis: "Major Depressive Disorder", status: "Active", risk: "Moderate", image: "/avatars/02.png", nextSession: "Today, 09:00 AM" },
+        "3": { name: "Jai Chopra", age: 24, diagnosis: "PTSD", status: "Inactive", risk: "High", image: "/avatars/03.png", nextSession: "Pending" },
+        "4": { name: "Girish M.", age: 35, diagnosis: "Social Anxiety", status: "Active", risk: "Low", image: "/avatars/04.png", nextSession: "Tomorrow, 11:30 AM" },
     }
+
+    const isUUID = id.includes("-")
+    const [patient, setPatient] = React.useState(
+        mockPatients[id] || {
+            name: "Loading...",
+            age: "—",
+            diagnosis: "—",
+            status: "Active",
+            risk: "—",
+            image: "/avatars/01.png",
+            nextSession: "—",
+        }
+    )
 
     // Shared Chat Records State
     const [sharedGrants, setSharedGrants] = React.useState<SharedGrant[]>([])
@@ -71,21 +83,55 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
     const [chatData, setChatData] = React.useState<Record<number, DecryptedChat>>({})
     const [loadingChat, setLoadingChat] = React.useState<number | null>(null)
 
-    // Fetch shared records when Chat tab is selected
+    // Fetch real patient info if UUID
+    React.useEffect(() => {
+        if (isUUID) {
+            fetch(`/api/therapist/patient-info?patientId=${id}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.email) {
+                        setPatient((prev: any) => ({
+                            ...prev,
+                            name: data.email.split("@")[0],
+                            email: data.email,
+                            diagnosis: "Shared via Encrypted Channel",
+                            status: "Active",
+                            risk: "—",
+                        }))
+                    }
+                })
+                .catch(err => console.error("Failed to fetch patient info:", err))
+        }
+    }, [id, isUUID])
+
+    // Fetch shared records when Chat tab is selected (or auto for UUID patients)
     const fetchSharedRecords = React.useCallback(async () => {
         setLoadingGrants(true)
         try {
             const res = await fetch("/api/therapist/shared-records")
             const data = await res.json()
             if (res.ok) {
-                setSharedGrants(data.grants || [])
+                // Filter grants for this specific patient
+                const allGrants = data.grants || []
+                if (isUUID) {
+                    setSharedGrants(allGrants.filter((g: SharedGrant) => g.patientUserId === id))
+                } else {
+                    setSharedGrants(allGrants)
+                }
             }
         } catch (err) {
             console.error("Failed to fetch shared records:", err)
         } finally {
             setLoadingGrants(false)
         }
-    }, [])
+    }, [id, isUUID])
+
+    // Auto-fetch shared records for UUID patients
+    React.useEffect(() => {
+        if (isUUID) {
+            fetchSharedRecords()
+        }
+    }, [isUUID, fetchSharedRecords])
 
     // Decrypt and view a specific shared chat session
     const viewChatSession = async (grant: SharedGrant) => {
@@ -155,7 +201,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
             </Card>
 
             {/* Main Content Tabs */}
-            <Tabs defaultValue="overview" className="space-y-4">
+            <Tabs defaultValue={isUUID ? "chat" : "overview"} className="space-y-4">
                 <TabsList className="h-auto w-full justify-start overflow-x-auto p-1 bg-transparent border-b rounded-none gap-2">
                     <TabsTrigger value="overview" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-full px-4 py-2 text-sm">Overview</TabsTrigger>
                     <TabsTrigger value="assessments" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-full px-4 py-2 text-sm">Assessment History</TabsTrigger>
