@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import ReactMarkdown from "react-markdown"
 import { Sparkles, User, PanelRightOpen, PanelRightClose, Globe } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -291,7 +292,22 @@ export default function ChatPage() {
                                         ? "bg-primary text-primary-foreground rounded-br-sm"
                                         : "bg-primary/5 border border-primary/10 text-foreground rounded-bl-sm"
                                 )}>
-                                    {msg.content}
+                                    {msg.role === "ai" ? (
+                                        <ReactMarkdown
+                                            components={{
+                                                p: ({ children }) => <p className="mb-1 last:mb-0">{children}</p>,
+                                                ul: ({ children }) => <ul className="list-disc pl-4 space-y-1 my-1">{children}</ul>,
+                                                ol: ({ children }) => <ol className="list-decimal pl-4 space-y-1 my-1">{children}</ol>,
+                                                li: ({ children }) => <li className="leading-snug">{children}</li>,
+                                                strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+                                                em: ({ children }) => <em className="italic">{children}</em>,
+                                            }}
+                                        >
+                                            {msg.content}
+                                        </ReactMarkdown>
+                                    ) : (
+                                        msg.content
+                                    )}
                                     {msg.emotion && (
                                         <div className="mt-2 flex items-center gap-1.5 opacity-80">
                                             <Badge variant="outline" className="text-[10px] h-5 px-1.5 font-normal border-primary/20 bg-primary/5 text-primary">

@@ -446,7 +446,7 @@ export default function VoiceChat({ onPetSpeak, onPetFinishSpeaking }: VoiceChat
                 <div
                     style={{
                         position: "absolute",
-                        top: "15%",
+                        bottom: "22%",
                         left: "50%",
                         transform: "translateX(-50%)",
                         zIndex: 25,
@@ -505,7 +505,7 @@ export default function VoiceChat({ onPetSpeak, onPetFinishSpeaking }: VoiceChat
         @keyframes speech-bubble-in {
           0% {
             opacity: 0;
-            transform: translateX(-50%) translateY(10px) scale(0.95);
+            transform: translateX(-50%) translateY(12px) scale(0.95);
           }
           100% {
             opacity: 1;

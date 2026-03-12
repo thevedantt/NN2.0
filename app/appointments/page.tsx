@@ -52,8 +52,11 @@ export default function AppointmentsPage() {
     const fetchData = async () => {
         setLoading(true)
         try {
+            const token = localStorage.getItem("token")
+            const authHeaders: HeadersInit = token ? { Authorization: `Bearer ${token}` } : {}
+
             const [aptRes, therRes] = await Promise.all([
-                fetch('/api/appointments').then(r => r.json()),
+                fetch('/api/appointments', { headers: authHeaders }).then(r => r.json()),
                 fetch('/api/therapist/list').then(r => r.json())
             ]);
 

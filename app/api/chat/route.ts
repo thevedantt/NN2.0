@@ -2,10 +2,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { model } from "@/lib/gemini/client";
 import { db } from "@/config/db";
-import { aiChatSessions, aiChatMessages, aiChatInsights } from "@/config/schema";
+import { aiChatSessions, aiChatMessages, aiChatInsights, userProfiles } from "@/config/schema";
 import { eq, desc } from "drizzle-orm";
-import { COMPANION_PROMPTS, INSIGHT_ENGINE_PROMPT } from "@/lib/gemini/prompts";
+import { buildPersonalizedPrompt, INSIGHT_ENGINE_PROMPT } from "@/lib/gemini/prompts";
 import { detectCrisis } from "@/lib/crisis";
+import { cookies } from "next/headers";
+import { verifyAccessToken } from "@/lib/auth";
 
 // --- TELEMETRY HELPERS (Minimal Overhead) ---
 const monitor = (label: string, start: number) => {
@@ -108,6 +110,49 @@ GENERATE INSIGHT JSON:`;
 }
 
 
+async function getUserIdFromCookie(): Promise<string | null> {
+    try {
+        const cookieStore = await cookies();
+        const token = cookieStore.get('auth_token')?.value;
+        if (!token) return null;
+        const payload = await verifyAccessToken(token);
+        return payload ? (payload.sub as string) : null;
+    } catch {
+        return null;
+    }
+}
+
+async function fetchUserProfile(userId: string): Promise<Record<string, any> | null> {
+    try {
+        const result = await db.select().from(userProfiles).where(eq(userProfiles.userId, userId)).limit(1);
+        return result.length > 0 ? result[0] : null;
+    } catch {
+        return null;
+    }
+}
+
+// Matches: "add in memory: ...", "add to memory: ...", "remember this: ...", "save this: ..."
+const MEMORY_TRIGGER = /^(add\s+(in|to)\s+memory|remember\s+this|save\s+this)[:\s]+/i;
+
+async function appendUserMemory(userId: string, memoryText: string): Promise<void> {
+    const existing = await db.select({ memories: userProfiles.memories })
+        .from(userProfiles).where(eq(userProfiles.userId, userId)).limit(1);
+
+    const currentMemories: string[] = Array.isArray(existing[0]?.memories)
+        ? (existing[0].memories as string[])
+        : [];
+
+    const updatedMemories = [...currentMemories, memoryText];
+
+    if (existing.length > 0) {
+        await db.update(userProfiles)
+            .set({ memories: updatedMemories })
+            .where(eq(userProfiles.userId, userId));
+    } else {
+        await db.insert(userProfiles).values({ userId, memories: updatedMemories });
+    }
+}
+
 export async function POST(req: NextRequest) {
     const totalStart = Date.now();
 
@@ -116,12 +161,39 @@ export async function POST(req: NextRequest) {
 
         if (!message) return NextResponse.json({ error: "Message is required" }, { status: 400 });
 
-        const userId = "test_user_123";
+        // Resolve authenticated user (falls back to anonymous ID if not logged in)
+        const userId = (await getUserIdFromCookie()) || "anonymous";
         language = language || 'en';
 
         monitor("Parse_Request", totalStart);
 
-        // --- 1. CRISIS CHECK (Sync, Fast) ---
+        // --- 0. FETCH USER PROFILE for personalisation ---
+        const profileStart = Date.now();
+        const userProfile = userId !== "anonymous" ? await fetchUserProfile(userId) : null;
+        monitor("Profile_Fetch", profileStart);
+
+        // --- 1. MEMORY INTERCEPT ---
+        // If the message starts with a "add in memory" trigger, save it and return early.
+        const memoryMatch = message.match(MEMORY_TRIGGER);
+        if (memoryMatch) {
+            const memoryText = message.replace(MEMORY_TRIGGER, '').trim();
+            if (memoryText && userId !== "anonymous") {
+                await appendUserMemory(userId, memoryText);
+                const confirmation = language === 'hi'
+                    ? `याद रखा! ✓ मैंने यह नोट कर लिया है: "${memoryText}" — आगे की बातचीत में मैं इसे ध्यान में रखूँगा।`
+                    : `Noted! ✓ I've saved that to memory: "${memoryText}" — I'll keep this in mind throughout our conversations.`;
+                return NextResponse.json({
+                    role: "ai",
+                    content: confirmation,
+                    emotion: "warm",
+                    sessionId: sessionId || null,
+                    action: null,
+                    riskLevel: "none"
+                });
+            }
+        }
+
+        // --- 2. CRISIS CHECK (Sync, Fast) ---
         const crisisStart = Date.now();
         const crisisResult = detectCrisis(message, language);
         if (crisisResult.riskLevel === 'high') {
@@ -130,7 +202,7 @@ export async function POST(req: NextRequest) {
         monitor("Crisis_Check", crisisStart);
 
 
-        // --- 2. SESSION HANDLING (Optimized) ---
+        // --- 3. SESSION HANDLING (Optimized) ---
         // If no session ID, we MUST create one sync to return it.
         // Use a lightweight insert if possible.
         let currentSessionId = sessionId;
@@ -152,11 +224,13 @@ export async function POST(req: NextRequest) {
         const SLIM_HISTORY_LIMIT = 5;
         const slimHistory = (history || []).slice(-SLIM_HISTORY_LIMIT);
 
+        const systemPrompt = buildPersonalizedPrompt(language, userProfile);
+
         const chatSession = model.startChat({
             history: [
                 {
                     role: "user",
-                    parts: [{ text: COMPANION_PROMPTS[language as keyof typeof COMPANION_PROMPTS] || COMPANION_PROMPTS['en'] }],
+                    parts: [{ text: systemPrompt }],
                 },
                 {
                     role: "model",

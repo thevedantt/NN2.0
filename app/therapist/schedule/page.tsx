@@ -16,6 +16,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
+import { Video } from "lucide-react"
 
 // Types
 interface AptResponse {
@@ -28,6 +29,7 @@ interface AptResponse {
         status: string
         meetLink?: string
     }
+    patientEmail?: string
     patientWallet?: string
 }
 
@@ -144,35 +146,47 @@ export default function SchedulePage() {
                                         <span className="text-xs text-muted-foreground/70">60 min</span>
                                     </div>
 
-                                    {/* Appointment Card Line */}
                                     <div className={`w-1 self-stretch rounded-full ${isConfirmed ? 'bg-primary' : 'bg-orange-400'}`} />
 
                                     <div className="flex-1">
                                         <div className="flex justify-between items-start">
                                             <div className="flex items-center gap-3">
                                                 <Avatar>
-                                                    <AvatarFallback>PT</AvatarFallback>
+                                                    <AvatarFallback>{aptWrap.patientEmail ? aptWrap.patientEmail.slice(0,2).toUpperCase() : "PT"}</AvatarFallback>
                                                 </Avatar>
                                                 <div>
-                                                    <h3 className="font-semibold text-sm">Patient {appt.userId.substring(0,6)}</h3>
+                                                    <h3 className="font-semibold text-sm truncate max-w-[200px]">
+                                                        {aptWrap.patientEmail || `Patient ${appt.userId.substring(0,8)}`}
+                                                    </h3>
                                                     <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
                                                         <Badge variant="outline" className="font-normal">{appt.sessionType}</Badge>
                                                         {!isConfirmed && <Badge variant="secondary" className="text-orange-600 bg-orange-100">{appt.status}</Badge>}
                                                     </div>
                                                 </div>
                                             </div>
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger asChild>
-                                                    <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100">
-                                                        <MoreHorizontal className="h-4 w-4" />
+                                            <div className="flex items-center gap-2">
+                                                {appt.meetLink ? (
+                                                    <Button size="sm" className="h-8 text-xs gap-1.5" asChild>
+                                                        <a href={appt.meetLink} target="_blank" rel="noreferrer">
+                                                            <Video className="h-3.5 w-3.5" /> Join
+                                                        </a>
                                                     </Button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end">
-                                                    <DropdownMenuItem>View Patient Details</DropdownMenuItem>
-                                                    <DropdownMenuItem>Reschedule</DropdownMenuItem>
-                                                    <DropdownMenuItem className="text-destructive">Cancel Appointment</DropdownMenuItem>
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
+                                                ) : (
+                                                    <span className="text-xs text-muted-foreground italic">No link yet</span>
+                                                )}
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild>
+                                                        <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100">
+                                                            <MoreHorizontal className="h-4 w-4" />
+                                                        </Button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent align="end">
+                                                        <DropdownMenuItem>View Patient Details</DropdownMenuItem>
+                                                        <DropdownMenuItem>Reschedule</DropdownMenuItem>
+                                                        <DropdownMenuItem className="text-destructive">Cancel Appointment</DropdownMenuItem>
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

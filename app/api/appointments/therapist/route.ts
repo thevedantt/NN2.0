@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/config/db';
-import { appointments, users, userProfiles } from '@/config/schema';
+import { appointments, users } from '@/config/schema';
 import { eq, desc } from 'drizzle-orm';
 import { verifyAccessToken } from '@/lib/auth';
 
@@ -19,15 +19,16 @@ export async function GET(req: Request) {
         }
 
         const currentTherapistId = payload.sub as string;
-        
+
         const result = await db.select({
             appointment: appointments,
+            patientEmail: users.email,
             patientWallet: users.walletAddress,
         })
         .from(appointments)
         .leftJoin(users, eq(users.id, appointments.userId))
         .where(eq(appointments.doctorId, currentTherapistId))
-        .orderBy(desc(appointments.createdAt));
+        .orderBy(desc(appointments.appointmentDate), desc(appointments.appointmentTime));
 
         return NextResponse.json({ success: true, appointments: result });
     } catch (error) {

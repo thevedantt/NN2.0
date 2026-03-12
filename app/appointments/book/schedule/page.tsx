@@ -55,9 +55,13 @@ export default function BookingSchedulePage() {
 
             console.log("🚀 Sending Booking Request:", bookingPayload)
 
+            const token = localStorage.getItem("token")
             const res = await fetch('/api/appointments', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(token ? { Authorization: `Bearer ${token}` } : {})
+                },
                 body: JSON.stringify(bookingPayload)
             })
 

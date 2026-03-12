@@ -39,9 +39,9 @@ export const doctors = pgTable('doctors', {
 export const appointments = pgTable('appointments', {
     appointmentId: serial('appointment_id').primaryKey(),
     userId: varchar('user_id', { length: 255 }).notNull(), // References User (External Auth ID)
-    doctorId: varchar('doctor_id', { length: 50 }).notNull(), // Stores ID like "d1", "d4"
+    doctorId: varchar('doctor_id', { length: 255 }).notNull(), // Stores therapist userId (UUID)
     doctorSnapshot: json('doctor_snapshot').notNull(), // Snapshot of doctor details at booking
-    appointmentDate: date('appointment_date').notNull(),
+    appointmentDate: varchar('appointment_date', { length: 20 }).notNull(),
     appointmentTime: varchar('appointment_time', { length: 50 }).notNull(),
     sessionType: varchar('session_type', { length: 50 }).default('Video Consultation').notNull(),
     price: integer('price').notNull(), // Stored in lowest currency unit or raw number
@@ -69,6 +69,7 @@ export const userProfiles = pgTable('user_profiles', {
     musicDetails: json('music_details'), // { genre, artist } if applicable
     entertainment: json('entertainment'), // { bingeType, bingeList, comfortArtist, favoriteComedian }
     inputMetadata: json('input_metadata'), // Stores { fieldId: { inputMethod: 'voice' | 'typed', language: 'en' } }
+    memories: json('memories'), // Array of strings — user-added context via "add in memory"
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull().$onUpdate(() => new Date()),
 });

@@ -60,7 +60,7 @@ export default function Page() {
             const bgAudio = new Audio("/neuropet/voices/bgvoice.mpeg")
             bgAudio.volume = 0.4
             bgAudio.play().catch(() => { })
-        }, 15000)
+        }, 10000)
         return () => clearTimeout(timer)
     }, [])
 
@@ -141,9 +141,9 @@ export default function Page() {
                 {/* Scene environment: lighting, ground, sky dome, particles */}
                 <SceneEnvironment />
 
-                <OrbitControls 
-                    target={[0, 0, 0]} 
-                    enableZoom={false} 
+                <OrbitControls
+                    target={[0, 0, 0]}
+                    enableZoom={false}
                     enablePan={false}
                     enableRotate={true}
                     minPolarAngle={Math.PI / 2.5}
@@ -174,7 +174,7 @@ export default function Page() {
 
             {/* Play Games Trigger (bottom-left) */}
             <div className="absolute bottom-6 left-6 z-20">
-                <Button 
+                <Button
                     onClick={() => setIsGaming(true)}
                     className="bg-yellow-400 hover:bg-yellow-500 text-black font-black px-6 py-6 rounded-2xl shadow-[0_0_20px_rgba(250,204,21,0.3)] flex items-center gap-3 group transition-all hover:scale-105 active:scale-95 uppercase tracking-widest text-xs"
                 >
@@ -186,20 +186,20 @@ export default function Page() {
             {/* Full Screen Game Overlay */}
             <AnimatePresence>
                 {isGaming && (
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         className="absolute inset-0 z-[15] bg-white/20 backdrop-blur-[2px] flex items-center justify-center p-4"
                     >
-                        <motion.div 
+                        <motion.div
                             initial={{ scale: 0.8, opacity: 0, y: 20 }}
                             animate={{ scale: 1, opacity: 1, y: 0 }}
                             exit={{ scale: 0.8, opacity: 0, y: 20 }}
                             className="w-full max-w-md h-[500px]"
                         >
-                            <MiniGames 
-                                onXPGain={(amount, action) => addXP(amount, action)} 
+                            <MiniGames
+                                onXPGain={(amount, action) => addXP(amount, action)}
                                 onClose={() => setIsGaming(false)}
                             />
                         </motion.div>
