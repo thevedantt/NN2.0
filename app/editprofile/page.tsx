@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import { Separator } from "@/components/ui/separator";
 import { InterviewField } from "@/components/profile/InterviewField";
 import { useLanguage } from "@/context/LanguageContext";
-import { EditProfileOverlay } from "@/components/onboarding/EditProfileOverlay";
+import { EditProfileOnboardingOverlay } from "@/components/onboarding/EditProfileOnboardingOverlay";
 
 const DROPDOWN_OPTIONS = {
     gender: [
@@ -135,6 +135,13 @@ export default function ProfilePage() {
     // Onboarding state
     const [showOnboarding, setShowOnboarding] = useState(false);
 
+    useEffect(() => {
+        const flag = localStorage.getItem("nn_new_user_profile_onboarding");
+        if (flag === "true") {
+            setShowOnboarding(true);
+        }
+    }, []);
+
     // Metadata for voice inputs (optional storage, currently just checking state)
     const [inputMetadata, setInputMetadata] = useState<Record<string, { inputMethod: 'typed' | 'voice', language: string }>>({});
 
@@ -197,18 +204,14 @@ export default function ProfilePage() {
                         router.push("/dashboard");
                         return;
                     } else {
-                        // New user — profile incomplete, show onboarding
-                        const onboardingDone = localStorage.getItem("nn_onboarding_editprofile_done");
-                        if (onboardingDone !== "true") {
-                            setShowOnboarding(true);
-                        }
-                    }
-                } else {
-                    // Profile is empty — new user, show onboarding
-                    const onboardingDone = localStorage.getItem("nn_onboarding_editprofile_done");
-                    if (onboardingDone !== "true") {
+                        // New user — profile incomplete, set flag and show onboarding
+                        localStorage.setItem("nn_new_user_profile_onboarding", "true");
                         setShowOnboarding(true);
                     }
+                } else {
+                    // Profile is empty — new user, set flag and show onboarding
+                    localStorage.setItem("nn_new_user_profile_onboarding", "true");
+                    setShowOnboarding(true);
                 }
             } catch (error) {
                 console.error("Failed to load profile", error);
@@ -322,8 +325,11 @@ export default function ProfilePage() {
             // Dismiss onboarding overlay on successful save
             if (showOnboarding) {
                 setShowOnboarding(false);
-                localStorage.setItem("nn_onboarding_editprofile_done", "true");
+                localStorage.removeItem("nn_new_user_profile_onboarding");
             }
+
+            // Set new user flag for assessment onboarding
+            localStorage.setItem("nn_new_user_assessment_onboarding", "true");
 
             // Redirect to assessment after successful save
             router.push("/assessment");
@@ -339,7 +345,7 @@ export default function ProfilePage() {
 
     return (
         <>
-        {showOnboarding && <EditProfileOverlay formRef={formRef} />}
+        {showOnboarding && <EditProfileOnboardingOverlay formRef={formRef} />}
         <div
             ref={formRef}
             className="container mx-auto py-10 max-w-3xl animate-in fade-in-50"
