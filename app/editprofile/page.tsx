@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -116,6 +117,7 @@ const DEFAULT_PROFILE = {
 
 export default function ProfilePage() {
     const { language } = useLanguage(); // Get current language context
+    const router = useRouter();
     const formRef = useRef<HTMLDivElement>(null);
     const [formData, setFormData] = useState<Record<string, string>>({});
     const [socialPlatforms, setSocialPlatforms] = useState<string[]>([]);
@@ -188,23 +190,25 @@ export default function ProfilePage() {
                         setInputMetadata(savedMeta);
                     }
 
-                    // TEMPORARY: Always show onboarding for testing
-                    // Original conditions commented out — restore after testing
-                    // const hasRequiredFields = data.gender && data.preferredLanguage && data.primaryConcern;
-                    // if (!hasRequiredFields) {
-                    //     const onboardingDone = localStorage.getItem("nn_onboarding_editprofile_done");
-                    //     if (onboardingDone !== "true") {
-                    //         setShowOnboarding(true);
-                    //     }
-                    // }
-                    setShowOnboarding(true);
+                    // Detect old user: if key profile fields are filled, redirect to dashboard
+                    const hasRequiredFields = data.gender && data.preferredLanguage && data.primaryConcern;
+                    if (hasRequiredFields) {
+                        // Old user — profile already completed, redirect to dashboard
+                        router.push("/dashboard");
+                        return;
+                    } else {
+                        // New user — profile incomplete, show onboarding
+                        const onboardingDone = localStorage.getItem("nn_onboarding_editprofile_done");
+                        if (onboardingDone !== "true") {
+                            setShowOnboarding(true);
+                        }
+                    }
                 } else {
-                    // TEMPORARY: Always show onboarding for testing
-                    // const onboardingDone = localStorage.getItem("nn_onboarding_editprofile_done");
-                    // if (onboardingDone !== "true") {
-                    //     setShowOnboarding(true);
-                    // }
-                    setShowOnboarding(true);
+                    // Profile is empty — new user, show onboarding
+                    const onboardingDone = localStorage.getItem("nn_onboarding_editprofile_done");
+                    if (onboardingDone !== "true") {
+                        setShowOnboarding(true);
+                    }
                 }
             } catch (error) {
                 console.error("Failed to load profile", error);
@@ -320,6 +324,9 @@ export default function ProfilePage() {
                 setShowOnboarding(false);
                 localStorage.setItem("nn_onboarding_editprofile_done", "true");
             }
+
+            // Redirect to assessment after successful save
+            router.push("/assessment");
         } catch (error) {
             console.error("Error saving profile:", error);
             toast("Error", {
