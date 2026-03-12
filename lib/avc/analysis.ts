@@ -33,6 +33,11 @@ export function calculateConfidenceScore(
 
 // Enhanced Speech Analysis Hook with Audio Analysis
 export function useSpeechAnalysis(isRecording: boolean) {
+    const isRecordingRef = React.useRef(isRecording)
+    React.useEffect(() => {
+        isRecordingRef.current = isRecording
+    }, [isRecording])
+
     const [transcript, setTranscript] = React.useState("")
     const [interimTranscript, setInterimTranscript] = React.useState("")
     const [metrics, setMetrics] = React.useState<AnalysisMetrics>({
@@ -161,10 +166,18 @@ export function useSpeechAnalysis(isRecording: boolean) {
                 }
 
                 reco.onerror = (event: any) => {
-                    console.error("Speech Recognition Error:", event.error, event.message)
-                     if (event.error === 'not-allowed' || event.error === 'audio-capture') {
+                    if (event.error !== 'no-speech') {
+                        console.error("Speech Recognition Error:", event.error, event.message)
+                    }
+                    if (event.error === 'not-allowed' || event.error === 'audio-capture') {
                          console.error("Microphone access denied or taken by another process.")
-                     }
+                    }
+                }
+
+                reco.onend = () => {
+                    if (isRecordingRef.current) {
+                        try { reco.start() } catch (e) {}
+                    }
                 }
 
                 recognitionRef.current = reco

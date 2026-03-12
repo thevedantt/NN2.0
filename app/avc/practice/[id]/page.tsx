@@ -168,9 +168,9 @@ export default function AVCPracticePage() {
                             <div className="absolute bottom-4 left-4 right-4 flex flex-col gap-2">
                                 <div className="flex justify-between items-end w-full">
                                     <div className="flex gap-2">
-                                        <div className={`bg-black/60 backdrop-blur px-3 py-1.5 rounded-lg text-white text-xs flex items-center gap-2 ${faceStatus === "Face Detected" ? "border border-green-500/50" : "border border-red-500/50"}`}>
-                                            <Video className={`w-4 h-4 ${faceStatus === "Face Detected" ? "text-green-400" : "text-red-400"}`} />
-                                            {faceStatus === "Face Detected" ? "Eye Contact: Good" : "Face Not Visible"}
+                                        <div className={`bg-black/60 backdrop-blur px-3 py-1.5 rounded-lg text-white text-xs flex items-center gap-2 ${faceStatus.startsWith("Face Detected") ? "border border-green-500/50" : "border border-red-500/50"}`}>
+                                            <Video className={`w-4 h-4 ${faceStatus.startsWith("Face Detected") ? "text-green-400" : "text-red-400"}`} />
+                                            {faceStatus.startsWith("Face Detected") ? `Eye Contact: Good - ${faceStatus}` : faceStatus}
                                         </div>
                                         <div className={`bg-black/60 backdrop-blur px-3 py-1.5 rounded-lg text-white text-xs flex items-center gap-2 ${speechMetrics.wpm >= 110 && speechMetrics.wpm <= 160 ? "border border-green-500/50" : "border border-orange-500/50"}`}>
                                             <Mic className={`w-4 h-4 ${speechMetrics.wpm >= 110 && speechMetrics.wpm <= 160 ? "text-green-400" : "text-orange-400"}`} />

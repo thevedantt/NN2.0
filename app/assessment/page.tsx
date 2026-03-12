@@ -131,15 +131,14 @@ export default function AssessmentPage() {
 
     const getResultAnalysis = (score: number, type: string) => {
         if (type === 'phq-9') {
-            if (score <= 4) return { level: "Minimal", color: "text-green-600", bg: "bg-green-100", advice: "Scores suggest minimal symptoms. Keep monitoring yourself." }
-            if (score <= 9) return { level: "Mild", color: "text-yellow-600", bg: "bg-yellow-100", advice: "Mild symptoms present. Consider self-care strategies or talking to a friend." }
-            if (score <= 14) return { level: "Moderate", color: "text-orange-600", bg: "bg-orange-100", advice: "Moderate symptoms. A consultation with a mental health professional is recommended." }
-            if (score <= 19) return { level: "Moderately Severe", color: "text-red-500", bg: "bg-red-100", advice: "Significant symptoms. Please seek professional support." }
+            if (score <= 12) return { level: "Low", color: "text-green-600", bg: "bg-green-100", advice: "Scores suggest minimal symptoms. Keep monitoring yourself." }
+            if (score <= 24) return { level: "Moderate", color: "text-yellow-600", bg: "bg-yellow-100", advice: "Mild symptoms present. Consider self-care strategies or talking to a friend." }
+            if (score <= 32) return { level: "High", color: "text-orange-600", bg: "bg-orange-100", advice: "Moderate symptoms. A consultation with a mental health professional is recommended." }
             return { level: "Severe", color: "text-red-700", bg: "bg-red-200", advice: "Severe symptoms. Immediate professional help is strongly advised." }
         }
-        if (score <= 4) return { level: "Minimal Anxiety", color: "text-green-600", bg: "bg-green-100", advice: "Minimal anxiety." }
-        if (score <= 9) return { level: "Mild Anxiety", color: "text-yellow-600", bg: "bg-yellow-100", advice: "Mild anxiety." }
-        if (score <= 14) return { level: "Moderate Anxiety", color: "text-orange-600", bg: "bg-orange-100", advice: "Moderate anxiety." }
+        if (score <= 12) return { level: "Minimal Anxiety", color: "text-green-600", bg: "bg-green-100", advice: "Minimal anxiety." }
+        if (score <= 24) return { level: "Moderate Anxiety", color: "text-yellow-600", bg: "bg-yellow-100", advice: "Moderate anxiety." }
+        if (score <= 32) return { level: "High Anxiety", color: "text-orange-600", bg: "bg-orange-100", advice: "High anxiety." }
         return { level: "Severe Anxiety", color: "text-red-700", bg: "bg-red-200", advice: "Severe anxiety levels." }
     }
 
