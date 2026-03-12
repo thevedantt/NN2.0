@@ -19,6 +19,7 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { useWeb3 } from "@/context/Web3Context"
+import { AssessmentOnboardingOverlay } from "@/components/onboarding/AssessmentOnboardingOverlay"
 
 // Data Mock
 const ASSESSMENTS = [
@@ -76,6 +77,17 @@ export default function AssessmentPage() {
     const [currentStep, setCurrentStep] = React.useState(0)
     const [answers, setAnswers] = React.useState<number[]>([])
 
+    // Onboarding state
+    const [showOnboarding, setShowOnboarding] = React.useState(false)
+    const assessmentCardsRef = React.useRef<HTMLDivElement>(null)
+
+    React.useEffect(() => {
+        const flag = localStorage.getItem("nn_new_user_assessment_onboarding")
+        if (flag === "true") {
+            setShowOnboarding(true)
+        }
+    }, [])
+
     // Share state
     const [therapists, setTherapists] = React.useState<TherapistOption[]>([])
     const [selectedTherapist, setSelectedTherapist] = React.useState<string>("")
@@ -96,6 +108,10 @@ export default function AssessmentPage() {
     }, [walletAddress])
 
     const startAssessment = (id: string) => {
+        if (showOnboarding) {
+            setShowOnboarding(false)
+            localStorage.removeItem("nn_new_user_assessment_onboarding")
+        }
         const assessment = ASSESSMENTS.find(a => a.id === id)
         if (assessment) {
             setSelectedAssessment(assessment)
@@ -193,7 +209,13 @@ export default function AssessmentPage() {
                 </header>
 
                 {view === "selection" && (
-                    <div className="grid md:grid-cols-2 gap-6 w-full">
+                    <>
+                    {showOnboarding && <AssessmentOnboardingOverlay cardsRef={assessmentCardsRef} />}
+                    <div 
+                        ref={assessmentCardsRef}
+                        className="grid md:grid-cols-2 gap-6 w-full"
+                        style={showOnboarding ? { position: "relative", zIndex: 100000 } : undefined}
+                    >
                         {ASSESSMENTS.map((assessment) => (
                             <Card key={assessment.id} className="hover:shadow-md transition-shadow cursor-pointer border-border/60" onClick={() => startAssessment(assessment.id)}>
                                 <CardHeader>
@@ -212,6 +234,7 @@ export default function AssessmentPage() {
                             </Card>
                         ))}
                     </div>
+                    </>
                 )}
 
                 {view === "taking" && selectedAssessment && (
