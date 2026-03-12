@@ -46,6 +46,7 @@ export const appointments = pgTable('appointments', {
     sessionType: varchar('session_type', { length: 50 }).default('Video Consultation').notNull(),
     price: integer('price').notNull(), // Stored in lowest currency unit or raw number
     status: varchar('status', { length: 20 }).default('scheduled').notNull(), // scheduled, completed, cancelled, rescheduled
+    meetLink: varchar('meet_link', { length: 255 }), // User-provided Google Meet link
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull().$onUpdate(() => new Date()),
 });
@@ -110,10 +111,27 @@ export const chatAccessGrants = pgTable('chat_access_grants', {
     therapistUserId: varchar('therapist_user_id', { length: 255 }).notNull(),   // Therapist who was granted access
     patientWallet: varchar('patient_wallet', { length: 255 }).notNull(),         // Patient's wallet address
     therapistWallet: varchar('therapist_wallet', { length: 255 }).notNull(),     // Therapist's wallet address
-    sessionId: integer('session_id').references(() => aiChatSessions.sessionId).notNull(),
+    sessionId: integer('session_id'),                                            // Nullable: null for assessment shares
+    dataType: varchar('data_type', { length: 20 }).default('chat').notNull(),   // 'chat' or 'assessment'
     ipfsCid: varchar('ipfs_cid', { length: 255 }).notNull(),                    // The IPFS CID that was shared
     txHash: varchar('tx_hash', { length: 255 }),                                // On-chain transaction hash
     isActive: boolean('is_active').default(true).notNull(),                      // Soft-delete for revocation
     grantedAt: timestamp('granted_at').defaultNow().notNull(),
     revokedAt: timestamp('revoked_at'),
+});
+
+// 8️⃣ AVC Sessions
+export const avcSessions = pgTable('avc_sessions', {
+    id: serial('id').primaryKey(),
+    userId: varchar('user_id', { length: 255 }).notNull(), // External Auth ID
+    scenario: varchar('scenario', { length: 255 }).notNull(),
+    words: integer('words').notNull(),
+    wpm: integer('wpm').notNull(),
+    fillerWords: integer('filler_words').notNull(),
+    pauses: integer('pauses').notNull(),
+    eyeContact: integer('eye_contact').notNull(),
+    confidenceScore: integer('confidence_score').notNull(),
+    transcript: text('transcript').notNull(),
+    aiFeedback: json('ai_feedback'), // Stores { strengths, improvement, actionableTip, improvedAnswer }
+    createdAt: timestamp('created_at').defaultNow().notNull(),
 });

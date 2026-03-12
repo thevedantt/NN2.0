@@ -16,6 +16,7 @@ import {
   Phone,
   Lock,
   Dog,
+  Shield,
 } from "lucide-react"
 
 import { useLanguage } from "@/context/LanguageContext"
@@ -92,6 +93,12 @@ export function AppSidebar() {
       title: t("nav_appointments"),
       url: "/appointments",
       icon: Calendar,
+      disabled: isOffline,
+    },
+    {
+      title: "Sharing History",
+      url: "/sharing-history",
+      icon: Shield,
       disabled: isOffline,
     },
     {

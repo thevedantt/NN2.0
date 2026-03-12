@@ -33,7 +33,8 @@ type SharedGrant = {
     grantId: number
     patientUserId: string
     patientWallet: string
-    sessionId: number
+    sessionId: number | null
+    dataType: string
     ipfsCid: string
     grantedAt: string
     isActive: boolean
@@ -45,12 +46,8 @@ type ChatMessage = {
     timestamp: string
 }
 
-type DecryptedChat = {
-    sessionId: number
-    userId: string
-    messages: ChatMessage[]
-    exportedAt: string
-}
+// DecryptedData can be either chat or assessment - use 'any' for flexibility
+type DecryptedData = any
 
 export default function PatientDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = React.use(params)
@@ -80,7 +77,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
     const [sharedGrants, setSharedGrants] = React.useState<SharedGrant[]>([])
     const [loadingGrants, setLoadingGrants] = React.useState(false)
     const [expandedSession, setExpandedSession] = React.useState<number | null>(null)
-    const [chatData, setChatData] = React.useState<Record<number, DecryptedChat>>({})
+    const [chatData, setChatData] = React.useState<Record<number, DecryptedData>>({})
     const [loadingChat, setLoadingChat] = React.useState<number | null>(null)
 
     // Fetch real patient info if UUID
@@ -357,7 +354,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
                         <div className="space-y-3">
                             <div className="flex items-center justify-between">
                                 <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-                                    Shared Sessions ({sharedGrants.length})
+                                Shared Records ({sharedGrants.length})
                                 </h3>
                                 <Button variant="outline" size="sm" className="h-7 text-xs" onClick={fetchSharedRecords}>
                                     Refresh
@@ -373,10 +370,16 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
                                     >
                                         <div className="flex items-center gap-3">
                                             <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                                                <MessageSquare className="h-5 w-5 text-primary" />
+                                                {grant.dataType === 'assessment' ? (
+                                                    <ClipboardList className="h-5 w-5 text-primary" />
+                                                ) : (
+                                                    <MessageSquare className="h-5 w-5 text-primary" />
+                                                )}
                                             </div>
                                             <div>
-                                                <p className="text-sm font-medium">Session #{grant.sessionId}</p>
+                                                <p className="text-sm font-medium">
+                                                    {grant.dataType === 'assessment' ? 'Assessment Result' : `Session #${grant.sessionId}`}
+                                                </p>
                                                 <div className="flex items-center gap-2 mt-0.5">
                                                     <Badge variant="outline" className="text-[10px] bg-green-500/10 text-green-600 border-green-500/20">
                                                         <ShieldCheck className="h-2.5 w-2.5 mr-1" />
@@ -403,40 +406,80 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
                                         </div>
                                     </button>
 
-                                    {/* Expanded Chat Content */}
+                                    {/* Expanded Content */}
                                     {expandedSession === grant.grantId && chatData[grant.grantId] && (
                                         <div className="border-t">
-                                            {/* Chat Metadata */}
+                                            {/* Metadata */}
                                             <div className="px-4 py-2 bg-muted/20 flex items-center gap-4 text-[10px] text-muted-foreground">
-                                                <span>Messages: {chatData[grant.grantId].messages.length}</span>
-                                                <span>Exported: {new Date(chatData[grant.grantId].exportedAt).toLocaleString()}</span>
+                                                {chatData[grant.grantId].type === 'assessment_result' ? (
+                                                    <>
+                                                        <span>Type: {chatData[grant.grantId].assessmentType?.toUpperCase()}</span>
+                                                        <span>Score: {chatData[grant.grantId].score}</span>
+                                                        <span>Level: {chatData[grant.grantId].level}</span>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <span>Messages: {chatData[grant.grantId].messages?.length || 0}</span>
+                                                        <span>Exported: {new Date(chatData[grant.grantId].exportedAt).toLocaleString()}</span>
+                                                    </>
+                                                )}
                                                 <span className="font-mono">CID: {grant.ipfsCid.slice(0, 16)}...</span>
                                             </div>
 
-                                            {/* Messages */}
-                                            <ScrollArea className="max-h-[500px]">
+                                            {/* Assessment Result View */}
+                                            {chatData[grant.grantId].type === 'assessment_result' ? (
                                                 <div className="p-4 space-y-3">
-                                                    {chatData[grant.grantId].messages.map((msg, idx) => (
-                                                        <div
-                                                            key={idx}
-                                                            className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-                                                        >
-                                                            <div className={`max-w-[75%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
-                                                                msg.sender === 'user'
-                                                                    ? 'bg-primary text-primary-foreground rounded-br-sm'
-                                                                    : 'bg-muted/50 border border-border/60 rounded-bl-sm'
-                                                            }`}>
-                                                                <p>{msg.text}</p>
-                                                                <span className={`text-[10px] block mt-1 ${
-                                                                    msg.sender === 'user' ? 'text-primary-foreground/60' : 'text-muted-foreground/50'
-                                                                }`}>
-                                                                    {msg.sender === 'user' ? '👤 Patient' : '🤖 AI'} • {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                                                </span>
-                                                            </div>
+                                                    <div className="grid grid-cols-2 gap-3">
+                                                        <div className="p-3 bg-secondary/30 rounded-lg text-center">
+                                                            <div className="text-xs text-muted-foreground uppercase">Score</div>
+                                                            <div className="text-2xl font-bold text-primary">{chatData[grant.grantId].score}</div>
                                                         </div>
-                                                    ))}
+                                                        <div className="p-3 bg-primary/5 rounded-lg text-center">
+                                                            <div className="text-xs text-muted-foreground uppercase">Level</div>
+                                                            <div className="text-lg font-bold text-primary">{chatData[grant.grantId].level}</div>
+                                                        </div>
+                                                    </div>
+                                                    {chatData[grant.grantId].questions && (
+                                                        <div className="space-y-2">
+                                                            <p className="text-xs font-semibold text-muted-foreground uppercase">Responses</p>
+                                                            {chatData[grant.grantId].questions.map((q: string, idx: number) => (
+                                                                <div key={idx} className="text-sm border-b border-border/40 pb-2 last:border-0">
+                                                                    <p className="text-muted-foreground">{q}</p>
+                                                                    <p className="font-medium mt-0.5">
+                                                                        {['Not at all', 'Several days', 'More than half the days', 'Nearly every day'][chatData[grant.grantId].answers?.[idx] ?? 0]}
+                                                                        <span className="text-xs text-muted-foreground ml-1">({chatData[grant.grantId].answers?.[idx] ?? 0}/3)</span>
+                                                                    </p>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    )}
                                                 </div>
-                                            </ScrollArea>
+                                            ) : (
+                                                /* Chat Messages View */
+                                                <ScrollArea className="max-h-[500px]">
+                                                    <div className="p-4 space-y-3">
+                                                        {(chatData[grant.grantId].messages || []).map((msg: any, idx: number) => (
+                                                            <div
+                                                                key={idx}
+                                                                className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                                                            >
+                                                                <div className={`max-w-[75%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
+                                                                    msg.sender === 'user'
+                                                                        ? 'bg-primary text-primary-foreground rounded-br-sm'
+                                                                        : 'bg-muted/50 border border-border/60 rounded-bl-sm'
+                                                                }`}>
+                                                                    <p>{msg.text}</p>
+                                                                    <span className={`text-[10px] block mt-1 ${
+                                                                        msg.sender === 'user' ? 'text-primary-foreground/60' : 'text-muted-foreground/50'
+                                                                    }`}>
+                                                                        {msg.sender === 'user' ? '👤 Patient' : '🤖 AI'} • {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </ScrollArea>
+                                            )}
                                         </div>
                                     )}
                                 </Card>

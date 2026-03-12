@@ -10,36 +10,65 @@ import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Calendar } from "@/components/ui/calendar"
+import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
 
 import { DOCTORS } from "@/data/doctors"
 import { DoctorCard } from "@/components/doctors/DoctorCard"
+import { useLanguage } from "@/context/LanguageContext"
+// import { useToast } from "@/hooks/use-toast" // Note: using standard alert if toast is broken or missing, but let's assume it exists or replace
+import { toast } from "sonner" // if useToast is missing, replace with Sonner or custom. Let's try to mock it internally if hook is missing or use standard alert.
 
-const APPOINTMENTS = [
-    {
-        id: "1",
-        therapist: "Dr. Ananya Sharma",
-        type: "Video Session",
-        date: new Date(2025, 11, 28, 14, 0), // Dec 28 2025
-        duration: "50 min",
-        status: "scheduled",
-        avatar: "AS"
-    },
-    {
-        id: "2",
-        therapist: "Dr. Rahul Mehta",
-        type: "Video Session",
-        date: new Date(2025, 11, 20, 10, 0),
-        duration: "50 min",
-        status: "completed",
-        avatar: "RM"
-    }
-]
+// For now, let's remove useToast and rely on default JS alert to be safe since the hook import failed.
+
+interface Appointment {
+    appointmentId: number
+    doctorId: string
+    doctorSnapshot: any
+    appointmentDate: string
+    appointmentTime: string
+    sessionType: string
+    status: string
+    meetLink?: string
+}
+
+interface Therapist {
+    userId: string
+    fullName: string
+    specializations: string[]
+    isVerified: boolean
+    walletAddress?: string
+}
 
 export default function AppointmentsPage() {
     const [date, setDate] = React.useState<Date | undefined>(new Date())
     const [activeTab, setActiveTab] = React.useState("upcoming")
+
+    const [appointments, setAppointments] = React.useState<Appointment[]>([])
+    const [therapists, setTherapists] = React.useState<Therapist[]>([])
+    const [loading, setLoading] = React.useState(true)
+
+    const fetchData = async () => {
+        setLoading(true)
+        try {
+            const [aptRes, therRes] = await Promise.all([
+                fetch('/api/appointments').then(r => r.json()),
+                fetch('/api/therapist/list').then(r => r.json())
+            ]);
+
+            if (aptRes.success) setAppointments(aptRes.appointments || []);
+            if (therRes.therapists) setTherapists(therRes.therapists || []);
+        } catch (err) {
+            console.error("Failed to load appointments data", err);
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    React.useEffect(() => {
+        fetchData();
+    }, [])
 
     return (
         <div className="flex-1 overflow-y-auto w-full p-6 md:p-8 bg-background">
@@ -64,17 +93,19 @@ export default function AppointmentsPage() {
                                 <TabsTrigger value="book">Find Therapist</TabsTrigger>
                             </TabsList>
                             <TabsContent value="upcoming" className="space-y-4">
-                                {APPOINTMENTS.filter(a => a.status === 'scheduled').length > 0 ? (
-                                    APPOINTMENTS.filter(a => a.status === 'scheduled').map((apt) => (
-                                        <AppointmentCard key={apt.id} appointment={apt} />
+                                {loading ? (
+                                    <div className="text-center py-8 text-muted-foreground">Loading appointments...</div>
+                                ) : appointments.filter(a => a.status === 'scheduled').length > 0 ? (
+                                    appointments.filter(a => a.status === 'scheduled').map((apt) => (
+                                        <AppointmentCard key={apt.appointmentId} appointment={apt} onUpdate={fetchData} />
                                     ))
                                 ) : (
                                     <EmptyState onBook={() => setActiveTab("book")} />
                                 )}
                             </TabsContent>
                             <TabsContent value="past" className="space-y-4">
-                                {APPOINTMENTS.filter(a => a.status === 'completed' || a.status === 'cancelled').map((apt) => (
-                                    <AppointmentCard key={apt.id} appointment={apt} isPast />
+                                {appointments.filter(a => a.status === 'completed' || a.status === 'cancelled').map((apt) => (
+                                    <AppointmentCard key={apt.appointmentId} appointment={apt} isPast onUpdate={fetchData} />
                                 ))}
                             </TabsContent>
                             <TabsContent value="book" className="space-y-6">
@@ -83,9 +114,26 @@ export default function AppointmentsPage() {
                                     <p className="text-sm text-muted-foreground">Select a therapist to book a session.</p>
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
-                                    {DOCTORS.map((doctor) => (
-                                        <DoctorCard key={doctor.id} doctor={doctor} />
-                                    ))}
+                                    {loading ? (
+                                        <div className="col-span-2 text-center py-8 text-muted-foreground">Loading therapists...</div>
+                                    ) : therapists.length > 0 ? (
+                                        therapists.map((therapist) => (
+                                            <Card key={therapist.userId} className="p-4 border border-border/60">
+                                                <div className="flex gap-4">
+                                                    <Avatar className="h-12 w-12"><AvatarFallback>{therapist.fullName[0]}</AvatarFallback></Avatar>
+                                                    <div>
+                                                        <h4 className="font-medium text-lg">{therapist.fullName}</h4>
+                                                        <p className="text-sm text-muted-foreground truncate">{therapist.specializations?.join(', ')}</p>
+                                                        <Button variant="outline" size="sm" className="mt-2" asChild>
+                                                            <Link href={`/therapist/${therapist.userId}`}>Book Now</Link>
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                            </Card>
+                                        ))
+                                    ) : (
+                                        <div className="col-span-2 p-8 text-center text-muted-foreground border border-dashed rounded-lg">No specialists available</div>
+                                    )}
                                 </div>
                             </TabsContent>
                         </Tabs>
@@ -123,38 +171,91 @@ export default function AppointmentsPage() {
     )
 }
 
-function AppointmentCard({ appointment, isPast }: { appointment: any, isPast?: boolean }) {
+function AppointmentCard({ appointment, isPast, onUpdate }: { appointment: Appointment, isPast?: boolean, onUpdate?: () => void }) {
+    const [meetLinkInput, setMeetLinkInput] = React.useState("")
+    const [isSaving, setIsSaving] = React.useState(false)
+
+    const aptDate = new Date(appointment.appointmentDate)
+
+    const handleSaveMeetLink = async () => {
+        if (!meetLinkInput.trim()) return;
+        setIsSaving(true)
+        try {
+            const response = await fetch(`/api/appointments/${appointment.appointmentId}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ meetLink: meetLinkInput }),
+            });
+            if (response.ok) {
+                alert("Meeting Link Saved. The therapist will use this link to join.")
+                if (onUpdate) onUpdate()
+            } else {
+                alert("Failed to save the link.")
+            }
+        } catch (error) {
+            console.error(error)
+        } finally {
+            setIsSaving(false)
+        }
+    }
+
     return (
         <Card className="overflow-hidden border-border/60 hover:shadow-md transition-shadow group">
             <div className="flex flex-col md:flex-row items-start md:items-center p-6 gap-6">
                 {/* Date Box */}
                 <div className="flex-none flex flex-col items-center justify-center p-4 bg-secondary/30 rounded-xl min-w-[80px]">
-                    <span className="text-xs uppercase font-bold text-muted-foreground">{appointment.date.toLocaleString('default', { month: 'short' })}</span>
-                    <span className="text-2xl font-bold text-foreground">{appointment.date.getDate()}</span>
+                    <span className="text-xs uppercase font-bold text-muted-foreground">{aptDate.toLocaleString('default', { month: 'short' })}</span>
+                    <span className="text-2xl font-bold text-foreground">{aptDate.getDate()}</span>
                 </div>
 
                 {/* Details */}
                 <div className="flex-1 space-y-1">
                     <div className="flex items-center gap-2 mb-1">
                         <Badge variant={isPast ? "secondary" : "default"} className={cn("rounded-sm font-normal", !isPast && "bg-primary text-primary-foreground hover:bg-primary/90")}>
-                            {isPast ? "Completed" : "Upcoming"}
+                            {appointment.status.charAt(0).toUpperCase() + appointment.status.slice(1)}
                         </Badge>
                         <span className="text-xs text-muted-foreground flex items-center gap-1">
-                            <Video className="h-3 w-3" /> {appointment.type}
+                            <Video className="h-3 w-3" /> {appointment.sessionType}
                         </span>
                     </div>
-                    <h3 className="font-semibold text-lg">{appointment.therapist}</h3>
+                    <h3 className="font-semibold text-lg">{appointment.doctorSnapshot?.name || "Therapist"}</h3>
                     <div className="flex items-center gap-4 text-sm text-muted-foreground mt-2">
-                        <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5" /> {appointment.date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                        <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5" /> {appointment.duration}</span>
+                        <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5" /> {appointment.appointmentTime}</span>
+                        <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" /> Online Meet</span>
                     </div>
+
+                    {!isPast && (
+                        <div className="mt-4 pt-4 border-t border-border/50">
+                            {appointment.meetLink ? (
+                                <div className="text-sm bg-green-500/10 text-green-600 dark:text-green-400 p-2 rounded flex items-center gap-2">
+                                    <Video className="h-4 w-4" /> Meeting link provided and sent to therapist
+                                </div>
+                            ) : (
+                                <div className="flex flex-col gap-2">
+                                    <p className="text-xs text-muted-foreground">Please create a <a href="https://meet.google.com/new" target="_blank" rel="noreferrer" className="text-primary hover:underline">Google Meet</a> and paste the link below:</p>
+                                    <div className="flex gap-2 max-w-sm">
+                                        <Input 
+                                            placeholder="https://meet.google.com/abc-defg-hij" 
+                                            value={meetLinkInput}
+                                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMeetLinkInput(e.target.value)}
+                                            className="h-9"
+                                        />
+                                        <Button size="sm" onClick={handleSaveMeetLink} disabled={!meetLinkInput || isSaving}>
+                                            Save Link
+                                        </Button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
 
                 {/* Actions */}
-                <div className="flex-none flex items-center gap-2 w-full md:w-auto mt-4 md:mt-0">
-                    <Button variant="outline" className="w-full md:w-auto">View Details</Button>
-                    {!isPast && (
-                        <Button className="w-full md:w-auto">Join</Button>
+                <div className="flex-none flex flex-col md:flex-row items-center gap-2 w-full md:w-auto mt-4 md:mt-0">
+                    {!isPast && appointment.meetLink && (
+                        <Button className="w-full md:w-auto" asChild>
+                            <a href={appointment.meetLink} target="_blank" rel="noreferrer">Join Meet</a>
+                        </Button>
                     )}
                 </div>
             </div>

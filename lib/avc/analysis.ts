@@ -12,6 +12,23 @@ export interface AnalysisMetrics {
     duration: number // seconds
     faceDetectedPct: number // 0-100
     smilePct: number // 0-100 placeholder
+    eyeContactScore?: number // 0-100
+    confidenceScore?: number // 0-100
+    emotionTimeline?: { time: number, emotion: string }[] 
+}
+
+// Helper function to calculate a composite confidence score
+export function calculateConfidenceScore(
+    speechMetrics: { wpm: number; fillersCount: number; pauseCount: number },
+    eyeContactPct: number
+): number {
+    const wpmScore = speechMetrics.wpm >= 110 && speechMetrics.wpm <= 160 ? 100 : Math.max(0, 100 - Math.abs(speechMetrics.wpm - 135));
+    const normalizedFillers = Math.max(0, 100 - (speechMetrics.fillersCount * 5));
+    const normalizedPauses = Math.max(0, 100 - (speechMetrics.pauseCount * 5));
+    
+    // 0.3 * wpm + 0.25 * eye_contact + 0.25 * filler + 0.2 * pause
+    const score = (0.3 * wpmScore) + (0.25 * eyeContactPct) + (0.25 * normalizedFillers) + (0.2 * normalizedPauses);
+    return Math.round(score);
 }
 
 // Enhanced Speech Analysis Hook with Audio Analysis
@@ -25,7 +42,8 @@ export function useSpeechAnalysis(isRecording: boolean) {
         pauseCount: 0,
         duration: 0,
         faceDetectedPct: 0,
-        smilePct: 0
+        smilePct: 0,
+        emotionTimeline: []
     })
 
     const recognitionRef = React.useRef<any>(null)
@@ -134,15 +152,19 @@ export function useSpeechAnalysis(isRecording: boolean) {
                         if (cleanChunk.length > 0) {
                             setTranscript(prev => prev ? `${prev} ${cleanChunk}` : cleanChunk)
                             setInterimTranscript("")
-                            analyzeText(cleanChunk)
+                            analyzeText(cleanChunk, false) // false = final
                         }
                     } else if (interimChunk) {
                         setInterimTranscript(interimChunk)
+                        analyzeText(interimChunk, true) // true = interim
                     }
                 }
 
                 reco.onerror = (event: any) => {
-                    // Handle network errors or no-speech gracefully
+                    console.error("Speech Recognition Error:", event.error, event.message)
+                     if (event.error === 'not-allowed' || event.error === 'audio-capture') {
+                         console.error("Microphone access denied or taken by another process.")
+                     }
                 }
 
                 recognitionRef.current = reco
@@ -161,17 +183,28 @@ export function useSpeechAnalysis(isRecording: boolean) {
                 pauseCount: 0,
                 duration: 0,
                 faceDetectedPct: 0,
-                smilePct: 0
+                smilePct: 0,
+                emotionTimeline: []
             })
             startTimeRef.current = Date.now()
+            currentInterimMaxFillersRef.current = 0
 
             // Start Speech Reco
             if (recognitionRef.current) {
-                try { recognitionRef.current.start() } catch (e) { }
+                try { 
+                    recognitionRef.current.start() 
+                    console.log("Speech recognition started")
+                } catch (e) {
+                    console.error("Failed to start speech recognition:", e)
+                }
             }
 
-            // Start Audio Analysis
-            setupAudioAnalysis();
+            // Start Audio Analysis (delayed slightly so SpeechReco can capture mic first)
+            setTimeout(() => {
+                if (isRecording) {
+                    setupAudioAnalysis();
+                }
+            }, 500);
 
         } else {
             // Stop Speech Reco
@@ -204,115 +237,169 @@ export function useSpeechAnalysis(isRecording: boolean) {
         }
     }, [isRecording])
 
-    const analyzeText = (text: string) => {
+    const currentInterimMaxFillersRef = React.useRef<number>(0)
+
+    const analyzeText = (text: string, isInterim: boolean) => {
         const words = text.trim().split(/\s+/).filter(w => w.length > 0)
 
-        let localFillers = 0
-        const currentLang = 'en'; // Hardcoded for MVP, should come from context
-        const fillerList = FILLERS[currentLang] || FILLERS['en'];
+        let chunkFillers = 0
+        const currentLang = 'en'; // Hardcoded for MVP
+        // Added "so" and "well" which are very common hesitations
+        const extendedFillers = [...(FILLERS[currentLang] || FILLERS['en']), "so", "well"]
 
         words.forEach(w => {
             const cleanWord = w.toLowerCase().replace(/[^a-z]/g, "")
-            if (fillerList.includes(cleanWord)) localFillers++
+            if (extendedFillers.includes(cleanWord)) {
+                chunkFillers++
+            }
         })
 
         // Check for multi-word fillers
         const phraseFillers = (text.toLowerCase().match(/you know|i mean/g) || []).length
+        chunkFillers += phraseFillers;
 
-        setMetrics(prev => ({
-            ...prev,
-            wordCount: prev.wordCount + words.length,
-            fillersCount: prev.fillersCount + localFillers + phraseFillers
-        }))
+        let newlyDetected = 0;
+
+        if (isInterim) {
+            if (chunkFillers > currentInterimMaxFillersRef.current) {
+                newlyDetected = chunkFillers - currentInterimMaxFillersRef.current;
+                currentInterimMaxFillersRef.current = chunkFillers;
+            }
+        } else {
+            // Final chunk
+            newlyDetected = Math.max(0, chunkFillers - currentInterimMaxFillersRef.current);
+            currentInterimMaxFillersRef.current = 0; // Reset for next phrase
+        }
+
+        setMetrics(prev => {
+            const newWords = isInterim ? prev.wordCount : prev.wordCount + words.length;
+            const newFillers = prev.fillersCount + newlyDetected;
+            
+            // Calculate real-time WPM
+            const durationMin = Math.max(0.1, (Date.now() - startTimeRef.current) / 60000);
+            const liveWpm = Math.round((prev.wordCount + (isInterim ? words.length : 0)) / durationMin);
+
+            return {
+                ...prev,
+                wordCount: newWords, // Don't permanently add words until final
+                fillersCount: newFillers, // Do persistently add fillers caught in interim!
+                wpm: liveWpm,
+                duration: durationMin * 60
+            };
+        })
     }
 
     return { transcript, interimTranscript, metrics }
 }
 
-// MediaPipe Face Detection Hook
-import { FaceDetector, FilesetResolver } from "@mediapipe/tasks-vision"
+// Face and Emotion Detection Hook using face-api.js
+import * as faceapi from 'face-api.js';
 
 export function useFaceAnalysis(isRecording: boolean, videoRef: React.RefObject<any>) {
     const [faceStatus, setFaceStatus] = React.useState("Initializing Camera...")
     const [faceMetrics, setFaceMetrics] = React.useState({
         faceVisibleTime: 0,
         faceAbsentTime: 0,
-        percentage: 0
+        percentage: 0,
+        eyeContactScore: 0, // Alias for percentage in MVP
+        emotionTimeline: [] as { time: number, emotion: string }[]
     })
 
-    const faceDetectorRef = React.useRef<FaceDetector | null>(null)
-    const loopRef = React.useRef<number | null>(null)
+    const loopRef = React.useRef<any>(null)
     const lastTimeRef = React.useRef<number>(0)
+    const recordingStartTimeRef = React.useRef<number>(0)
 
-    // 1. Initialize FaceDetector
+    // 1. Initialize face-api.js models
     React.useEffect(() => {
         const init = async () => {
             try {
-                const vision = await FilesetResolver.forVisionTasks(
-                    "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm"
-                );
-
-                faceDetectorRef.current = await FaceDetector.createFromOptions(vision, {
-                    baseOptions: {
-                        modelAssetPath: `https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite`,
-                        delegate: "GPU"
-                    },
-                    runningMode: "VIDEO"
-                });
-
+                // Load from public/models dir we downloaded
+                await Promise.all([
+                    faceapi.nets.tinyFaceDetector.loadFromUri('/models'),
+                    faceapi.nets.faceExpressionNet.loadFromUri('/models')
+                ])
                 setFaceStatus("Camera Ready")
             } catch (error) {
-                console.error("Failed to load FaceDetector", error)
+                console.error("Failed to load Face Models", error)
                 setFaceStatus("Detection Error (Using Fallback)")
             }
         };
 
         init();
 
-        return () => {
-            // cleanup if needed
-        }
+        return () => {}
     }, []);
 
     // 2. Detection Loop
     React.useEffect(() => {
-        if (!isRecording || !faceDetectorRef.current || !videoRef.current?.video) {
+        if (!isRecording || !videoRef.current?.video) {
             if (loopRef.current) {
-                cancelAnimationFrame(loopRef.current)
+                clearInterval(loopRef.current)
                 loopRef.current = null
             }
             return
         }
 
-        const videoElement = videoRef.current.video // Access internal video element from react-webcam
+        const videoElement = videoRef.current.video
         lastTimeRef.current = performance.now()
+        recordingStartTimeRef.current = performance.now()
 
-        const detect = () => {
-            if (videoElement.currentTime > 0 && !videoElement.paused && !videoElement.ended) {
-                const startTimeMs = performance.now();
-
+        const detect = async () => {
+            if (videoElement.readyState === 4 && videoElement.currentTime > 0 && !videoElement.paused && !videoElement.ended) {
                 try {
-                    const detections = faceDetectorRef.current!.detectForVideo(videoElement, startTimeMs);
+                    // Use TinyFaceDetector for performance
+                    const detection = await faceapi.detectSingleFace(videoElement, new faceapi.TinyFaceDetectorOptions()).withFaceExpressions()
 
-                    // Simple logic: If we have > 0 detections, face is present
-                    const isFacePresent = detections.detections.length > 0;
+                    const isFacePresent = !!detection;
+
+                    // Determine max emotion
+                    let dominantEmotion = "neutral"
+                    if (isFacePresent && detection.expressions) {
+                        const sorted = Object.entries(detection.expressions).sort((a, b) => b[1] - a[1]);
+                        if (sorted.length > 0) dominantEmotion = sorted[0][0];
+                    }
+
+                    // Map face-api emotions to our tracking
+                    const emotionMap: Record<string, string> = {
+                        happy: "Happy",
+                        neutral: "Neutral",
+                        sad: "Sad",
+                        fearful: "Fear",
+                        angry: "Nervous", // Approximation for hackathon
+                        disgusted: "Nervous",
+                        surprised: "Neutral"
+                    }
+                    const mappedEmotion = emotionMap[dominantEmotion] || "Neutral"
 
                     // Update Status UI
-                    setFaceStatus(isFacePresent ? "Face Detected" : "Face Not Visible - Center Yourself")
+                    setFaceStatus(isFacePresent ? `Face Detected (${mappedEmotion})` : "Face Not Visible - Center Yourself")
 
                     // Update Metrics (Accumulate Time)
                     const now = performance.now()
                     const delta = (now - lastTimeRef.current) / 1000 // seconds
                     lastTimeRef.current = now
+                    
+                    const timeSec = Math.round((now - recordingStartTimeRef.current) / 1000)
 
                     setFaceMetrics(prev => {
                         const newVisible = isFacePresent ? prev.faceVisibleTime + delta : prev.faceVisibleTime
                         const newAbsent = !isFacePresent ? prev.faceAbsentTime + delta : prev.faceAbsentTime
                         const total = newVisible + newAbsent
+                        const pct = total > 0 ? Math.round((newVisible / total) * 100) : 0
+                        
+                        // Add emotion to timeline if face is present and it hasn't been added this second
+                        const timeline = [...prev.emotionTimeline]
+                        if (isFacePresent && (timeline.length === 0 || timeline[timeline.length - 1].time !== timeSec)) {
+                             timeline.push({ time: timeSec, emotion: mappedEmotion })
+                        }
+
                         return {
+                            ...prev,
                             faceVisibleTime: newVisible,
                             faceAbsentTime: newAbsent,
-                            percentage: total > 0 ? Math.round((newVisible / total) * 100) : 0
+                            percentage: pct,
+                            eyeContactScore: pct,
+                            emotionTimeline: timeline
                         }
                     })
 
@@ -320,17 +407,16 @@ export function useFaceAnalysis(isRecording: boolean, videoRef: React.RefObject<
                     console.error("Detection error", e)
                 }
             }
-
-            loopRef.current = requestAnimationFrame(detect);
         };
 
-        detect();
+        // Run detection every 500ms instead of requestAnimationFrame so it's not too heavy on CPU
+        loopRef.current = setInterval(detect, 500);
 
         return () => {
-            if (loopRef.current) cancelAnimationFrame(loopRef.current)
+            if (loopRef.current) clearInterval(loopRef.current)
         }
 
-    }, [isRecording, faceDetectorRef.current])
+    }, [isRecording])
 
     return { faceStatus, faceMetrics }
 }

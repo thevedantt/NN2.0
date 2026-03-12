@@ -41,44 +41,18 @@ import { Separator } from "@/components/ui/separator"
 
 // --- Mock Data ---
 
-const upcomingAppointments = [
-    {
-        id: "1",
-        name: "Arjun Watsa",
-        time: "08:00 AM",
-        type: "Consultation",
-        status: "confirmed",
-        image: "/avatars/01.png",
-        risk: "low",
-    },
-    {
-        id: "2",
-        name: "Chandni Bakshi",
-        time: "09:00 AM",
-        type: "First Visit",
-        status: "confirmed",
-        image: "/avatars/02.png",
-        risk: "moderate",
-    },
-    {
-        id: "3",
-        name: "Jai Chopra",
-        time: "10:30 AM",
-        type: "Emergency",
-        status: "urgent",
-        image: "/avatars/03.png",
-        risk: "high",
-    },
-    {
-        id: "4",
-        name: "Girish M.",
-        time: "11:30 AM",
-        type: "Consultation",
-        status: "confirmed",
-        image: "/avatars/04.png",
-        risk: "low",
-    },
-]
+interface AptResponse {
+    appointment: {
+        appointmentId: number
+        userId: string
+        appointmentDate: string
+        appointmentTime: string
+        sessionType: string
+        status: string
+        meetLink?: string
+    }
+    patientWallet?: string
+}
 
 const urgentCases = [
     {
@@ -119,6 +93,26 @@ const chartConfig = {
 } satisfies ChartConfig
 
 export default function TherapistDashboardPage() {
+    const [appointments, setAppointments] = React.useState<AptResponse[]>([])
+    const [loading, setLoading] = React.useState(true)
+
+    React.useEffect(() => {
+        const fetchAppointments = async () => {
+            try {
+                const res = await fetch('/api/appointments/therapist')
+                const data = await res.json()
+                if (data.success) {
+                    setAppointments(data.appointments || [])
+                }
+            } catch (err) {
+                console.error("Failed to fetch appointments", err)
+            } finally {
+                setLoading(false)
+            }
+        }
+        fetchAppointments()
+    }, [])
+
     const currentDate = new Date().toLocaleDateString("en-US", {
         weekday: "long",
         day: "numeric",
@@ -217,31 +211,48 @@ export default function TherapistDashboardPage() {
                             <CardDescription>You have 4 sessions remaining today</CardDescription>
                         </CardHeader>
                         <CardContent className="grid gap-4">
-                            {upcomingAppointments.map((appt) => (
-                                <Link href={`/therapist/patients/${appt.id}`} key={appt.id} className="block">
-                                    <div className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer border border-transparent hover:border-border/50">
-                                        <div className="flex items-center gap-4">
-                                            <Avatar className="h-10 w-10 border-2 border-background">
-                                                <AvatarImage src={appt.image} alt={appt.name} />
-                                                <AvatarFallback>{appt.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                                            </Avatar>
-                                            <div>
-                                                <p className="text-sm font-medium leading-none">{appt.name}</p>
-                                                <p className="text-xs text-muted-foreground mt-1">{appt.type}</p>
+                            {loading ? (
+                                <div className="text-center py-4 text-sm text-muted-foreground">Loading appointments...</div>
+                            ) : appointments.length > 0 ? (
+                                appointments.map((aptWrap) => {
+                                    const appt = aptWrap.appointment;
+                                    return (
+                                        <div key={appt.appointmentId} className="flex flex-col gap-2 p-3 rounded-lg border border-border/50 hover:bg-muted/10 transition-colors">
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center gap-4">
+                                                    <Avatar className="h-10 w-10 border-2 border-background">
+                                                        <AvatarFallback>PT</AvatarFallback>
+                                                    </Avatar>
+                                                    <div>
+                                                        <Link href={`/therapist/patients/${appt.userId}`} className="block hover:underline">
+                                                            <p className="text-sm font-medium leading-none">Patient {appt.userId.substring(0, 4)}...</p>
+                                                        </Link>
+                                                        <p className="text-xs text-muted-foreground mt-1">{appt.sessionType}</p>
+                                                    </div>
+                                                </div>
+                                                <div className="flex flex-col items-end gap-1">
+                                                    <div className="flex items-center text-sm font-medium">
+                                                        <Clock className="mr-1 h-3 w-3 text-muted-foreground" />
+                                                        {appt.appointmentTime}
+                                                    </div>
+                                                    <Badge variant="outline" className="text-[10px] h-5 px-1.5 capitalize">{appt.status}</Badge>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div className="flex flex-col items-end gap-1">
-                                            <div className="flex items-center text-sm font-medium">
-                                                <Clock className="mr-1 h-3 w-3 text-muted-foreground" />
-                                                {appt.time}
-                                            </div>
-                                            {appt.risk === 'high' && (
-                                                <Badge variant="destructive" className="text-[10px] h-5 px-1.5">High Risk</Badge>
+                                            {appt.meetLink && (
+                                                <div className="mt-2 text-right">
+                                                    <Button size="sm" asChild>
+                                                        <a href={appt.meetLink} target="_blank" rel="noreferrer">
+                                                            <Video className="h-4 w-4 mr-2"/> Join Session
+                                                        </a>
+                                                    </Button>
+                                                </div>
                                             )}
                                         </div>
-                                    </div>
-                                </Link>
-                            ))}
+                                    )
+                                })
+                            ) : (
+                                <div className="text-center py-4 text-sm text-muted-foreground">No appointments scheduled</div>
+                            )}
                         </CardContent>
                         <CardFooter>
                             <Button variant="ghost" className="w-full text-muted-foreground text-sm">View Full Schedule</Button>

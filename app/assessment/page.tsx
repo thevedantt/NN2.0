@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { CheckCircle2, ChevronRight, ClipboardList, Info, AlertCircle, ArrowRight } from "lucide-react"
+import { CheckCircle2, ChevronRight, ClipboardList, Info, AlertCircle, ArrowRight, Shield, Loader2, ShieldCheck } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -11,6 +11,14 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
 import { Disclaimer } from "@/components/assessment/Disclaimer"
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
+import { useWeb3 } from "@/context/Web3Context"
 
 // Data Mock
 const ASSESSMENTS = [
@@ -55,11 +63,37 @@ const OPTIONS = [
     { value: 3, label: "Nearly every day" }
 ]
 
+type TherapistOption = {
+    userId: string
+    fullName: string
+    walletAddress: string | null
+}
+
 export default function AssessmentPage() {
+    const { walletAddress } = useWeb3()
     const [view, setView] = React.useState<"selection" | "taking" | "results">("selection")
     const [selectedAssessment, setSelectedAssessment] = React.useState<typeof ASSESSMENTS[0] | null>(null)
     const [currentStep, setCurrentStep] = React.useState(0)
     const [answers, setAnswers] = React.useState<number[]>([])
+
+    // Share state
+    const [therapists, setTherapists] = React.useState<TherapistOption[]>([])
+    const [selectedTherapist, setSelectedTherapist] = React.useState<string>("")
+    const [sharing, setSharing] = React.useState(false)
+    const [shared, setShared] = React.useState(false)
+    const [shareError, setShareError] = React.useState<string | null>(null)
+    const [dbWallet, setDbWallet] = React.useState<string | null>(null)
+
+    const effectiveWallet = walletAddress || dbWallet
+
+    // Fetch wallet from DB on mount
+    React.useEffect(() => {
+        if (!walletAddress) {
+            fetch("/api/web3/wallet").then(r => r.json()).then(d => {
+                if (d.walletAddress) setDbWallet(d.walletAddress)
+            }).catch(() => { })
+        }
+    }, [walletAddress])
 
     const startAssessment = (id: string) => {
         const assessment = ASSESSMENTS.find(a => a.id === id)
@@ -68,6 +102,9 @@ export default function AssessmentPage() {
             setView("taking")
             setCurrentStep(0)
             setAnswers(new Array(assessment.questions.length).fill(-1))
+            setShared(false)
+            setShareError(null)
+            setSelectedTherapist("")
         }
     }
 
@@ -83,6 +120,10 @@ export default function AssessmentPage() {
             setCurrentStep(prev => prev + 1)
         } else {
             setView("results")
+            // Fetch therapists for sharing
+            fetch("/api/therapist/list").then(r => r.json()).then(d => {
+                setTherapists(d.therapists || [])
+            }).catch(() => { })
         }
     }
 
@@ -96,12 +137,53 @@ export default function AssessmentPage() {
             if (score <= 19) return { level: "Moderately Severe", color: "text-red-500", bg: "bg-red-100", advice: "Significant symptoms. Please seek professional support." }
             return { level: "Severe", color: "text-red-700", bg: "bg-red-200", advice: "Severe symptoms. Immediate professional help is strongly advised." }
         }
-        // GAD-7 logic similar... simplified for demo
         if (score <= 4) return { level: "Minimal Anxiety", color: "text-green-600", bg: "bg-green-100", advice: "Minimal anxiety." }
         if (score <= 9) return { level: "Mild Anxiety", color: "text-yellow-600", bg: "bg-yellow-100", advice: "Mild anxiety." }
         if (score <= 14) return { level: "Moderate Anxiety", color: "text-orange-600", bg: "bg-orange-100", advice: "Moderate anxiety." }
         return { level: "Severe Anxiety", color: "text-red-700", bg: "bg-red-200", advice: "Severe anxiety levels." }
     }
+
+    const handleShareAssessment = async () => {
+        if (!selectedAssessment || !selectedTherapist || !effectiveWallet) return
+
+        const therapist = therapists.find(t => t.userId === selectedTherapist)
+        if (!therapist?.walletAddress) return
+
+        setSharing(true)
+        setShareError(null)
+        try {
+            const score = calculateScore()
+            const result = getResultAnalysis(score, selectedAssessment.id)
+
+            const res = await fetch("/api/web3/assessment-share", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    therapistUserId: therapist.userId,
+                    patientWallet: effectiveWallet,
+                    therapistWallet: therapist.walletAddress,
+                    assessmentType: selectedAssessment.id,
+                    score,
+                    level: result.level,
+                    answers,
+                    questions: selectedAssessment.questions,
+                }),
+            })
+
+            if (res.ok) {
+                setShared(true)
+            } else {
+                const data = await res.json()
+                setShareError(data.error || "Share failed")
+            }
+        } catch (err: any) {
+            setShareError(err.message)
+        } finally {
+            setSharing(false)
+        }
+    }
+
+    const selectedTherapistData = therapists.find(t => t.userId === selectedTherapist)
 
     return (
         <div className="flex-1 h-full overflow-y-auto w-full p-6 md:p-8 bg-background">
@@ -188,46 +270,113 @@ export default function AssessmentPage() {
                 )}
 
                 {view === "results" && selectedAssessment && (
-                    <div className="max-w-2xl mx-auto w-full animate-in zoom-in-95 duration-500">
+                    <div className="max-w-2xl mx-auto w-full animate-in zoom-in-95 duration-500 space-y-4">
                         {(() => {
                             const score = calculateScore()
                             const result = getResultAnalysis(score, selectedAssessment.id)
 
                             return (
-                                <Card className="p-8 text-center border-t-4 border-t-primary">
-                                    <div className="mk-6 flex justify-center mb-6">
-                                        <div className="h-24 w-24 rounded-full bg-primary/10 flex items-center justify-center">
-                                            <ClipboardList className="h-10 w-10 text-primary" />
+                                <>
+                                    <Card className="p-8 text-center border-t-4 border-t-primary">
+                                        <div className="mk-6 flex justify-center mb-6">
+                                            <div className="h-24 w-24 rounded-full bg-primary/10 flex items-center justify-center">
+                                                <ClipboardList className="h-10 w-10 text-primary" />
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <h2 className="text-2xl font-bold mb-2">{selectedAssessment.title} Results</h2>
-                                    <p className="text-muted-foreground mb-6">Based on your responses</p>
+                                        <h2 className="text-2xl font-bold mb-2">{selectedAssessment.title} Results</h2>
+                                        <p className="text-muted-foreground mb-6">Based on your responses</p>
 
-                                    <div className="grid grid-cols-2 gap-4 mb-8">
-                                        <div className="p-4 bg-secondary/30 rounded-lg">
-                                            <div className="text-sm text-muted-foreground uppercase tracking-wider mb-1">Total Score</div>
-                                            <div className="text-3xl font-bold text-primary">{score}</div>
+                                        <div className="grid grid-cols-2 gap-4 mb-8">
+                                            <div className="p-4 bg-secondary/30 rounded-lg">
+                                                <div className="text-sm text-muted-foreground uppercase tracking-wider mb-1">Total Score</div>
+                                                <div className="text-3xl font-bold text-primary">{score}</div>
+                                            </div>
+                                            <div className={cn("p-4 rounded-lg", result.bg)}>
+                                                <div className="text-sm text-muted-foreground uppercase tracking-wider mb-1">Risk Level</div>
+                                                <div className={cn("text-xl font-bold", result.color)}>{result.level}</div>
+                                            </div>
                                         </div>
-                                        <div className={cn("p-4 rounded-lg", result.bg)}>
-                                            <div className="text-sm text-muted-foreground uppercase tracking-wider mb-1">Risk Level</div>
-                                            <div className={cn("text-xl font-bold", result.color)}>{result.level}</div>
+
+                                        <Alert className="mb-8 text-left bg-muted/30 border-primary/20">
+                                            <Info className="h-4 w-4 text-primary" />
+                                            <AlertTitle className="text-primary font-medium">Interpretation</AlertTitle>
+                                            <AlertDescription className="text-muted-foreground mt-1">
+                                                {result.advice}
+                                            </AlertDescription>
+                                        </Alert>
+
+                                        <div className="flex gap-4 justify-center">
+                                            <Button variant="outline" onClick={() => setView("selection")}>Take Another</Button>
+                                            <Button onClick={() => window.location.href = '/doctors'}>Book Consultation</Button>
                                         </div>
-                                    </div>
+                                    </Card>
 
-                                    <Alert className="mb-8 text-left bg-muted/30 border-primary/20">
-                                        <Info className="h-4 w-4 text-primary" />
-                                        <AlertTitle className="text-primary font-medium">Interpretation</AlertTitle>
-                                        <AlertDescription className="text-muted-foreground mt-1">
-                                            {result.advice}
-                                        </AlertDescription>
-                                    </Alert>
-
-                                    <div className="flex gap-4 justify-center">
-                                        <Button variant="outline" onClick={() => setView("selection")}>Take Another</Button>
-                                        <Button onClick={() => window.location.href = '/doctors'}>Book Consultation</Button>
-                                    </div>
-                                </Card>
+                                    {/* Share Assessment with Therapist */}
+                                    <Card className="border-primary/20 shadow-sm">
+                                        <CardHeader className="pb-3">
+                                            <CardTitle className="text-base flex items-center gap-2">
+                                                <Shield className="h-5 w-5 text-primary" />
+                                                Share with Your Therapist
+                                            </CardTitle>
+                                            <CardDescription>
+                                                Securely share this assessment result via encrypted IPFS. Your therapist can view it from their dashboard.
+                                            </CardDescription>
+                                        </CardHeader>
+                                        <CardContent className="space-y-3">
+                                            {shared ? (
+                                                <div className="flex items-center gap-2 p-3 bg-green-500/5 border border-green-500/20 rounded-lg">
+                                                    <ShieldCheck className="h-5 w-5 text-green-500" />
+                                                    <div>
+                                                        <p className="text-sm font-medium text-green-600">Assessment Shared Successfully!</p>
+                                                        <p className="text-xs text-muted-foreground">
+                                                            You can manage or revoke access from the Sharing History page.
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <>
+                                                    {!effectiveWallet && (
+                                                        <p className="text-xs text-orange-500">
+                                                            ⚠️ Connect your wallet first from the Chat AI page to enable sharing.
+                                                        </p>
+                                                    )}
+                                                    <Select value={selectedTherapist} onValueChange={setSelectedTherapist}>
+                                                        <SelectTrigger className="w-full">
+                                                            <SelectValue placeholder="Select a therapist..." />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            {therapists.map(t => (
+                                                                <SelectItem
+                                                                    key={t.userId}
+                                                                    value={t.userId}
+                                                                    disabled={!t.walletAddress}
+                                                                >
+                                                                    {t.fullName} {t.walletAddress ? "✓" : "(No Wallet)"}
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                    {shareError && (
+                                                        <p className="text-xs text-destructive">{shareError}</p>
+                                                    )}
+                                                    <Button
+                                                        onClick={handleShareAssessment}
+                                                        disabled={!selectedTherapist || !selectedTherapistData?.walletAddress || !effectiveWallet || sharing}
+                                                        className="w-full gap-2"
+                                                    >
+                                                        {sharing ? (
+                                                            <Loader2 className="h-4 w-4 animate-spin" />
+                                                        ) : (
+                                                            <Shield className="h-4 w-4" />
+                                                        )}
+                                                        {sharing ? "Encrypting & Sharing..." : "Encrypt & Share Assessment"}
+                                                    </Button>
+                                                </>
+                                            )}
+                                        </CardContent>
+                                    </Card>
+                                </>
                             )
                         })()}
                     </div>

@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { SCENARIOS } from "@/lib/avc/scenarios"
-import { useSpeechAnalysis, useFaceAnalysis } from "@/lib/avc/analysis"
+import { useSpeechAnalysis, useFaceAnalysis, calculateConfidenceScore } from "@/lib/avc/analysis"
 import { toast } from "sonner"
 import Link from "next/link"
 import { analyzeFluencyWithAI } from "@/lib/avc/ai-service"
@@ -27,7 +27,7 @@ export default function AVCPracticePage() {
 
     // Hooks
     const { transcript, interimTranscript, metrics: speechMetrics } = useSpeechAnalysis(isRecording)
-    const { faceStatus } = useFaceAnalysis(isRecording, webcamRef)
+    const { faceStatus, faceMetrics } = useFaceAnalysis(isRecording, webcamRef)
 
     // Timer
     React.useEffect(() => {
@@ -52,22 +52,63 @@ export default function AVCPracticePage() {
         toast("Session Ended", { description: "Consulting AI Coach..." })
 
         try {
+            // Format Emotion Timeline
+            let emotionTimelineString = "Not recorded"
+            if (faceMetrics.emotionTimeline && faceMetrics.emotionTimeline.length > 0) {
+                // Group emotions roughly for brevity
+                const reduced = faceMetrics.emotionTimeline.reduce((acc: any[], curr: any) => {
+                    const last = acc[acc.length - 1]
+                    if (!last || last.emotion !== curr.emotion) {
+                        acc.push({ start: curr.time, end: curr.time, emotion: curr.emotion })
+                    } else {
+                        last.end = curr.time
+                    }
+                    return acc
+                }, [])
+
+                emotionTimelineString = reduced.map((r: any) => `${r.start}-${r.end}s: ${r.emotion}`).join(' -> ')
+            }
+
             // Get AI Insights
-            const aiResult = await analyzeFluencyWithAI(transcript, speechMetrics, scenario?.title || "Speech Practice")
+            const aiResult = await analyzeFluencyWithAI(transcript, speechMetrics, scenario?.title || "Speech Practice", emotionTimelineString)
+
+            const confScore = calculateConfidenceScore(speechMetrics, faceMetrics.eyeContactScore)
 
             // Save Session Data
             const sessionData = {
                 scenarioId,
-                date: new Date().toISOString(),
-                metrics: speechMetrics,
+                words: speechMetrics.wordCount,
+                wpm: speechMetrics.wpm,
+                fillerWords: speechMetrics.fillersCount,
+                pauses: speechMetrics.pauseCount,
+                eyeContact: faceMetrics.eyeContactScore,
+                confidenceScore: confScore,
                 transcript: transcript,
-                faceStatus: "Active", // Mock/Metric from face hook
-                aiAnalysis: aiResult
+                aiFeedback: aiResult
             }
 
-            localStorage.setItem(`avc_session_${scenarioId}`, JSON.stringify(sessionData))
+            // Save to Database
+            const res = await fetch('/api/avc/history', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(sessionData)
+            })
 
-            router.push(`/avc/report/${scenarioId}`)
+            if (res.ok) {
+                // Keep minimal data in localStorage for immediate report view MVP transfer
+                localStorage.setItem(`avc_session_${scenarioId}`, JSON.stringify({
+                    date: new Date().toISOString(),
+                    metrics: speechMetrics,
+                    faceMetrics: faceMetrics,
+                    confidenceScore: confScore,
+                    transcript: transcript,
+                    aiAnalysis: aiResult
+                }))
+                router.push(`/avc/report/${scenarioId}`)
+            } else {
+                throw new Error("Failed to save session");
+            }
+
         } catch (error) {
             console.error(error)
             toast.error("Analysis Failed", { description: "Could not reach AI service." })
@@ -124,15 +165,20 @@ export default function AVCPracticePage() {
 
                         {/* Live Signals (MVP) */}
                         {isRecording && (
-                            <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end">
-                                <div className="flex gap-2">
-                                    <div className="bg-black/60 backdrop-blur px-3 py-1.5 rounded-lg text-white text-xs flex items-center gap-2">
-                                        <Video className="w-3 h-3 text-green-400" />
-                                        {faceStatus}
-                                    </div>
-                                    <div className="bg-black/60 backdrop-blur px-3 py-1.5 rounded-lg text-white text-xs flex items-center gap-2">
-                                        <Mic className="w-3 h-3 text-blue-400" />
-                                        {speechMetrics.wpm || 0} WPM
+                            <div className="absolute bottom-4 left-4 right-4 flex flex-col gap-2">
+                                <div className="flex justify-between items-end w-full">
+                                    <div className="flex gap-2">
+                                        <div className={`bg-black/60 backdrop-blur px-3 py-1.5 rounded-lg text-white text-xs flex items-center gap-2 ${faceStatus === "Face Detected" ? "border border-green-500/50" : "border border-red-500/50"}`}>
+                                            <Video className={`w-4 h-4 ${faceStatus === "Face Detected" ? "text-green-400" : "text-red-400"}`} />
+                                            {faceStatus === "Face Detected" ? "Eye Contact: Good" : "Face Not Visible"}
+                                        </div>
+                                        <div className={`bg-black/60 backdrop-blur px-3 py-1.5 rounded-lg text-white text-xs flex items-center gap-2 ${speechMetrics.wpm >= 110 && speechMetrics.wpm <= 160 ? "border border-green-500/50" : "border border-orange-500/50"}`}>
+                                            <Mic className={`w-4 h-4 ${speechMetrics.wpm >= 110 && speechMetrics.wpm <= 160 ? "text-green-400" : "text-orange-400"}`} />
+                                            {speechMetrics.wpm} WPM 
+                                            <span className="opacity-70">
+                                                ({speechMetrics.wpm === 0 ? "Speaking..." : speechMetrics.wpm < 110 ? "Too Slow" : speechMetrics.wpm > 160 ? "Too Fast" : "Good Pace"})
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -202,13 +248,22 @@ export default function AVCPracticePage() {
                             <CardTitle className="text-sm font-medium text-muted-foreground uppercase">Metrics to Watch</CardTitle>
                         </CardHeader>
                         <CardContent className="grid grid-cols-2 gap-4">
-                            <div className="p-3 bg-muted rounded-lg text-center">
+                            <div className="p-3 bg-muted rounded-lg text-center flex flex-col h-full justify-center">
                                 <div className="text-2xl font-bold">{speechMetrics.wordCount}</div>
                                 <div className="text-xs text-muted-foreground">Words Spoken</div>
                             </div>
-                            <div className="p-3 bg-muted rounded-lg text-center">
-                                <div className="text-2xl font-bold text-orange-500">{speechMetrics.fillersCount}</div>
+                            <div className="p-3 bg-muted rounded-lg text-center flex flex-col h-full justify-center">
+                                <div className={`text-2xl font-bold ${speechMetrics.fillersCount > 3 ? 'text-red-500' : 'text-orange-500'}`}>
+                                    {speechMetrics.fillersCount}
+                                </div>
                                 <div className="text-xs text-muted-foreground">Fillers (um/uh)</div>
+                            </div>
+                            <div className="p-3 bg-muted rounded-lg text-center col-span-2">
+                                <div className="flex justify-between text-sm mb-1">
+                                    <span className="text-muted-foreground">Eye Contact</span>
+                                    <span className="font-medium">{faceMetrics.eyeContactScore}%</span>
+                                </div>
+                                <Progress value={faceMetrics.eyeContactScore} className="h-1.5" />
                             </div>
                         </CardContent>
                     </Card>

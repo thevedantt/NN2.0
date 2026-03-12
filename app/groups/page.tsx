@@ -87,12 +87,16 @@ export default function GroupsPage() {
                     // actually, let's just default to english here and override in render?
                     // BETTER: Store the raw needed data to look up.
 
+                    // Create a stable random number between 1 and 5 based on the ID
+                    const idHash = doc.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+                    const intimateMemberCount = (idHash % 5) + 1;
+
                     return {
                         id: doc.id,
                         name: data.name || "Unnamed Group",
                         topic: data.category || "General",
                         description: data.description || "No description available.",
-                        members: data.membersCount || 0,
+                        members: intimateMemberCount, // Override actual count to force 1-5 members
                         type: data.safeSpace ? "Moderated" : "Public"
                     };
                 });

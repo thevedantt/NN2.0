@@ -30,6 +30,13 @@ export default function AVCPage() {
                     Choose a scenario to practice your communication skills in a safe, judgment-free environment.
                     Get instant AI-driven feedback on your confidence, pacing, and engagement.
                 </p>
+                <div className="pt-2">
+                    <Link href="/avc/history">
+                        <Button variant="outline" className="gap-2 rounded-full px-6">
+                            View Practice History <ArrowRight className="w-4 h-4" />
+                        </Button>
+                    </Link>
+                </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

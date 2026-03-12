@@ -1,52 +1,67 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+"use server";
 
-const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY!;
-const genAI = new GoogleGenerativeAI(apiKey);
+import { AnalysisMetrics } from "./analysis";
 
-export const analyzeFluencyWithAI = async (
-    transcript: string,
-    metrics: { wpm: number; fillersCount: number; pauseCount: number },
-    scenario: string
-) => {
-    if (!transcript || transcript.length < 10) {
-        return {
-            feedback: "Please speak a bit more next time so I can analyze your speech patterns.",
-            improvement: "Try to expand on your thoughts.",
-            strengths: "You started the session!",
-        };
+export async function analyzeFluencyWithAI(
+    transcript: string | null,
+    metrics: AnalysisMetrics,
+    scenarioTitle: string,
+    emotionTimelineString?: string
+) {
+    if (!process.env.OPENROUTER_API_KEY) {
+        throw new Error("OPENROUTER_API_KEY is missing from environment variables!");
     }
-
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const prompt = `
     Role: You are a supportive speech coach.
-    Task: Analyze this short speech transcript and metrics for a user practicing: "${scenario}".
-    
+    Task: Analyze this short speech transcript and metrics for a user practicing: "${scenarioTitle}".
+
     Data:
     - Transcript: "${transcript}"
     - Words Per Minute: ${metrics.wpm}
-    - Killer Fillers: ${metrics.fillersCount}
+    - Filler Words: ${metrics.fillersCount}
     - Pauses: ${metrics.pauseCount}
+    - Emotion Timeline: ${emotionTimelineString || "N/A"}
 
     Instructions:
     1. Be brief and encouraging.
     2. Identify one specific strength.
-    3. Identify one specific, actionable improvement.
-    4. Provide a short general feedback summary.
-    5. Return JSON ONLY.
+    3. Identify one specific, actionable area to improve.
+    4. Provide ONE short actionable tip.
+    5. Provide an improved, more articulate version of the user's answer.
+    6. Return JSON ONLY matching this format.
 
     Format:
     {
       "feedback": "...",
       "strengths": "...",
-      "improvement": "..."
+      "improvement": "...",
+      "actionableTip": "...",
+      "improvedAnswer": "..."
     }
   `;
 
     try {
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        const text = response.text();
+        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                model: "google/gemma-3-12b-it",
+                messages: [{ role: "user", content: prompt }],
+            })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error("OpenRouter API Error:", errorData);
+            throw new Error(`OpenRouter API error: ${response.status} ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        const text = data.choices[0].message.content;
 
         // Extract JSON from potential markdown code blocks
         const jsonMatch = text.match(/\{[\s\S]*\}/);
@@ -54,12 +69,8 @@ export const analyzeFluencyWithAI = async (
             return JSON.parse(jsonMatch[0]);
         }
         return JSON.parse(text);
-    } catch (error) {
+    } catch (error: any) {
         console.error("AI Analysis Failed", error);
-        return {
-            feedback: "Great job practicing! Keep working on clarity and pacing.",
-            strengths: "Consistency in practice.",
-            improvement: "Check your pacing and filler words.",
-        };
+        throw new Error(`AI Analysis Failed: ${error.message}`);
     }
 };

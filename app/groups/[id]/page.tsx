@@ -18,13 +18,29 @@ import { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, Timest
 import { useLanguage } from "@/context/LanguageContext"
 
 // Mock Data for Group Info (could be fetched too, but keeping simple as per request)
+// Hardcoded small numbers (1-5) as requested for intimacy
 const GROUP_INFO = {
-    "anxiety-warriors": { name: "Anxiety Warriors", members: 1205, topic: "Anxiety", description: "A safe space to share strategies for managing daily anxiety and panic attacks." },
-    "mindful-living": { name: "Mindful Living", members: 890, topic: "Wellness", description: "Practicing mindfulness, meditation, and staying present in the moment." },
-    "depression-support": { name: "Depression Support", members: 2300, topic: "Depression", description: "You are not alone. Deeply supportive community for those navigating depression." },
-    "social-confidence": { name: "Social Confidence", members: 450, topic: "Social Anxiety", description: "Building confidence in social situations step by step." },
-    "sleep-insomnia": { name: "Sleep & Insomnia", members: 670, topic: "Sleep", description: "Tips and support for better rest and sleep hygiene." },
-    "work-stress": { name: "Work Stress", members: 1500, topic: "Career", description: "Navigating burnout and workplace stress together." }
+    "anxiety-warriors": { name: "Anxiety Warriors", members: 4, topic: "Anxiety", description: "A safe space to share strategies for managing daily anxiety and panic attacks." },
+    "mindful-living": { name: "Mindful Living", members: 3, topic: "Wellness", description: "Practicing mindfulness, meditation, and staying present in the moment." },
+    "depression-support": { name: "Depression Support", members: 5, topic: "Depression", description: "You are not alone. Deeply supportive community for those navigating depression." },
+    "social-confidence": { name: "Social Confidence", members: 2, topic: "Social Anxiety", description: "Building confidence in social situations step by step." },
+    "sleep-insomnia": { name: "Sleep & Insomnia", members: 3, topic: "Sleep", description: "Tips and support for better rest and sleep hygiene." },
+    "work-stress": { name: "Work Stress", members: 4, topic: "Career", description: "Navigating burnout and workplace stress together." }
+}
+
+const NSFW_WORDS = [
+    // Extremely basic blocklist for demonstration
+    "hate", "kill", "die", "stupid", "idiot", "dumb", "ugly", 
+    "bitch", "fuck", "shit", "ass", "cunt", "slut", "whore"
+];
+
+const ANONYMOUS_ADJECTIVES = ["Brave", "Quiet", "Gentle", "Resilient", "Calm", "Hopeful", "Strong", "Peaceful", "Kind"];
+const ANONYMOUS_NOUNS = ["Owl", "Tiger", "Bear", "Fox", "Panda", "Koala", "Lion", "Dolphin", "Eagle"];
+
+function generateAnonymousName() {
+    const adj = ANONYMOUS_ADJECTIVES[Math.floor(Math.random() * ANONYMOUS_ADJECTIVES.length)];
+    const noun = ANONYMOUS_NOUNS[Math.floor(Math.random() * ANONYMOUS_NOUNS.length)];
+    return `${adj} ${noun}`;
 }
 
 interface Message {
@@ -139,10 +155,21 @@ export default function GroupChatPage() {
 
     const [messages, setMessages] = React.useState<Message[]>([])
     const [inputValue, setInputValue] = React.useState("")
+    const [sendError, setSendError] = React.useState<string | null>(null)
 
     // Mock User Data
     const USER_ID = "user_123"
-    const USERNAME = "Demo User"
+    // Instead of Demo User, use anonymous name
+    const [currentUsername, setCurrentUsername] = React.useState("")
+
+    React.useEffect(() => {
+        // Hydrate anonymous name only on client to avoid hydration mismatch
+        setCurrentUsername(generateAnonymousName())
+    }, [])
+
+    const randomizeName = () => {
+        setCurrentUsername(generateAnonymousName())
+    }
 
     // Real-time listener for messages
     React.useEffect(() => {
@@ -234,18 +261,33 @@ export default function GroupChatPage() {
 
     const handleSendMessage = async () => {
         if (!inputValue.trim()) return
+        setSendError(null)
+
+        // NSFW / Toxicity Check
+        const lowerInput = inputValue.toLowerCase()
+        const hasBadWord = NSFW_WORDS.some(word => {
+            // Check for exact word matches to avoid Scunthorpe problem
+            const regex = new RegExp(`\\b${word}\\b`, 'i');
+            return regex.test(lowerInput);
+        })
+
+        if (hasBadWord) {
+            setSendError("Your message contains harmful language. This is a safe space, please rephrase.")
+            return;
+        }
 
         try {
             await addDoc(collection(db, "groups", id, "messages"), {
                 text: inputValue,
                 userId: USER_ID,
-                username: USERNAME,
+                username: currentUsername,
                 anonymous: true, // defaulting to true for this safe space app
                 createdAt: serverTimestamp()
             });
             setInputValue("");
         } catch (error) {
             console.error("Error sending message:", error);
+            setSendError("Failed to send message. Please try again.")
         }
     }
 
@@ -329,17 +371,36 @@ export default function GroupChatPage() {
                 </div>
 
                 <div className="p-4 md:p-6 border-t bg-background/95 backdrop-blur">
-                    <div className="max-w-2xl mx-auto flex gap-2">
-                        <Input
-                            placeholder={t.typeMessage}
-                            value={inputValue}
-                            onChange={(e) => setInputValue(e.target.value)}
-                            onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-                            className="bg-card border-border/60"
-                        />
-                        <Button size="icon" onClick={handleSendMessage} disabled={!inputValue.trim()}>
-                            <Send className="h-4 w-4" />
-                        </Button>
+                    <div className="max-w-3xl mx-auto space-y-2">
+                        {sendError && (
+                            <div className="text-xs text-destructive font-medium bg-destructive/10 p-2 rounded border border-destructive/20 animate-in fade-in slide-in-from-bottom-2">
+                                <Shield className="h-3 w-3 inline mr-1" /> {sendError}
+                            </div>
+                        )}
+                        <div className="flex gap-2">
+                            <Button 
+                                variant="outline" 
+                                size="icon" 
+                                onClick={randomizeName} 
+                                title="Change anonymous identity"
+                                className="shrink-0"
+                            >
+                                <Users className="h-4 w-4 text-primary" />
+                            </Button>
+                            <Input
+                                placeholder={`Speaking anonymously as ${currentUsername || 'someone'}...`}
+                                value={inputValue}
+                                onChange={(e) => {
+                                    setInputValue(e.target.value);
+                                    if (sendError) setSendError(null);
+                                }}
+                                onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+                                className="bg-card border-border/60"
+                            />
+                            <Button size="icon" onClick={handleSendMessage} disabled={!inputValue.trim()} className="shrink-0">
+                                <Send className="h-4 w-4" />
+                            </Button>
+                        </div>
                     </div>
                 </div>
             </div>
