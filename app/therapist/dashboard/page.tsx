@@ -95,22 +95,38 @@ const chartConfig = {
 export default function TherapistDashboardPage() {
     const [appointments, setAppointments] = React.useState<AptResponse[]>([])
     const [loading, setLoading] = React.useState(true)
+    const [therapistName, setTherapistName] = React.useState("Therapist")
 
     React.useEffect(() => {
-        const fetchAppointments = async () => {
+        const initDashboard = async () => {
             try {
-                const res = await fetch('/api/appointments/therapist')
-                const data = await res.json()
-                if (data.success) {
-                    setAppointments(data.appointments || [])
+                const token = localStorage.getItem("token")
+                if (!token) return
+
+                // Fetch Identity
+                const meRes = await fetch("/api/auth/me", {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if (meRes.ok) {
+                    const data = await meRes.json();
+                    setTherapistName(data.fullName || `Dr. ${data.email?.split('@')[0]}` || "Therapist");
+                }
+
+                // Fetch Appointments
+                const aptRes = await fetch('/api/appointments/therapist', {
+                    headers: { Authorization: `Bearer ${token}` }
+                })
+                const aptData = await aptRes.json()
+                if (aptData.success) {
+                    setAppointments(aptData.appointments || [])
                 }
             } catch (err) {
-                console.error("Failed to fetch appointments", err)
+                console.error("Failed to load dashboard data", err)
             } finally {
                 setLoading(false)
             }
         }
-        fetchAppointments()
+        initDashboard()
     }, [])
 
     const currentDate = new Date().toLocaleDateString("en-US", {
@@ -123,12 +139,10 @@ export default function TherapistDashboardPage() {
     return (
         <div className="flex flex-col gap-6 p-6 min-h-screen bg-background text-foreground animate-in fade-in-50">
 
-
-
             {/* --- Top Header --- */}
             <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight text-primary">Welcome, Dr. Grey</h1>
+                    <h1 className="text-3xl font-bold tracking-tight text-primary">Welcome, {therapistName}</h1>
                     <p className="text-muted-foreground mt-1">
                         {currentDate}
                     </p>

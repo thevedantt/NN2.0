@@ -17,39 +17,47 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 
-// Mock Data
-const appointments = [
-    {
-        id: 1,
-        time: "09:00 AM",
-        duration: "60 min",
-        patient: "Clementine Baker",
-        type: "Initial Consultation",
-        status: "confirmed",
-        image: "/avatars/02.png"
-    },
-    {
-        id: 2,
-        time: "10:30 AM",
-        duration: "45 min",
-        patient: "Jimmie Christian",
-        type: "Follow-up",
-        status: "pending",
-        image: "/avatars/03.png"
-    },
-    {
-        id: 3,
-        time: "02:00 PM",
-        duration: "60 min",
-        patient: "Greg McPherson",
-        type: "Therapy Session",
-        status: "confirmed",
-        image: "/avatars/04.png"
-    },
-]
+// Types
+interface AptResponse {
+    appointment: {
+        appointmentId: number
+        userId: string
+        appointmentDate: string
+        appointmentTime: string
+        sessionType: string
+        status: string
+        meetLink?: string
+    }
+    patientWallet?: string
+}
 
 export default function SchedulePage() {
     const [date, setDate] = React.useState<Date | undefined>(new Date())
+    const [appointments, setAppointments] = React.useState<AptResponse[]>([])
+    const [loading, setLoading] = React.useState(true)
+
+    React.useEffect(() => {
+        const fetchSchedule = async () => {
+            try {
+                const token = localStorage.getItem("token")
+                if (!token) return
+
+                const aptRes = await fetch('/api/appointments/therapist', {
+                    headers: { Authorization: `Bearer ${token}` }
+                })
+                const aptData = await aptRes.json()
+                if (aptData.success) {
+                    setAppointments(aptData.appointments || [])
+                }
+            } catch (err) {
+                console.error("Failed to load schedule data", err)
+            } finally {
+                setLoading(false)
+            }
+        }
+        fetchSchedule()
+    }, [])
+
 
     return (
         <div className="flex flex-col h-full p-6 animate-in fade-in-50">
@@ -123,47 +131,58 @@ export default function SchedulePage() {
 
                     <div className="space-y-4 flex-1 overflow-auto pr-2">
                         {/* Time Slots Visualization */}
-                        {appointments.map((appt) => (
-                            <div key={appt.id} className="group flex items-start gap-4 p-4 rounded-xl border bg-card hover:shadow-md transition-all">
-                                <div className="flex flex-col items-center gap-1 min-w-[4rem] text-sm font-medium text-muted-foreground pt-1">
-                                    <span>{appt.time}</span>
-                                    <span className="text-xs text-muted-foreground/70">{appt.duration}</span>
-                                </div>
+                        {loading ? (
+                            <div className="text-center py-8 text-muted-foreground">Loading schedule...</div>
+                        ) : appointments.length > 0 ? (
+                            appointments.map((aptWrap) => {
+                                const appt = aptWrap.appointment;
+                                const isConfirmed = appt.status === 'scheduled' || appt.status === 'confirmed';
+                                return (
+                                <div key={appt.appointmentId} className="group flex items-start gap-4 p-4 rounded-xl border bg-card hover:shadow-md transition-all">
+                                    <div className="flex flex-col items-center gap-1 min-w-[4rem] text-sm font-medium text-muted-foreground pt-1">
+                                        <span>{appt.appointmentTime}</span>
+                                        <span className="text-xs text-muted-foreground/70">60 min</span>
+                                    </div>
 
-                                {/* Appointment Card Line */}
-                                <div className={`w-1 self-stretch rounded-full ${appt.status === 'confirmed' ? 'bg-primary' : 'bg-orange-400'}`} />
+                                    {/* Appointment Card Line */}
+                                    <div className={`w-1 self-stretch rounded-full ${isConfirmed ? 'bg-primary' : 'bg-orange-400'}`} />
 
-                                <div className="flex-1">
-                                    <div className="flex justify-between items-start">
-                                        <div className="flex items-center gap-3">
-                                            <Avatar>
-                                                <AvatarImage src={appt.image} />
-                                                <AvatarFallback>{appt.patient[0]}</AvatarFallback>
-                                            </Avatar>
-                                            <div>
-                                                <h3 className="font-semibold">{appt.patient}</h3>
-                                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                                    <Badge variant="outline" className="font-normal">{appt.type}</Badge>
-                                                    {appt.status === 'pending' && <Badge variant="secondary" className="text-orange-600 bg-orange-100">Pending</Badge>}
+                                    <div className="flex-1">
+                                        <div className="flex justify-between items-start">
+                                            <div className="flex items-center gap-3">
+                                                <Avatar>
+                                                    <AvatarFallback>PT</AvatarFallback>
+                                                </Avatar>
+                                                <div>
+                                                    <h3 className="font-semibold text-sm">Patient {appt.userId.substring(0,6)}</h3>
+                                                    <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
+                                                        <Badge variant="outline" className="font-normal">{appt.sessionType}</Badge>
+                                                        {!isConfirmed && <Badge variant="secondary" className="text-orange-600 bg-orange-100">{appt.status}</Badge>}
+                                                    </div>
                                                 </div>
                                             </div>
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                    <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100">
+                                                        <MoreHorizontal className="h-4 w-4" />
+                                                    </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end">
+                                                    <DropdownMenuItem>View Patient Details</DropdownMenuItem>
+                                                    <DropdownMenuItem>Reschedule</DropdownMenuItem>
+                                                    <DropdownMenuItem className="text-destructive">Cancel Appointment</DropdownMenuItem>
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
                                         </div>
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100">
-                                                    <MoreHorizontal className="h-4 w-4" />
-                                                </Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end">
-                                                <DropdownMenuItem>View Patient Details</DropdownMenuItem>
-                                                <DropdownMenuItem>Reschedule</DropdownMenuItem>
-                                                <DropdownMenuItem className="text-destructive">Cancel Appointment</DropdownMenuItem>
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
                                     </div>
                                 </div>
+                                )
+                            })
+                        ) : (
+                            <div className="text-center py-8 text-muted-foreground border-dashed border-2 rounded-xl">
+                                No appointments scheduled for this date.
                             </div>
-                        ))}
+                        )}
 
                         {/* Empty Slot Example */}
                         <div className="flex items-center gap-4 p-4 rounded-xl border border-dashed hover:bg-muted/30 transition-colors cursor-pointer opacity-70 hover:opacity-100">

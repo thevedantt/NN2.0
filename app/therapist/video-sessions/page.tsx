@@ -26,6 +26,24 @@ export default function VideoSessionPage() {
     const [isVideoOff, setIsVideoOff] = React.useState(false)
     const [activeTab, setActiveTab] = React.useState<"notes" | "ai" | "chat">("notes")
     const [duration, setDuration] = React.useState("00:00")
+    const [therapistName, setTherapistName] = React.useState("You")
+
+    React.useEffect(() => {
+        const initSession = async () => {
+            try {
+                const token = localStorage.getItem("token")
+                if (!token) return
+                const res = await fetch("/api/auth/me", {
+                    headers: { Authorization: `Bearer ${token}` }
+                })
+                if (res.ok) {
+                    const data = await res.json()
+                    setTherapistName(data.fullName || `Dr. ${data.email?.split('@')[0]}`)
+                }
+            } catch (err) { }
+        }
+        initSession()
+    }, [])
 
     // Simulate timer
     React.useEffect(() => {
@@ -76,7 +94,7 @@ export default function VideoSessionPage() {
                         <div className="flex items-center justify-center h-full text-white/50 bg-gray-900">
                             {isVideoOff ? <VideoOff className="h-8 w-8" /> : (
                                 <div className="h-full w-full bg-gradient-to-br from-indigo-500/20 to-purple-500/20 flex items-center justify-center">
-                                    <span className="text-xs text-white/70">You</span>
+                                    <span className="text-xs text-white/70">{therapistName}</span>
                                 </div>
                             )}
                         </div>

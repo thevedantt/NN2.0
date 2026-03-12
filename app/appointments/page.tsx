@@ -117,20 +117,21 @@ export default function AppointmentsPage() {
                                     {loading ? (
                                         <div className="col-span-2 text-center py-8 text-muted-foreground">Loading therapists...</div>
                                     ) : therapists.length > 0 ? (
-                                        therapists.map((therapist) => (
-                                            <Card key={therapist.userId} className="p-4 border border-border/60">
-                                                <div className="flex gap-4">
-                                                    <Avatar className="h-12 w-12"><AvatarFallback>{therapist.fullName[0]}</AvatarFallback></Avatar>
-                                                    <div>
-                                                        <h4 className="font-medium text-lg">{therapist.fullName}</h4>
-                                                        <p className="text-sm text-muted-foreground truncate">{therapist.specializations?.join(', ')}</p>
-                                                        <Button variant="outline" size="sm" className="mt-2" asChild>
-                                                            <Link href={`/therapist/${therapist.userId}`}>Book Now</Link>
-                                                        </Button>
-                                                    </div>
-                                                </div>
-                                            </Card>
-                                        ))
+                                        therapists.map((therapist) => {
+                                            const doc: any = {
+                                                id: therapist.userId,
+                                                name: therapist.fullName,
+                                                image: "/thp1.jpg", 
+                                                specialization: therapist.specializations?.[0] || "General Therapy",
+                                                experience: 5,
+                                                languages: ["English", "Hindi"],
+                                                description: "A highly-qualified specialist dedicated to your care.",
+                                                availability: ["Mon", "Wed", "Fri"],
+                                                price: 500,
+                                                rating: 4.9
+                                            };
+                                            return <DoctorCard key={therapist.userId} doctor={doc} />
+                                        })
                                     ) : (
                                         <div className="col-span-2 p-8 text-center text-muted-foreground border border-dashed rounded-lg">No specialists available</div>
                                     )}

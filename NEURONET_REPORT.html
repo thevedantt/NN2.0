@@ -1,0 +1,2205 @@
+<!DOCTYPE html><html><head>
+      <title>NEURONET_REPORT</title>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      
+      <link rel="stylesheet" href="file:///c:\Users\Phoenix\.antigravity\extensions\shd101wyy.markdown-preview-enhanced-0.8.20-universal\crossnote\dependencies\katex\katex.min.css">
+      
+      
+      
+      
+      
+      <style>
+      code[class*=language-],pre[class*=language-]{color:#333;background:0 0;font-family:Consolas,"Liberation Mono",Menlo,Courier,monospace;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.4;-moz-tab-size:8;-o-tab-size:8;tab-size:8;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none}pre[class*=language-]{padding:.8em;overflow:auto;border-radius:3px;background:#f5f5f5}:not(pre)>code[class*=language-]{padding:.1em;border-radius:.3em;white-space:normal;background:#f5f5f5}.token.blockquote,.token.comment{color:#969896}.token.cdata{color:#183691}.token.doctype,.token.macro.property,.token.punctuation,.token.variable{color:#333}.token.builtin,.token.important,.token.keyword,.token.operator,.token.rule{color:#a71d5d}.token.attr-value,.token.regex,.token.string,.token.url{color:#183691}.token.atrule,.token.boolean,.token.code,.token.command,.token.constant,.token.entity,.token.number,.token.property,.token.symbol{color:#0086b3}.token.prolog,.token.selector,.token.tag{color:#63a35c}.token.attr-name,.token.class,.token.class-name,.token.function,.token.id,.token.namespace,.token.pseudo-class,.token.pseudo-element,.token.url-reference .token.variable{color:#795da3}.token.entity{cursor:help}.token.title,.token.title .token.punctuation{font-weight:700;color:#1d3e81}.token.list{color:#ed6a43}.token.inserted{background-color:#eaffea;color:#55a532}.token.deleted{background-color:#ffecec;color:#bd2c00}.token.bold{font-weight:700}.token.italic{font-style:italic}.language-json .token.property{color:#183691}.language-markup .token.tag .token.punctuation{color:#333}.language-css .token.function,code.language-css{color:#0086b3}.language-yaml .token.atrule{color:#63a35c}code.language-yaml{color:#183691}.language-ruby .token.function{color:#333}.language-markdown .token.url{color:#795da3}.language-makefile .token.symbol{color:#795da3}.language-makefile .token.variable{color:#183691}.language-makefile .token.builtin{color:#0086b3}.language-bash .token.keyword{color:#0086b3}pre[data-line]{position:relative;padding:1em 0 1em 3em}pre[data-line] .line-highlight-wrapper{position:absolute;top:0;left:0;background-color:transparent;display:block;width:100%}pre[data-line] .line-highlight{position:absolute;left:0;right:0;padding:inherit 0;margin-top:1em;background:hsla(24,20%,50%,.08);background:linear-gradient(to right,hsla(24,20%,50%,.1) 70%,hsla(24,20%,50%,0));pointer-events:none;line-height:inherit;white-space:pre}pre[data-line] .line-highlight:before,pre[data-line] .line-highlight[data-end]:after{content:attr(data-start);position:absolute;top:.4em;left:.6em;min-width:1em;padding:0 .5em;background-color:hsla(24,20%,50%,.4);color:#f4f1ef;font:bold 65%/1.5 sans-serif;text-align:center;vertical-align:.3em;border-radius:999px;text-shadow:none;box-shadow:0 1px #fff}pre[data-line] .line-highlight[data-end]:after{content:attr(data-end);top:auto;bottom:.4em}html body{font-family:'Helvetica Neue',Helvetica,'Segoe UI',Arial,freesans,sans-serif;font-size:16px;line-height:1.6;color:#333;background-color:#fff;overflow:initial;box-sizing:border-box;word-wrap:break-word}html body>:first-child{margin-top:0}html body h1,html body h2,html body h3,html body h4,html body h5,html body h6{line-height:1.2;margin-top:1em;margin-bottom:16px;color:#000}html body h1{font-size:2.25em;font-weight:300;padding-bottom:.3em}html body h2{font-size:1.75em;font-weight:400;padding-bottom:.3em}html body h3{font-size:1.5em;font-weight:500}html body h4{font-size:1.25em;font-weight:600}html body h5{font-size:1.1em;font-weight:600}html body h6{font-size:1em;font-weight:600}html body h1,html body h2,html body h3,html body h4,html body h5{font-weight:600}html body h5{font-size:1em}html body h6{color:#5c5c5c}html body strong{color:#000}html body del{color:#5c5c5c}html body a:not([href]){color:inherit;text-decoration:none}html body a{color:#08c;text-decoration:none}html body a:hover{color:#00a3f5;text-decoration:none}html body img{max-width:100%}html body>p{margin-top:0;margin-bottom:16px;word-wrap:break-word}html body>ol,html body>ul{margin-bottom:16px}html body ol,html body ul{padding-left:2em}html body ol.no-list,html body ul.no-list{padding:0;list-style-type:none}html body ol ol,html body ol ul,html body ul ol,html body ul ul{margin-top:0;margin-bottom:0}html body li{margin-bottom:0}html body li.task-list-item{list-style:none}html body li>p{margin-top:0;margin-bottom:0}html body .task-list-item-checkbox{margin:0 .2em .25em -1.8em;vertical-align:middle}html body .task-list-item-checkbox:hover{cursor:pointer}html body blockquote{margin:16px 0;font-size:inherit;padding:0 15px;color:#5c5c5c;background-color:#f0f0f0;border-left:4px solid #d6d6d6}html body blockquote>:first-child{margin-top:0}html body blockquote>:last-child{margin-bottom:0}html body hr{height:4px;margin:32px 0;background-color:#d6d6d6;border:0 none}html body table{margin:10px 0 15px 0;border-collapse:collapse;border-spacing:0;display:block;width:100%;overflow:auto;word-break:normal;word-break:keep-all}html body table th{font-weight:700;color:#000}html body table td,html body table th{border:1px solid #d6d6d6;padding:6px 13px}html body dl{padding:0}html body dl dt{padding:0;margin-top:16px;font-size:1em;font-style:italic;font-weight:700}html body dl dd{padding:0 16px;margin-bottom:16px}html body code{font-family:Menlo,Monaco,Consolas,'Courier New',monospace;font-size:.85em;color:#000;background-color:#f0f0f0;border-radius:3px;padding:.2em 0}html body code::after,html body code::before{letter-spacing:-.2em;content:'\00a0'}html body pre>code{padding:0;margin:0;word-break:normal;white-space:pre;background:0 0;border:0}html body .highlight{margin-bottom:16px}html body .highlight pre,html body pre{padding:1em;overflow:auto;line-height:1.45;border:#d6d6d6;border-radius:3px}html body .highlight pre{margin-bottom:0;word-break:normal}html body pre code,html body pre tt{display:inline;max-width:initial;padding:0;margin:0;overflow:initial;line-height:inherit;word-wrap:normal;background-color:transparent;border:0}html body pre code:after,html body pre code:before,html body pre tt:after,html body pre tt:before{content:normal}html body blockquote,html body dl,html body ol,html body p,html body pre,html body ul{margin-top:0;margin-bottom:16px}html body kbd{color:#000;border:1px solid #d6d6d6;border-bottom:2px solid #c7c7c7;padding:2px 4px;background-color:#f0f0f0;border-radius:3px}@media print{html body{background-color:#fff}html body h1,html body h2,html body h3,html body h4,html body h5,html body h6{color:#000;page-break-after:avoid}html body blockquote{color:#5c5c5c}html body pre{page-break-inside:avoid}html body table{display:table}html body img{display:block;max-width:100%;max-height:100%}html body code,html body pre{word-wrap:break-word;white-space:pre}}.markdown-preview{width:100%;height:100%;box-sizing:border-box}.markdown-preview ul{list-style:disc}.markdown-preview ul ul{list-style:circle}.markdown-preview ul ul ul{list-style:square}.markdown-preview ol{list-style:decimal}.markdown-preview ol ol,.markdown-preview ul ol{list-style-type:lower-roman}.markdown-preview ol ol ol,.markdown-preview ol ul ol,.markdown-preview ul ol ol,.markdown-preview ul ul ol{list-style-type:lower-alpha}.markdown-preview .newpage,.markdown-preview .pagebreak{page-break-before:always}.markdown-preview pre.line-numbers{position:relative;padding-left:3.8em;counter-reset:linenumber}.markdown-preview pre.line-numbers>code{position:relative}.markdown-preview pre.line-numbers .line-numbers-rows{position:absolute;pointer-events:none;top:1em;font-size:100%;left:0;width:3em;letter-spacing:-1px;border-right:1px solid #999;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.markdown-preview pre.line-numbers .line-numbers-rows>span{pointer-events:none;display:block;counter-increment:linenumber}.markdown-preview pre.line-numbers .line-numbers-rows>span:before{content:counter(linenumber);color:#999;display:block;padding-right:.8em;text-align:right}.markdown-preview .mathjax-exps .MathJax_Display{text-align:center!important}.markdown-preview:not([data-for=preview]) .code-chunk .code-chunk-btn-group{display:none}.markdown-preview:not([data-for=preview]) .code-chunk .status{display:none}.markdown-preview:not([data-for=preview]) .code-chunk .output-div{margin-bottom:16px}.markdown-preview .md-toc{padding:0}.markdown-preview .md-toc .md-toc-link-wrapper .md-toc-link{display:inline;padding:.25rem 0}.markdown-preview .md-toc .md-toc-link-wrapper .md-toc-link div,.markdown-preview .md-toc .md-toc-link-wrapper .md-toc-link p{display:inline}.markdown-preview .md-toc .md-toc-link-wrapper.highlighted .md-toc-link{font-weight:800}.scrollbar-style::-webkit-scrollbar{width:8px}.scrollbar-style::-webkit-scrollbar-track{border-radius:10px;background-color:transparent}.scrollbar-style::-webkit-scrollbar-thumb{border-radius:5px;background-color:rgba(150,150,150,.66);border:4px solid rgba(150,150,150,.66);background-clip:content-box}html body[for=html-export]:not([data-presentation-mode]){position:relative;width:100%;height:100%;top:0;left:0;margin:0;padding:0;overflow:auto}html body[for=html-export]:not([data-presentation-mode]) .markdown-preview{position:relative;top:0;min-height:100vh}@media screen and (min-width:914px){html body[for=html-export]:not([data-presentation-mode]) .markdown-preview{padding:2em calc(50% - 457px + 2em)}}@media screen and (max-width:914px){html body[for=html-export]:not([data-presentation-mode]) .markdown-preview{padding:2em}}@media screen and (max-width:450px){html body[for=html-export]:not([data-presentation-mode]) .markdown-preview{font-size:14px!important;padding:1em}}@media print{html body[for=html-export]:not([data-presentation-mode]) #sidebar-toc-btn{display:none}}html body[for=html-export]:not([data-presentation-mode]) #sidebar-toc-btn{position:fixed;bottom:8px;left:8px;font-size:28px;cursor:pointer;color:inherit;z-index:99;width:32px;text-align:center;opacity:.4}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] #sidebar-toc-btn{opacity:1}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc{position:fixed;top:0;left:0;width:300px;height:100%;padding:32px 0 48px 0;font-size:14px;box-shadow:0 0 4px rgba(150,150,150,.33);box-sizing:border-box;overflow:auto;background-color:inherit}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar{width:8px}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar-track{border-radius:10px;background-color:transparent}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar-thumb{border-radius:5px;background-color:rgba(150,150,150,.66);border:4px solid rgba(150,150,150,.66);background-clip:content-box}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc a{text-decoration:none}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc{padding:0 16px}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc .md-toc-link-wrapper .md-toc-link{display:inline;padding:.25rem 0}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc .md-toc-link-wrapper .md-toc-link div,html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc .md-toc-link-wrapper .md-toc-link p{display:inline}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc .md-toc-link-wrapper.highlighted .md-toc-link{font-weight:800}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .markdown-preview{left:300px;width:calc(100% - 300px);padding:2em calc(50% - 457px - 300px / 2);margin:0;box-sizing:border-box}@media screen and (max-width:1274px){html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .markdown-preview{padding:2em}}@media screen and (max-width:450px){html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .markdown-preview{width:100%}}html body[for=html-export]:not([data-presentation-mode]):not([html-show-sidebar-toc]) .markdown-preview{left:50%;transform:translateX(-50%)}html body[for=html-export]:not([data-presentation-mode]):not([html-show-sidebar-toc]) .md-sidebar-toc{display:none}
+/* Please visit the URL below for more information: */
+/*   https://shd101wyy.github.io/markdown-preview-enhanced/#/customize-css */
+
+      </style>
+      <!-- The content below will be included at the end of the <head> element. --><script type="text/javascript">
+  document.addEventListener("DOMContentLoaded", function () {
+    // your code here
+  });
+</script></head><body for="html-export">
+    
+    
+      <div class="crossnote markdown-preview  ">
+      
+<h1 id="neuronet--complete-project-analysis-report">NeuroNet — Complete Project Analysis Report </h1>
+<p><strong>Date:</strong> March 12, 2026<br>
+<strong>Project:</strong> NeuroNet 2.0 — AI-Powered Mental Wellness Ecosystem<br>
+<strong>Repository:</strong> <code>D:/Projects/NeuroNet_HOC/NN2.0</code><br>
+<strong>Branch:</strong> <code>main</code></p>
+<hr>
+<h2 id="table-of-contents">TABLE OF CONTENTS </h2>
+<ol>
+<li><a href="#1-executive-summary">Executive Summary</a></li>
+<li><a href="#2-problem-statement">Problem Statement</a></li>
+<li><a href="#3-technology-stack">Technology Stack</a></li>
+<li><a href="#4-system-architecture">System Architecture</a></li>
+<li><a href="#5-database-schema">Database Schema</a></li>
+<li><a href="#6-authentication--authorization-flow">Authentication &amp; Authorization Flow</a></li>
+<li><a href="#7-user-flows--all-roles">User Flows — All Roles</a></li>
+<li><a href="#8-api-architecture">API Architecture</a></li>
+<li><a href="#9-feature-by-feature-breakdown">Feature-by-Feature Breakdown</a></li>
+<li><a href="#10-ai-pipeline">AI Pipeline</a></li>
+<li><a href="#11-web3--blockchain-architecture">Web3 &amp; Blockchain Architecture</a></li>
+<li><a href="#12-component-map">Component Map</a></li>
+<li><a href="#13-state-management-architecture">State Management Architecture</a></li>
+<li><a href="#14-performance--optimization-design">Performance &amp; Optimization Design</a></li>
+<li><a href="#15-security-architecture">Security Architecture</a></li>
+<li><a href="#16-severity-spectrum-coverage">Severity Spectrum Coverage</a></li>
+<li><a href="#17-pitch-flow--problem-to-solution">Pitch Flow — Problem to Solution</a></li>
+<li><a href="#18-file-structure-summary">File Structure Summary</a></li>
+</ol>
+<hr>
+<h2 id="1-executive-summary">1. EXECUTIVE SUMMARY </h2>
+<p><strong>NeuroNet</strong> is a full-stack, AI-powered mental health and wellness platform built with <strong>Next.js 16.1</strong>, <strong>React 19</strong>, <strong>TypeScript 5</strong>, and <strong>Tailwind CSS 4</strong>. It addresses the mental health crisis by combining AI companionship, gamification, peer support, professional therapy access, and blockchain-protected data privacy into a single unified ecosystem — designed to serve users across the <strong>entire severity spectrum</strong>: from everyday stress to clinical-level crisis.</p>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Framework</td>
+<td>Next.js 16.1 (App Router)</td>
+</tr>
+<tr>
+<td>AI Engine</td>
+<td>Google Gemini (primary), OpenAI (auxiliary)</td>
+</tr>
+<tr>
+<td>Database</td>
+<td>NeonDB Serverless PostgreSQL + Firebase Firestore</td>
+</tr>
+<tr>
+<td>Blockchain</td>
+<td>Polygon Amoy Testnet (Solidity Smart Contracts)</td>
+</tr>
+<tr>
+<td>Languages Supported</td>
+<td>English, Hindi, Marathi</td>
+</tr>
+<tr>
+<td>User Roles</td>
+<td>User, Therapist, Buddy</td>
+</tr>
+<tr>
+<td>Total DB Tables</td>
+<td>8</td>
+</tr>
+<tr>
+<td>Total API Routes</td>
+<td>26+ endpoints</td>
+</tr>
+<tr>
+<td>Total Pages/Routes</td>
+<td>35+</td>
+</tr>
+<tr>
+<td>Total Components</td>
+<td>50+</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="2-problem-statement">2. PROBLEM STATEMENT </h2>
+<h3 id="core-problem">Core Problem </h3>
+<p>Mental healthcare in India (and globally) suffers from:</p>
+<ul>
+<li><strong>Access Gap:</strong> Only 1 psychiatrist per 100,000 people in India</li>
+<li><strong>Stigma Barrier:</strong> 80%+ of people with mental health conditions never seek help</li>
+<li><strong>Cost Barrier:</strong> Private therapy is unaffordable for most (~₹1,500–₹3,000/session)</li>
+<li><strong>Continuity Gap:</strong> No persistent support between therapy sessions</li>
+<li><strong>Privacy Fear:</strong> Patients fear data being stored/shared without consent</li>
+<li><strong>Engagement Problem:</strong> Existing apps are boring, clinical, and have low retention</li>
+</ul>
+<h3 id="problem-statement-hoc-competition-format">Problem Statement (HOC Competition Format) </h3>
+<blockquote>
+<p><em>"How might we build an accessible, affordable, and stigma-free mental health support system that serves individuals across the full severity spectrum — from everyday stress to clinical crisis — while ensuring their data privacy, engaging them long-term, and bridging the gap to professional care when needed?"</em></p>
+</blockquote>
+<hr>
+<h2 id="3-technology-stack">3. TECHNOLOGY STACK </h2>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>┌─────────────────────────────────────────────────────────────────┐
+│                        TECHNOLOGY STACK                          │
+├─────────────────────────────────────────────────────────────────┤
+│  FRONTEND                                                        │
+│  ├── Next.js 16.1 (App Router, SSR, API Routes)                 │
+│  ├── React 19.2 (Server + Client Components)                     │
+│  ├── TypeScript 5 (End-to-End Type Safety)                      │
+│  ├── Tailwind CSS 4 + Radix UI (Accessible Components)          │
+│  ├── Framer Motion (Animations &amp; Page Transitions)               │
+│  ├── Three.js + React Three Fiber (3D NeuroPet &amp; Doctor Models) │
+│  └── Recharts (Mood Charts &amp; Analytics)                          │
+├─────────────────────────────────────────────────────────────────┤
+│  AI / ML                                                         │
+│  ├── Google Gemini API (Chat, Insights, Summaries)              │
+│  ├── OpenAI API (Auxiliary)                                      │
+│  ├── MediaPipe Tasks Vision (Real-Time Face Detection)           │
+│  ├── face-api.js (Emotion Recognition)                           │
+│  └── Web Speech API (Voice Input/Output)                         │
+├─────────────────────────────────────────────────────────────────┤
+│  DATABASE / STORAGE                                              │
+│  ├── NeonDB (Serverless PostgreSQL) + Drizzle ORM                │
+│  ├── Firebase Firestore (Real-Time Community/Chat)               │
+│  └── IPFS via Pinata (Encrypted Data Backups)                    │
+├─────────────────────────────────────────────────────────────────┤
+│  AUTHENTICATION                                                  │
+│  ├── JWT (jose + bcryptjs) — HTTP-Only Cookies                  │
+│  └── Web3Auth (Ethereum Wallet Login)                            │
+├─────────────────────────────────────────────────────────────────┤
+│  BLOCKCHAIN / WEB3                                               │
+│  ├── Ethers.js v6 (Contract Interactions)                        │
+│  ├── Solidity Smart Contract (ChatAccessControl.sol)             │
+│  ├── Polygon Amoy Testnet (Deployment)                           │
+│  └── CryptoJS AES-256 (Wallet-Derived Encryption)               │
+├─────────────────────────────────────────────────────────────────┤
+│  STATE MANAGEMENT                                                │
+│  ├── Zustand (NeuroPet client state)                             │
+│  ├── React Context (Language, Theme, Appointments, Offline)      │
+│  └── localStorage (Offline data, user preferences)              │
+└─────────────────────────────────────────────────────────────────┘
+</code></pre><h3 id="dependency-versions">Dependency Versions </h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Version</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>next</td>
+<td>16.1.1</td>
+<td>Framework</td>
+</tr>
+<tr>
+<td>react</td>
+<td>19.2.3</td>
+<td>UI Library</td>
+</tr>
+<tr>
+<td>typescript</td>
+<td>^5</td>
+<td>Type Safety</td>
+</tr>
+<tr>
+<td>tailwindcss</td>
+<td>^4</td>
+<td>Styling</td>
+</tr>
+<tr>
+<td>@google/genai</td>
+<td>^1.44.0</td>
+<td>Gemini AI</td>
+</tr>
+<tr>
+<td>@google/generative-ai</td>
+<td>^0.24.1</td>
+<td>Gemini SDK</td>
+</tr>
+<tr>
+<td>@mediapipe/tasks-vision</td>
+<td>^0.10.32</td>
+<td>Face Detection</td>
+</tr>
+<tr>
+<td>drizzle-orm</td>
+<td>^0.45.1</td>
+<td>ORM</td>
+</tr>
+<tr>
+<td>@neondatabase/serverless</td>
+<td>^1.0.2</td>
+<td>PostgreSQL</td>
+</tr>
+<tr>
+<td>firebase</td>
+<td>^12.7.0</td>
+<td>Firestore</td>
+</tr>
+<tr>
+<td>ethers</td>
+<td>^6.16.0</td>
+<td>Blockchain</td>
+</tr>
+<tr>
+<td>@web3auth/modal</td>
+<td>^10.15.0</td>
+<td>Wallet Auth</td>
+</tr>
+<tr>
+<td>three</td>
+<td>^0.182.0</td>
+<td>3D Graphics</td>
+</tr>
+<tr>
+<td>@react-three/fiber</td>
+<td>^9.4.2</td>
+<td>React 3D</td>
+</tr>
+<tr>
+<td>framer-motion</td>
+<td>^12.29.2</td>
+<td>Animations</td>
+</tr>
+<tr>
+<td>recharts</td>
+<td>^2.15.4</td>
+<td>Charts</td>
+</tr>
+<tr>
+<td>zustand</td>
+<td>^5.0.11</td>
+<td>State Mgmt</td>
+</tr>
+<tr>
+<td>jose</td>
+<td>^6.1.3</td>
+<td>JWT</td>
+</tr>
+<tr>
+<td>bcryptjs</td>
+<td>^3.0.3</td>
+<td>Password Hash</td>
+</tr>
+<tr>
+<td>crypto-js</td>
+<td>^4.2.0</td>
+<td>AES Encryption</td>
+</tr>
+<tr>
+<td>face-api.js</td>
+<td>^0.22.2</td>
+<td>Emotion Detection</td>
+</tr>
+<tr>
+<td>react-webcam</td>
+<td>^7.2.0</td>
+<td>Camera Access</td>
+</tr>
+<tr>
+<td>sonner</td>
+<td>^2.0.7</td>
+<td>Toast Notifications</td>
+</tr>
+<tr>
+<td>axios</td>
+<td>^1.13.6</td>
+<td>HTTP Client</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="4-system-architecture">4. SYSTEM ARCHITECTURE </h2>
+<h3 id="high-level-architecture">High-Level Architecture </h3>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>┌──────────────────────────────────────────────────────────────────────┐
+│                          NEURONET PLATFORM                            │
+│                                                                        │
+│  ┌─────────────┐    ┌─────────────┐    ┌─────────────────────────┐  │
+│  │   USER      │    │  THERAPIST  │    │        BUDDY            │  │
+│  │  (patient)  │    │  (clinician)│    │   (peer supporter)      │  │
+│  └──────┬──────┘    └──────┬──────┘    └────────────┬────────────┘  │
+│         │                  │                         │               │
+│  ┌──────▼──────────────────▼─────────────────────────▼────────────┐ │
+│  │                  NEXT.JS APP ROUTER (App Layer)                  │ │
+│  │   SSR Pages + Client Components + API Routes + Middleware        │ │
+│  └──────────────────────────┬───────────────────────────────────────┘ │
+│                             │                                          │
+│  ┌──────────────────────────▼───────────────────────────────────────┐ │
+│  │                     API LAYER (26+ Routes)                        │ │
+│  │  /api/auth  /api/chat  /api/avc  /api/appointments  /api/web3   │ │
+│  │  /api/profile  /api/doctors  /api/therapist  /api/neuropet      │ │
+│  └──────┬────────────┬────────────────┬──────────────┬─────────────┘ │
+│         │            │                │              │               │
+│  ┌──────▼──┐  ┌──────▼──────┐  ┌─────▼──────┐  ┌───▼─────────┐    │
+│  │ NeonDB  │  │  Firebase   │  │  Gemini AI │  │  IPFS/Web3  │    │
+│  │(Drizzle │  │  Firestore  │  │  Chat +    │  │  Pinata +   │    │
+│  │  ORM)   │  │  Groups +   │  │  Insights +│  │  Polygon    │    │
+│  │ 8 tables│  │  Real-time) │  │  Summary   │  │  Testnet    │    │
+│  └─────────┘  └─────────────┘  └────────────┘  └─────────────┘    │
+└──────────────────────────────────────────────────────────────────────┘
+</code></pre><h3 id="request-flow-middleware--page--api">Request Flow (Middleware → Page → API) </h3>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>  Browser Request
+       │
+       ▼
+  middleware.ts  ──→  JWT Verification
+       │               RBAC Check
+       │               Role-based redirect
+       │
+       ▼
+  Next.js App Router
+       │
+       ├── Static Pages    (Landing, Auth)
+       ├── User Pages       (Dashboard, Chat, AVC, NeuroPet, etc.)
+       ├── Therapist Pages  (Dashboard, Patients, Schedule)
+       └── Buddy Pages      (Dashboard, Connections, Training)
+       │
+       ▼
+  API Route Handlers
+       │
+       ├── lib/auth.ts      → JWT ops, password hashing
+       ├── lib/gemini/      → AI model calls
+       ├── lib/web3/        → Blockchain, IPFS, encryption
+       ├── lib/avc/         → Speech &amp; face analysis
+       └── lib/neuropet/    → Pet state management
+</code></pre><hr>
+<h2 id="5-database-schema">5. DATABASE SCHEMA </h2>
+<h3 id="schema-diagram-drizzle-orm--postgresql-on-neondb">Schema Diagram (Drizzle ORM / PostgreSQL on NeonDB) </h3>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>┌──────────────────────────────┐
+│           users              │
+├──────────────────────────────┤
+│ id          UUID  PK         │
+│ email       VARCHAR  UNIQUE  │
+│ passwordHash VARCHAR         │
+│ role        VARCHAR          │  ← 'user' | 'therapist' | 'buddy'
+│ isOnboardingComplete BOOLEAN │
+│ walletAddress VARCHAR        │
+│ createdAt   TIMESTAMP        │
+└──────────┬───────────────────┘
+           │ 1:1
+     ┌─────┴──────┐
+     ▼            ▼
+┌──────────────────────────────┐    ┌──────────────────────────────────┐
+│       userProfiles           │    │        therapistProfiles          │
+├──────────────────────────────┤    ├──────────────────────────────────┤
+│ profileId   SERIAL  PK       │    │ profileId      UUID  PK           │
+│ userId      VARCHAR  FK      │    │ userId         UUID  FK           │
+│ gender      VARCHAR          │    │ fullName       VARCHAR            │
+│ preferredLanguage VARCHAR    │    │ mobileNumber   VARCHAR            │
+│ primaryConcern VARCHAR       │    │ licenseNumber  VARCHAR            │
+│ therapyPreference VARCHAR    │    │ specializations JSON              │
+│ previousExperience VARCHAR   │    │ perSessionFee  INTEGER            │
+│ sleepPattern VARCHAR         │    │ preferredSessionType VARCHAR      │
+│ stressLevel VARCHAR          │    │ isVerified     BOOLEAN            │
+│ supportSystem VARCHAR        │    │ createdAt, updatedAt TIMESTAMP    │
+│ socialPlatforms JSON         │    └──────────────────────────────────┘
+│ hobbies JSON                 │
+│ musicDetails JSON            │
+│ entertainment JSON           │
+│ inputMetadata JSON           │  ← tracks voice vs typed per field
+│ createdAt, updatedAt         │
+└──────────────────────────────┘
+
+┌──────────────────────────────────┐
+│           doctors                │
+├──────────────────────────────────┤
+│ doctorId    SERIAL  PK           │
+│ doctorData  JSON                 │
+│  ├── name, image, specialization │
+│  ├── experience, languages       │
+│  ├── description, availability   │
+│  └── price, rating               │
+│ isActive    BOOLEAN              │
+│ createdAt   TIMESTAMP            │
+└───────────────┬──────────────────┘
+                │ 1:N
+                ▼
+┌──────────────────────────────┐
+│        appointments          │
+├──────────────────────────────┤
+│ appointmentId SERIAL PK      │
+│ userId    VARCHAR  FK        │
+│ doctorId  VARCHAR            │
+│ doctorSnapshot JSON          │
+│ appointmentDate DATE         │
+│ appointmentTime VARCHAR      │
+│ sessionType VARCHAR          │
+│ price     INTEGER            │
+│ status    VARCHAR            │
+│  'scheduled'|'completed'     │
+│  'cancelled'|'rescheduled'   │
+│ meetLink  VARCHAR            │
+│ createdAt, updatedAt         │
+└──────────────────────────────┘
+
+┌──────────────────────────────────┐
+│         aiChatSessions           │
+├──────────────────────────────────┤
+│ sessionId   SERIAL  PK           │
+│ userId      VARCHAR              │
+│ language    VARCHAR (default:en) │
+│ startedAt   TIMESTAMP            │
+│ endedAt     TIMESTAMP            │
+│ summary     TEXT                 │
+│ createdAt   TIMESTAMP            │
+└──────────┬───────────────────────┘
+           │ 1:N                         1:1 (per session)
+     ┌─────┴──────┐                          │
+     ▼            ▼                          ▼
+┌──────────────────────┐    ┌──────────────────────────────────┐
+│   aiChatMessages     │    │        aiChatInsights             │
+├──────────────────────┤    ├──────────────────────────────────┤
+│ messageId  SERIAL PK │    │ insightId   SERIAL  PK           │
+│ sessionId  SERIAL FK │    │ sessionId   SERIAL  FK           │
+│ sender     VARCHAR   │    │ currentTopic VARCHAR             │
+│  'user'|'ai'         │    │ emotionalTone JSON               │
+│ messageText TEXT     │    │  {"Calmness":0-100,              │
+│ createdAt  TIMESTAMP │    │   "Openness":0-100}              │
+└──────────────────────┘    │ suggestionText TEXT              │
+                            │ language    VARCHAR              │
+                            │ createdAt   TIMESTAMP            │
+                            └──────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────┐
+│                       avcSessions                                 │
+├──────────────────────────────────────────────────────────────────┤
+│ id             SERIAL  PK                                         │
+│ userId         VARCHAR                                            │
+│ scenario       VARCHAR  ← 'coffee-order'|'interview'|'elevator'  │
+│ words          INTEGER  ← total words spoken                      │
+│ wpm            DECIMAL  ← words per minute                        │
+│ fillerWords    INTEGER  ← "um", "uh", "like" count                │
+│ pauses         INTEGER  ← silence gaps &gt; 1.5s                     │
+│ eyeContact     DECIMAL  ← percentage (0-100)                      │
+│ confidenceScore DECIMAL ← composite score (0-100)                 │
+│ transcript     TEXT     ← full speech transcript                  │
+│ aiFeedback     JSON     ← {strengths, improvement,                │
+│                             actionableTip, improvedAnswer}        │
+│ createdAt      TIMESTAMP                                          │
+└──────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────┐
+│                     chatAccessGrants (Web3)                       │
+├──────────────────────────────────────────────────────────────────┤
+│ grantId          SERIAL  PK                                        │
+│ patientUserId    VARCHAR  ← user who owns data                    │
+│ therapistUserId  VARCHAR  ← therapist being granted access         │
+│ patientWallet    VARCHAR  ← Ethereum wallet address                │
+│ therapistWallet  VARCHAR  ← Therapist's wallet address             │
+│ sessionId        NULLABLE ← NULL = assessment, INTEGER = chat     │
+│ dataType         VARCHAR  ← 'chat' | 'assessment'                 │
+│ ipfsCid          VARCHAR  ← IPFS content identifier               │
+│ txHash           VARCHAR  ← on-chain transaction hash             │
+│ isActive         BOOLEAN  ← false = revoked                       │
+│ grantedAt        TIMESTAMP                                         │
+│ revokedAt        TIMESTAMP                                         │
+└──────────────────────────────────────────────────────────────────┘
+</code></pre><h3 id="firebase-firestore-real-time-collections">Firebase Firestore (Real-Time Collections) </h3>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>Firestore
+└── groups/
+    └── {groupId}/
+        ├── name
+        ├── description
+        ├── category
+        ├── memberCount
+        └── messages/
+            └── {messageId}
+                ├── userId
+                ├── text
+                └── createdAt
+</code></pre><hr>
+<h2 id="6-authentication--authorization-flow">6. AUTHENTICATION &amp; AUTHORIZATION FLOW </h2>
+<h3 id="registration--login-flow">Registration &amp; Login Flow </h3>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>  User visits /auth/register
+         │
+         ▼
+  Fill: email, password, role
+  (user | therapist | buddy)
+         │
+         ▼
+  POST /api/auth/register
+  ├── Hash password (bcryptjs, 10 rounds)
+  ├── Insert into users table
+  └── Return success
+         │
+         ▼
+  POST /api/auth/login
+  ├── Find user by email
+  ├── Compare password hash
+  ├── Create JWT (jose, 30min expiry)
+  │    Payload: { userId, email, role, isOnboardingComplete }
+  ├── Set HTTP-Only cookie (Secure, SameSite=lax)
+  └── Return user data
+         │
+         ▼
+  Every subsequent request → middleware.ts
+  ├── Extract JWT from cookie
+  ├── Verify signature (jose)
+  ├── Check role-based path permissions:
+  │   /therapist/* → role === 'therapist'
+  │   /buddy/*     → role === 'buddy'
+  │   /dashboard   → role === 'user'
+  ├── Check onboarding:
+  │   If therapist &amp;&amp; !isOnboardingComplete → redirect /therapist/onboarding
+  └── Attach user to request context
+</code></pre><h3 id="rbac-matrix">RBAC Matrix </h3>
+<table>
+<thead>
+<tr>
+<th>Route Pattern</th>
+<th>user</th>
+<th>therapist</th>
+<th>buddy</th>
+<th>public</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/</code></td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td><code>/auth/*</code></td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td><code>/dashboard</code></td>
+<td>✓</td>
+<td>✗</td>
+<td>✗</td>
+<td>✗</td>
+</tr>
+<tr>
+<td><code>/chat-ai</code></td>
+<td>✓</td>
+<td>✗</td>
+<td>✗</td>
+<td>✗</td>
+</tr>
+<tr>
+<td><code>/avc/*</code></td>
+<td>✓</td>
+<td>✗</td>
+<td>✗</td>
+<td>✗</td>
+</tr>
+<tr>
+<td><code>/neuropet</code></td>
+<td>✓</td>
+<td>✗</td>
+<td>✗</td>
+<td>✗</td>
+</tr>
+<tr>
+<td><code>/appointments</code></td>
+<td>✓</td>
+<td>✗</td>
+<td>✗</td>
+<td>✗</td>
+</tr>
+<tr>
+<td><code>/assessment</code></td>
+<td>✓</td>
+<td>✗</td>
+<td>✗</td>
+<td>✗</td>
+</tr>
+<tr>
+<td><code>/groups</code></td>
+<td>✓</td>
+<td>✗</td>
+<td>✗</td>
+<td>✗</td>
+</tr>
+<tr>
+<td><code>/web3-vault</code></td>
+<td>✓</td>
+<td>✗</td>
+<td>✗</td>
+<td>✗</td>
+</tr>
+<tr>
+<td><code>/therapist/*</code></td>
+<td>✗</td>
+<td>✓</td>
+<td>✗</td>
+<td>✗</td>
+</tr>
+<tr>
+<td><code>/buddy/*</code></td>
+<td>✗</td>
+<td>✗</td>
+<td>✓</td>
+<td>✗</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="7-user-flows--all-roles">7. USER FLOWS — ALL ROLES </h2>
+<h3 id="flow-1-new-user-journey">Flow 1: New User Journey </h3>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>  Landing Page (/)
+       │
+       ▼
+  Sign Up → /auth/register  (role: 'user')
+       │
+       ▼
+  Onboarding → /editprofile
+  ├── Step 1: Basic Info (gender, language, primaryConcern)
+  ├── Step 2: Therapy Preferences (previousExperience, therapyType)
+  ├── Step 3: Lifestyle (sleep, stress, support system)
+  ├── Step 4: Interests (hobbies, music, entertainment)
+  │   [Each field: voice OR text input, tracked in inputMetadata]
+  └── isOnboardingComplete → true
+       │
+       ▼
+  Dashboard → /dashboard
+  ├── Mood Chart (weekly trend)
+  ├── Streak Counter
+  ├── Quick Actions (Chat, Assessment, AVC, Appointments)
+  ├── Upcoming Appointments Widget
+  └── YouTube Wellness Feed
+       │
+       ├──→ /chat-ai       (AI Companion)
+       ├──→ /avc           (Speech Coaching)
+       ├──→ /neuropet      (3D Pet)
+       ├──→ /assessment    (PHQ-9/GAD-7)
+       ├──→ /appointments  (Book Doctor)
+       ├──→ /groups        (Community)
+       ├──→ /web3-vault    (Data Privacy)
+       └──→ /offline       (Offline Mode)
+</code></pre><h3 id="flow-2-ai-chat-session">Flow 2: AI Chat Session </h3>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>  /chat-ai
+      │
+      ▼
+  Check/Create Session  (POST /api/chat → sessionId)
+      │
+      ▼
+  User sends message  ── voice input (Web Speech API) OR text
+      │
+      ▼
+  POST /api/chat
+  ├── [SYNC] Build context (last 5 messages only)
+  ├── [SYNC] Send to Gemini (COMPANION_PROMPT + history + message)
+  ├── [SYNC] Return AI response to user  ← FAST PATH
+  │
+  ├── [ASYNC] Persist messages to DB
+  ├── [ASYNC] Run Insight Engine:
+  │   ├── Send to Gemini (INSIGHT_ENGINE_PROMPT)
+  │   ├── Extract: currentTopic, emotionalTone, suggestionText
+  │   └── Save to aiChatInsights table
+  │
+  └── [ASYNC] Crisis Detection:
+      ├── Scan message for keywords (EN/HI/MR)
+      ├── If HIGH risk → return crisisAlert: true
+      └── Client shows countdown modal → redirect calming content
+      │
+      ▼
+  Insight Panel (right sidebar)
+  ├── currentTopic displayed
+  ├── Calmness score (0-100, animated bar)
+  ├── Openness score (0-100, animated bar)
+  └── Actionable suggestion text
+      │
+      ▼
+  End Session → POST /api/chat/summarize
+  ├── Send full session to Gemini (SUMMARIZATION_PROMPT)
+  └── Save bullet-point summary to aiChatSessions.summary
+</code></pre><h3 id="flow-3-avc-adaptive-video-coaching">Flow 3: AVC (Adaptive Video Coaching) </h3>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>  /avc  (Scenario Selection)
+  ├── Coffee Order Scenario
+  ├── Interview Introduction Scenario
+  └── Elevator Pitch Scenario
+       │
+       ▼
+  /avc/practice/[scenarioId]
+  ├── Camera + Microphone permissions requested
+  ├── Scenario prompt displayed to user
+       │
+       ▼
+  Real-time Analysis (during speech):
+  ├── useSpeechAnalysis Hook:
+  │   ├── Web Speech API → Transcript (interim + final)
+  │   ├── Web Audio API → Silence detection (&gt;1.5s = pause)
+  │   ├── WPM calculation in real-time
+  │   └── Filler word count (um, uh, like, you know, basically...)
+  │
+  └── useFaceAnalysis Hook:
+      ├── face-api.js / MediaPipe → Detect face in webcam feed
+      ├── Eye contact % (face centred + direct gaze)
+      └── Emotion timeline per second (happiness, fear, sadness...)
+       │
+       ▼
+  Stop Recording
+       │
+       ▼
+  calculateConfidenceScore():
+  ├── 30% weight: WPM score    (ideal range: 110-160 WPM)
+  ├── 25% weight: Eye contact  percentage
+  ├── 25% weight: Filler word  penalty
+  └── 20% weight: Pause        penalty
+  → Final Score: 0–100
+       │
+       ▼
+  AI Feedback via Gemini:
+  ├── Strengths identified
+  ├── Areas for improvement
+  ├── One actionable tip
+  └── Improved answer example
+       │
+       ▼
+  Save to DB (avcSessions table)
+  → View history at /avc/history
+</code></pre><h3 id="flow-4-therapist-journey">Flow 4: Therapist Journey </h3>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>  Sign Up → role: 'therapist'
+       │
+       ▼
+  /therapist/onboarding  (REQUIRED — blocked until complete)
+  ├── Full name, mobile number, license number
+  ├── Specializations (JSON array)
+  ├── Fee per session (INR)
+  └── Preferred session type (Video / Audio / Both)
+       │
+       ▼
+  /therapist/dashboard
+  ├── Urgent Cases panel (high-risk patients)
+  ├── Upcoming Sessions widget
+  └── Analytics Overview
+       │
+       ├──→ /therapist/patients
+       │    ├── List of patients who shared data
+       │    ├── Filter by risk level (PHQ-9/GAD-7 scores)
+       │    └── /therapist/patients/[id]
+       │         ├── Patient profile overview
+       │         ├── Shared chat sessions (decrypted from IPFS)
+       │         └── Assessment results (PHQ-9, GAD-7)
+       │
+       ├──→ /therapist/schedule
+       │    └── Manage availability &amp; session calendar
+       │
+       └──→ /therapist/video-sessions
+            └── Initiate/manage Google Meet calls
+</code></pre><h3 id="flow-5-buddy-journey">Flow 5: Buddy Journey </h3>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>  Sign Up → role: 'buddy'
+       │
+       ▼
+  /buddy/dashboard
+  ├── Active connections count
+  ├── Pending requests count
+  └── Achievements overview
+       │
+       ├──→ /buddy/requests    → Accept/decline support requests
+       ├──→ /buddy/connections → List of active connections
+       │    └── /buddy/connections/[id] → 1:1 chat
+       ├──→ /buddy/sessions    → Completed session history
+       ├──→ /buddy/training    → Peer support training modules
+       └──→ /buddy/profile     → Edit buddy profile
+</code></pre><h3 id="flow-6-web3-data-sharing">Flow 6: Web3 Data Sharing </h3>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>  Patient in /chat-ai or /assessment
+       │
+       ▼
+  Click "Share with Therapist"
+       │
+       ▼
+  ShareAccessDialog.tsx opens
+  ├── Connect Ethereum wallet (Web3Auth modal)
+  ├── Select therapist from dropdown
+  └── Choose session/assessment to share
+       │
+       ▼
+  POST /api/web3/ipfs/upload
+  ├── Serialize chat data / assessment results
+  ├── Derive encryption key: SHA256(walletAddress + SALT)
+  ├── Encrypt with AES-256 (CryptoJS)
+  └── Upload encrypted blob to Pinata IPFS
+      → Returns: ipfsCid
+       │
+       ▼
+  Smart Contract Call (Polygon Amoy Testnet)
+  ├── grantAccess(therapistWallet, ipfsCid)
+  ├── Emit: AccessGranted event (on-chain)
+  └── Store: mapping[patientWallet][therapistWallet] → CID[]
+       │
+       ▼
+  POST /api/web3/access
+  └── Insert into chatAccessGrants table (DB audit record)
+       │
+       ▼
+  Therapist visits /therapist/patients/[id]
+  ├── GET /api/therapist/shared-records
+  ├── For each grant: fetch encrypted blob from IPFS CID
+  ├── POST /api/web3/ipfs/retrieve
+  │   ├── Fetch from Pinata
+  │   ├── Derive decryption key from therapist wallet
+  │   └── Decrypt with AES-256
+  └── Display decrypted session/assessment data
+       │
+       ▼
+  Revocation (patient can revoke any time):
+  DELETE /api/web3/access
+  ├── Smart contract: revokeAccess(therapistWallet, ipfsCid)
+  ├── Emit: AccessRevoked event
+  └── Set chatAccessGrants.isActive = false
+</code></pre><hr>
+<h2 id="8-api-architecture">8. API ARCHITECTURE </h2>
+<h3 id="complete-api-route-map">Complete API Route Map </h3>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>/api/
+├── auth/
+│   ├── POST   register        → Create user (hash pw, insert DB)
+│   ├── POST   login           → Verify pw, issue JWT cookie
+│   ├── GET    me              → Return current user from JWT
+│   └── POST   logout          → Clear auth cookie
+│
+├── profile/
+│   ├── GET    /               → Fetch userProfile by userId
+│   └── POST   /               → Upsert profile (tracks input method)
+│
+├── chat/
+│   ├── POST   /               → Gemini chat + insight + crisis detection
+│   └── POST   summarize       → Generate session summary
+│
+├── appointments/
+│   ├── POST   create          → Book appointment with doctor
+│   ├── GET    /               → List user's appointments
+│   ├── GET    [id]            → Single appointment details
+│   └── POST   therapist       → Therapist's schedule view
+│
+├── doctors/
+│   └── GET    /               → All active doctors (doctorData JSON)
+│
+├── avc/
+│   ├── POST   session         → Create/complete AVC session
+│   └── GET    history         → User's past AVC sessions
+│
+├── therapist/
+│   ├── POST   onboarding      → Complete therapist profile
+│   ├── GET    list            → All therapists
+│   ├── GET    patient-info    → Patient basic details
+│   └── GET    shared-records  → Chat grants for this therapist
+│
+├── web3/
+│   ├── POST   wallet          → Link wallet to user account
+│   ├── POST   access          → Create grant record
+│   ├── DELETE access          → Revoke grant (soft delete)
+│   ├── GET    access          → List active grants
+│   ├── POST   ipfs/upload     → Encrypt + upload to Pinata
+│   ├── POST   ipfs/retrieve   → Fetch + decrypt from Pinata
+│   └── POST   assessment-share → Share assessment via Web3
+│
+├── youtube/
+│   └── GET    feed            → Personalized wellness videos
+│
+├── neuropet/
+│   └── POST   chat            → NeuroPet voice response
+│
+└── seed/
+    └── GET    /               → Seed DB with initial data (dev only)
+</code></pre><h3 id="api-handler-summary">API Handler Summary </h3>
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Method</th>
+<th>Auth Required</th>
+<th>Role</th>
+<th>Key Logic</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>/api/auth/register</td>
+<td>POST</td>
+<td>No</td>
+<td>Any</td>
+<td>bcrypt hash, DB insert</td>
+</tr>
+<tr>
+<td>/api/auth/login</td>
+<td>POST</td>
+<td>No</td>
+<td>Any</td>
+<td>pw verify, JWT cookie</td>
+</tr>
+<tr>
+<td>/api/auth/me</td>
+<td>GET</td>
+<td>Yes</td>
+<td>Any</td>
+<td>JWT decode</td>
+</tr>
+<tr>
+<td>/api/auth/logout</td>
+<td>POST</td>
+<td>Yes</td>
+<td>Any</td>
+<td>Clear cookie</td>
+</tr>
+<tr>
+<td>/api/profile</td>
+<td>GET</td>
+<td>Yes</td>
+<td>user</td>
+<td>Fetch userProfiles</td>
+</tr>
+<tr>
+<td>/api/profile</td>
+<td>POST</td>
+<td>Yes</td>
+<td>user</td>
+<td>Upsert with inputMetadata</td>
+</tr>
+<tr>
+<td>/api/chat</td>
+<td>POST</td>
+<td>Yes</td>
+<td>user</td>
+<td>Gemini + async insight</td>
+</tr>
+<tr>
+<td>/api/chat/summarize</td>
+<td>POST</td>
+<td>Yes</td>
+<td>user</td>
+<td>Gemini summarization</td>
+</tr>
+<tr>
+<td>/api/appointments/create</td>
+<td>POST</td>
+<td>Yes</td>
+<td>user</td>
+<td>Book slot</td>
+</tr>
+<tr>
+<td>/api/appointments</td>
+<td>GET</td>
+<td>Yes</td>
+<td>user</td>
+<td>List bookings</td>
+</tr>
+<tr>
+<td>/api/doctors</td>
+<td>GET</td>
+<td>Yes</td>
+<td>user</td>
+<td>All doctors JSON</td>
+</tr>
+<tr>
+<td>/api/avc/session</td>
+<td>POST</td>
+<td>Yes</td>
+<td>user</td>
+<td>Save AVC metrics</td>
+</tr>
+<tr>
+<td>/api/avc/history</td>
+<td>GET</td>
+<td>Yes</td>
+<td>user</td>
+<td>Past sessions</td>
+</tr>
+<tr>
+<td>/api/therapist/onboarding</td>
+<td>POST</td>
+<td>Yes</td>
+<td>therapist</td>
+<td>Profile setup</td>
+</tr>
+<tr>
+<td>/api/therapist/shared-records</td>
+<td>GET</td>
+<td>Yes</td>
+<td>therapist</td>
+<td>Grants list</td>
+</tr>
+<tr>
+<td>/api/web3/wallet</td>
+<td>POST</td>
+<td>Yes</td>
+<td>user</td>
+<td>Link wallet</td>
+</tr>
+<tr>
+<td>/api/web3/access</td>
+<td>POST</td>
+<td>Yes</td>
+<td>user</td>
+<td>Create grant</td>
+</tr>
+<tr>
+<td>/api/web3/access</td>
+<td>DELETE</td>
+<td>Yes</td>
+<td>user</td>
+<td>Revoke grant</td>
+</tr>
+<tr>
+<td>/api/web3/ipfs/upload</td>
+<td>POST</td>
+<td>Yes</td>
+<td>user</td>
+<td>Encrypt + IPFS</td>
+</tr>
+<tr>
+<td>/api/web3/ipfs/retrieve</td>
+<td>POST</td>
+<td>Yes</td>
+<td>therapist</td>
+<td>Decrypt IPFS</td>
+</tr>
+<tr>
+<td>/api/youtube/feed</td>
+<td>GET</td>
+<td>Yes</td>
+<td>user</td>
+<td>YouTube API</td>
+</tr>
+<tr>
+<td>/api/neuropet/chat</td>
+<td>POST</td>
+<td>Yes</td>
+<td>user</td>
+<td>TTS response</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="9-feature-by-feature-breakdown">9. FEATURE-BY-FEATURE BREAKDOWN </h2>
+<h3 id="feature-1-landing-page-">Feature 1: Landing Page (<code>/</code>) </h3>
+<ul>
+<li>Hero section with animated tagline</li>
+<li>"How It Works" — 4-step visual walkthrough</li>
+<li>Feature highlights: AI Chat, NeuroPet, AVC, Therapists, Buddy System</li>
+<li>Therapist &amp; Buddy signup CTAs</li>
+<li>Multi-language toggle (EN/HI/MR)</li>
+<li>Dark/Light mode toggle</li>
+<li>Framer Motion animations throughout</li>
+</ul>
+<hr>
+<h3 id="feature-2-ai-companion-chat-chat-ai">Feature 2: AI Companion Chat (<code>/chat-ai</code>) </h3>
+<p><strong>Purpose:</strong> 24/7 empathetic AI therapist-like companion.</p>
+<ul>
+<li>Built on <strong>Google Gemini</strong> with crafted system prompt</li>
+<li>Role: <em>Empathetic mental health counselor, not a replacement for professional care</em></li>
+<li><strong>Voice input</strong> via Web Speech API (supports Hindi/Marathi mid-conversation)</li>
+<li><strong>Real-time Insight Panel</strong> (right sidebar):
+<ul>
+<li>Emotional tone: Calmness (0–100) + Openness (0–100)</li>
+<li>Current conversation topic</li>
+<li>Actionable coping suggestion</li>
+</ul>
+</li>
+<li><strong>Session management</strong> — Sessions auto-created, all messages persisted to DB</li>
+<li><strong>Session Summary</strong> — End-of-session bullet-point summary generated by Gemini</li>
+<li><strong>Crisis Detection</strong> — Real-time keyword scan; high-risk → intervention modal + redirect</li>
+<li><strong>Language-aware responses</strong> — System prompt and output adapt to user's preferred language</li>
+<li><strong>Latency design</strong> — Last 5 messages only sent to Gemini; DB writes &amp; insights are async fire-and-forget</li>
+</ul>
+<hr>
+<h3 id="feature-3-adaptive-video-coaching--avc-avc-avcpracticeid-avchistory">Feature 3: Adaptive Video Coaching — AVC (<code>/avc</code>, <code>/avc/practice/[id]</code>, <code>/avc/history</code>) </h3>
+<p><strong>Purpose:</strong> Help users build communication and public speaking confidence.</p>
+<p><strong>3 Scenarios:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>ID</th>
+<th>Focus</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Coffee Order</td>
+<td>coffee-order</td>
+<td>Casual social interaction</td>
+</tr>
+<tr>
+<td>Interview Introduction</td>
+<td>interview</td>
+<td>Professional self-presentation</td>
+</tr>
+<tr>
+<td>Elevator Pitch</td>
+<td>elevator</td>
+<td>Concise persuasive speaking</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Real-Time Metrics Tracked:</strong></p>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>Metric          │ Tool              │ Detail
+────────────────┼───────────────────┼──────────────────────────────
+WPM             │ Web Speech API    │ Ideal: 110–160 WPM
+Filler Words    │ Transcript scan   │ um, uh, like, you know, basically
+Pauses          │ Web Audio API     │ Silence &gt; 1.5s threshold
+Eye Contact %   │ face-api.js       │ Face centred + gaze direction
+Emotion Timeline│ face-api.js       │ happiness/fear/sadness per second
+</code></pre><p><strong>Confidence Score Formula:</strong></p>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>Score = (WPM_score × 0.30)
+      + (EyeContact% × 0.25)
+      + ((1 - FillerRatio) × 0.25)
+      + ((1 - PauseRatio) × 0.20)
+
+Range: 0–100
+</code></pre><p><strong>AI Feedback JSON (from Gemini):</strong></p>
+<pre data-role="codeBlock" data-info="json" class="language-json json"><code><span class="token punctuation">{</span>
+  <span class="token property">"strengths"</span><span class="token operator">:</span> <span class="token string">"string"</span><span class="token punctuation">,</span>
+  <span class="token property">"improvement"</span><span class="token operator">:</span> <span class="token string">"string"</span><span class="token punctuation">,</span>
+  <span class="token property">"actionableTip"</span><span class="token operator">:</span> <span class="token string">"string"</span><span class="token punctuation">,</span>
+  <span class="token property">"improvedAnswer"</span><span class="token operator">:</span> <span class="token string">"string"</span>
+<span class="token punctuation">}</span>
+</code></pre><hr>
+<h3 id="feature-4-neuropet-neuropet">Feature 4: NeuroPet (<code>/neuropet</code>) </h3>
+<p><strong>Purpose:</strong> Gamified 3D companion that creates emotional attachment and drives long-term retention.</p>
+<p><strong>3D Stack:</strong> Three.js + React Three Fiber + @react-three/drei + gltfpack (model optimization)</p>
+<p><strong>Progression System (Zustand Store):</strong></p>
+<table>
+<thead>
+<tr>
+<th>Stage</th>
+<th>XP Required</th>
+<th>Emoji</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Hatchling</td>
+<td>0</td>
+<td>🥚</td>
+</tr>
+<tr>
+<td>Baby</td>
+<td>100</td>
+<td>🐣</td>
+</tr>
+<tr>
+<td>Toddler</td>
+<td>300</td>
+<td>🐥</td>
+</tr>
+<tr>
+<td>Child</td>
+<td>600</td>
+<td>🐦</td>
+</tr>
+<tr>
+<td>Teen</td>
+<td>1000</td>
+<td>🦋</td>
+</tr>
+<tr>
+<td>Adult</td>
+<td>1500</td>
+<td>🐉</td>
+</tr>
+<tr>
+<td>Elder</td>
+<td>2500</td>
+<td>🌟</td>
+</tr>
+<tr>
+<td>Legendary</td>
+<td>5000</td>
+<td>✨</td>
+</tr>
+</tbody>
+</table>
+<p><strong>XP Earning Actions:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>XP Change</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dance</td>
+<td>+12</td>
+</tr>
+<tr>
+<td>Happy</td>
+<td>+8</td>
+</tr>
+<tr>
+<td>Jump</td>
+<td>+6</td>
+</tr>
+<tr>
+<td>Wave</td>
+<td>+5</td>
+</tr>
+<tr>
+<td>Sit</td>
+<td>+3</td>
+</tr>
+<tr>
+<td>Idle</td>
+<td>+1</td>
+</tr>
+<tr>
+<td>Sad</td>
+<td>-5</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Mini-Games (Therapeutic Engagement):</strong></p>
+<table>
+<thead>
+<tr>
+<th>Game</th>
+<th>Type</th>
+<th>Benefit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Breathing Game</td>
+<td>Guided breathing exercise</td>
+<td>Anxiety reduction</td>
+</tr>
+<tr>
+<td>Bubble Pop</td>
+<td>Stress-relief tapping</td>
+<td>Tension release</td>
+</tr>
+<tr>
+<td>Trivia Game</td>
+<td>Interest-based Q&amp;A</td>
+<td>Cognitive engagement</td>
+</tr>
+<tr>
+<td>Color Game</td>
+<td>Color matching</td>
+<td>Cognitive stimulation</td>
+</tr>
+<tr>
+<td>Mood Game</td>
+<td>Emotional check-in</td>
+<td>Self-awareness</td>
+</tr>
+<tr>
+<td>Shape Game</td>
+<td>Shape tracing</td>
+<td>Motor + cognitive</td>
+</tr>
+<tr>
+<td>Trace Path</td>
+<td>Path following</td>
+<td>Focus &amp; coordination</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Voice Interaction:</strong> Pet responds via Web Speech Synthesis API (TTS)</p>
+<hr>
+<h3 id="feature-5-mental-health-assessments-assessment">Feature 5: Mental Health Assessments (<code>/assessment</code>) </h3>
+<p><strong>Purpose:</strong> Clinically validated screening tools.</p>
+<ul>
+<li><strong>PHQ-9</strong> (Patient Health Questionnaire) — Depression severity, 9 questions, 0–27 score</li>
+<li><strong>GAD-7</strong> (Generalized Anxiety Disorder) — Anxiety severity, 7 questions, 0–21 score</li>
+<li>Medical disclaimer shown before starting (via <code>Disclaimer.tsx</code>)</li>
+<li>Score interpretation: None / Minimal / Mild / Moderate / Severe</li>
+<li>Results shareable to therapist via Web3 vault (encrypted, on-chain access control)</li>
+</ul>
+<hr>
+<h3 id="feature-6-doctor-discovery--appointments-doctors-appointments">Feature 6: Doctor Discovery &amp; Appointments (<code>/doctors</code>, <code>/appointments</code>) </h3>
+<p><strong>Purpose:</strong> Connect users with verified mental health professionals.</p>
+<ul>
+<li>Browse doctor cards: name, specialization, experience, languages, rating, fee</li>
+<li><strong>3D doctor avatar</strong> using React Three Fiber</li>
+<li>Filter: specialization, language, fee range</li>
+<li>Time slot booking → appointment record created in DB</li>
+<li>Status lifecycle: <code>scheduled</code> → <code>completed</code> / <code>cancelled</code> / <code>rescheduled</code></li>
+<li><strong>Google Meet link</strong> automatically attached to appointment</li>
+<li>Appointment widget shown on dashboard</li>
+</ul>
+<hr>
+<h3 id="feature-7-community-groups-groups">Feature 7: Community Groups (<code>/groups</code>) </h3>
+<p><strong>Purpose:</strong> Peer support through moderated community discussion.</p>
+<ul>
+<li>Powered by <strong>Firebase Firestore</strong> (real-time listeners)</li>
+<li>Groups organized by category: anxiety, depression, grief, etc.</li>
+<li>Real-time messaging within groups</li>
+<li>Member count tracking</li>
+<li>Schema-less — flexible Firestore document model</li>
+</ul>
+<hr>
+<h3 id="feature-8-buddy-system-buddy">Feature 8: Buddy System (<code>/buddy/*</code>) </h3>
+<p><strong>Purpose:</strong> Trained peer volunteers provide 1:1 support to users.</p>
+<table>
+<thead>
+<tr>
+<th>Page</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/buddy/dashboard</code></td>
+<td>Connections, requests, achievement overview</td>
+</tr>
+<tr>
+<td><code>/buddy/connections</code></td>
+<td>Active peer relationships</td>
+</tr>
+<tr>
+<td><code>/buddy/connections/[id]</code></td>
+<td>1:1 chat with connected user</td>
+</tr>
+<tr>
+<td><code>/buddy/requests</code></td>
+<td>Incoming support requests</td>
+</tr>
+<tr>
+<td><code>/buddy/sessions</code></td>
+<td>Completed session history &amp; feedback</td>
+</tr>
+<tr>
+<td><code>/buddy/training</code></td>
+<td>Peer support training modules</td>
+</tr>
+<tr>
+<td><code>/buddy/profile</code></td>
+<td>Edit buddy profile</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="feature-9-web3-vault--data-privacy-web3-vault-sharing-history">Feature 9: Web3 Vault &amp; Data Privacy (<code>/web3-vault</code>, <code>/sharing-history</code>) </h3>
+<p><strong>Purpose:</strong> Patient-sovereign control over mental health data.</p>
+<ul>
+<li>Connect Ethereum wallet via <strong>Web3Auth</strong></li>
+<li>Share specific chat sessions or PHQ-9/GAD-7 results with chosen therapists</li>
+<li>Data encrypted with <strong>AES-256</strong> (key derived from wallet — never stored)</li>
+<li>Stored on <strong>IPFS (Pinata)</strong> — only ciphertext in distributed storage</li>
+<li><strong>Smart contract</strong> records access grants on Polygon blockchain (auditable, immutable)</li>
+<li>Patient can <strong>revoke access</strong> at any time — on-chain event + DB soft-delete</li>
+<li>Full history viewable at <code>/sharing-history</code></li>
+</ul>
+<hr>
+<h3 id="feature-10-offline-mode-offline">Feature 10: Offline Mode (<code>/offline</code>) </h3>
+<p><strong>Purpose:</strong> Ensure support availability without internet.</p>
+<ul>
+<li>Offline journal entries persisted to <code>localStorage</code></li>
+<li>Offline mood logs persisted to <code>localStorage</code></li>
+<li>All 7 mini-games fully playable offline</li>
+<li>Breathing exercises available offline</li>
+<li><strong>Manual offline toggle</strong> (useful for low-bandwidth scenarios)</li>
+<li>Sync on reconnection</li>
+<li>Managed by <code>OfflineProvider</code> context</li>
+</ul>
+<hr>
+<h3 id="feature-11-youtube-wellness-feed-youtube-feed">Feature 11: YouTube Wellness Feed (<code>/youtube-feed</code>) </h3>
+<p><strong>Purpose:</strong> Personalized calming and educational content.</p>
+<ul>
+<li><strong>YouTube API</strong> integration via <code>/api/youtube/feed</code></li>
+<li>Content curated: meditation, therapy explainers, mental wellness</li>
+<li>Personalized based on user's stated interests and concerns from onboarding</li>
+<li>Also embedded as widget on the main dashboard</li>
+</ul>
+<hr>
+<h3 id="feature-12-therapist-portal-therapist">Feature 12: Therapist Portal (<code>/therapist/*</code>) </h3>
+<p><strong>Purpose:</strong> Full clinical management dashboard for mental health professionals.</p>
+<table>
+<thead>
+<tr>
+<th>Page</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/therapist/onboarding</code></td>
+<td>License verification, specialization, fee setup</td>
+</tr>
+<tr>
+<td><code>/therapist/dashboard</code></td>
+<td>Urgent cases, upcoming sessions, analytics</td>
+</tr>
+<tr>
+<td><code>/therapist/patients</code></td>
+<td>Patients list with risk-level filter</td>
+</tr>
+<tr>
+<td><code>/therapist/patients/[id]</code></td>
+<td>Patient profile + decrypted shared data</td>
+</tr>
+<tr>
+<td><code>/therapist/profile</code></td>
+<td>Edit therapist profile</td>
+</tr>
+<tr>
+<td><code>/therapist/schedule</code></td>
+<td>Availability and session calendar</td>
+</tr>
+<tr>
+<td><code>/therapist/video-sessions</code></td>
+<td>Google Meet session management</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="feature-13-multi-language-support">Feature 13: Multi-Language Support </h3>
+<ul>
+<li>Languages: <strong>English</strong>, <strong>Hindi</strong>, <strong>Marathi</strong></li>
+<li><code>LanguageProvider</code> context with <code>useLanguage()</code> hook</li>
+<li><strong>29KB translations file</strong> (<code>data/translations.ts</code>) covering all UI strings</li>
+<li>AI responses (Gemini) adapt to user's language preference</li>
+<li>Speech recognition supports Hindi/Marathi input</li>
+<li><code>inputMetadata</code> field in <code>userProfiles</code> tracks which language was used for each onboarding field</li>
+<li>Language preference persisted to <code>localStorage</code> (<code>neuranet-lang</code> key)</li>
+</ul>
+<hr>
+<h3 id="feature-14-theme-darklight-mode">Feature 14: Theme (Dark/Light Mode) </h3>
+<ul>
+<li>System preference auto-detection via <code>next-themes</code></li>
+<li>Manual toggle in header (<code>mode-toggle.tsx</code>)</li>
+<li>Full Tailwind CSS theming with CSS custom properties</li>
+<li>Persisted across sessions</li>
+</ul>
+<hr>
+<h2 id="10-ai-pipeline">10. AI PIPELINE </h2>
+<h3 id="library-structure">Library Structure </h3>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>lib/gemini/
+├── client.ts      → Initialize Gemini model instance
+├── prompts.ts     → 3 system prompts (Companion, Insight, Summary)
+└── context.ts     → Chat history context management (5-message window)
+</code></pre><h3 id="3-ai-system-prompts">3 AI System Prompts </h3>
+<p><strong>1. COMPANION_PROMPT</strong> — Main Chat AI</p>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>Role: Empathetic mental health counselor
+Rules:
+- Never claim to be a replacement for professional help
+- Provide emotional support and evidence-based coping strategies
+- Respond in user's preferred language (EN/HI/MR)
+- Use CBT and mindfulness techniques
+- Acknowledge feelings before offering advice
+</code></pre><p><strong>2. INSIGHT_ENGINE_PROMPT</strong> — Emotional Analytics (runs async)</p>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>Task: Analyze the user's last message and full session context
+Output JSON:
+{
+  "currentTopic": "string",
+  "emotionalTone": {
+    "Calmness": 0-100,
+    "Openness": 0-100
+  },
+  "suggestionText": "one actionable coping strategy"
+}
+Smoothing Rule: Max ±10% change per update (prevents jarring UI jumps)
+</code></pre><p><strong>3. SUMMARIZATION_PROMPT</strong> — Session Summary (runs on session end)</p>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>Task: Summarize the session in 3-5 bullet points
+Capture: Topics discussed, emotional patterns, coping strategies suggested
+Output: Language-matched (EN/HI/MR)
+</code></pre><h3 id="ai-request-flow-diagram">AI Request Flow Diagram </h3>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>  User Message
+       │
+       ▼
+  Build context:
+  ├── System prompt (COMPANION_PROMPT)
+  └── Last 5 messages only  ← Context amputation (reduces latency)
+       │
+       ▼  ── SYNCHRONOUS PATH (fast) ──────────────────────────────
+  Gemini generateContent()
+       │
+       ▼
+  Return AI response  ← User sees this IMMEDIATELY (~1-2s)
+       │
+       │  ── ASYNCHRONOUS PATH (fire-and-forget) ────────────────
+       ├──→ DB persist: save user msg + AI response
+       ├──→ Insight engine: Gemini call #2 (INSIGHT_ENGINE_PROMPT)
+       │    → Update insight panel with new scores
+       └──→ Crisis detection: keyword scan (no Gemini needed)
+            → if HIGH: set crisisAlert = true in next response
+</code></pre><h3 id="crisis-detection-pipeline">Crisis Detection Pipeline </h3>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>lib/crisis.ts
+       │
+       ▼
+  Input: user message text (any language)
+       │
+       ▼
+  Load crisis keyword datasets:
+  ├── EN: "suicide", "kill myself", "end it all", "self-harm", "no reason to live"...
+  ├── HI: "आत्महत्या", "मरना चाहता हूं", "जिंदगी खत्म"...
+  └── MR: Marathi equivalents
+       │
+       ▼
+  Risk level scoring:
+  ├── LOW      → No action, normal response
+  ├── MODERATE → Append resource links + helpline numbers to AI response
+  └── HIGH     → Set crisisAlert: true
+                  Client shows: countdown modal (5s)
+                  Client redirects: calming content / breathing exercise
+</code></pre><hr>
+<h2 id="11-web3--blockchain-architecture">11. WEB3 &amp; BLOCKCHAIN ARCHITECTURE </h2>
+<h3 id="smart-contract">Smart Contract </h3>
+<p><strong>File:</strong> <code>/contracts/ChatAccessControl.sol</code><br>
+<strong>Network:</strong> Polygon Amoy Testnet<br>
+<strong>Lines:</strong> 124</p>
+<pre data-role="codeBlock" data-info="solidity" class="language-solidity solidity"><code><span class="token keyword keyword-contract">contract</span> <span class="token class-name">ChatAccessControl</span> <span class="token punctuation">{</span>
+
+  <span class="token comment">// Core data structure</span>
+  <span class="token keyword keyword-mapping">mapping</span><span class="token punctuation">(</span><span class="token builtin">address</span> <span class="token operator">=&gt;</span> <span class="token keyword keyword-mapping">mapping</span><span class="token punctuation">(</span><span class="token builtin">address</span> <span class="token operator">=&gt;</span> <span class="token builtin">string</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token keyword keyword-private">private</span> records<span class="token punctuation">;</span>
+  <span class="token comment">//      patient        therapist        IPFS CIDs array</span>
+
+  <span class="token comment">// Events (auditable on-chain log)</span>
+  <span class="token keyword keyword-event">event</span> <span class="token function">AccessGranted</span><span class="token punctuation">(</span><span class="token builtin">address</span> <span class="token keyword keyword-indexed">indexed</span> patient<span class="token punctuation">,</span> <span class="token builtin">address</span> <span class="token keyword keyword-indexed">indexed</span> therapist<span class="token punctuation">,</span> <span class="token builtin">string</span> cid<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword keyword-event">event</span> <span class="token function">AccessRevoked</span><span class="token punctuation">(</span><span class="token builtin">address</span> <span class="token keyword keyword-indexed">indexed</span> patient<span class="token punctuation">,</span> <span class="token builtin">address</span> <span class="token keyword keyword-indexed">indexed</span> therapist<span class="token punctuation">,</span> <span class="token builtin">string</span> cid<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token comment">// Grant access to a therapist for a specific IPFS CID</span>
+  <span class="token keyword keyword-function">function</span> <span class="token function">grantAccess</span><span class="token punctuation">(</span><span class="token builtin">address</span> therapist<span class="token punctuation">,</span> <span class="token builtin">string</span> <span class="token keyword keyword-memory">memory</span> cid<span class="token punctuation">)</span> <span class="token keyword keyword-external">external</span><span class="token punctuation">;</span>
+
+  <span class="token comment">// Revoke previously granted access</span>
+  <span class="token keyword keyword-function">function</span> <span class="token function">revokeAccess</span><span class="token punctuation">(</span><span class="token builtin">address</span> therapist<span class="token punctuation">,</span> <span class="token builtin">string</span> <span class="token keyword keyword-memory">memory</span> cid<span class="token punctuation">)</span> <span class="token keyword keyword-external">external</span><span class="token punctuation">;</span>
+
+  <span class="token comment">// View all CIDs shared between patient and therapist</span>
+  <span class="token keyword keyword-function">function</span> <span class="token function">getRecords</span><span class="token punctuation">(</span><span class="token builtin">address</span> patient<span class="token punctuation">,</span> <span class="token builtin">address</span> therapist<span class="token punctuation">)</span>
+    <span class="token keyword keyword-external">external</span> <span class="token keyword keyword-view">view</span> <span class="token keyword keyword-returns">returns</span> <span class="token punctuation">(</span><span class="token builtin">string</span><span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token keyword keyword-memory">memory</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre><h3 id="encryption-pipeline">Encryption Pipeline </h3>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>  User's Ethereum Wallet Address
+         │
+         ▼
+  Key Derivation (never stored):
+  encryptionKey = SHA256(walletAddress + APP_SALT)
+         │
+         ▼
+  Serialize data:
+  payload = JSON.stringify({ messages, sessionId, timestamp })
+         │
+         ▼
+  AES-256 Encryption (CryptoJS):
+  ciphertext = CryptoJS.AES.encrypt(payload, encryptionKey).toString()
+         │
+         ▼
+  Upload to Pinata IPFS:
+  POST https://api.pinata.cloud/pinning/pinJSONToIPFS
+  → Returns: ipfsCid (content hash, permanent address)
+         │
+         ▼
+  Smart Contract transaction:
+  contract.grantAccess(therapistWalletAddress, ipfsCid)
+  → Signed by patient's wallet (MetaMask / Web3Auth)
+  → Emits AccessGranted event
+  → txHash returned
+         │
+         ▼
+  DB Record in chatAccessGrants:
+  { patientId, therapistId, ipfsCid, txHash, isActive: true }
+</code></pre><h3 id="web3-library-structure">Web3 Library Structure </h3>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>lib/web3/
+├── web3auth.ts     → Web3Auth modal init (client-side)
+├── contract.ts     → Ethers.js v6 contract interaction wrapper
+│   ├── storeRecordOnChain(therapistWallet, cid)
+│   ├── getRecordsFromChain(patientWallet, therapistWallet)
+│   ├── grantAccess(...)
+│   └── revokeAccess(...)
+├── encryption.ts   → AES-256 encrypt/decrypt with wallet-derived key
+└── ipfs.ts         → Pinata upload/fetch helpers
+    ├── uploadToIPFS(encryptedData)  → ipfsCid
+    └── fetchFromIPFS(ipfsCid)       → encryptedData
+
+context/
+└── Web3Provider.tsx → walletAddress, provider, isConnected, connect()
+</code></pre><hr>
+<h2 id="12-component-map">12. COMPONENT MAP </h2>
+<h3 id="page--component-dependencies">Page → Component Dependencies </h3>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>/dashboard
+├── components/dashboard/mood-chart.tsx         (Recharts line chart)
+├── components/dashboard/streak-card.tsx        (streak counter)
+├── components/dashboard/quick-actions.tsx      (shortcut buttons)
+├── components/dashboard/appointments.tsx       (upcoming widget)
+├── components/dashboard/progress-indicators.tsx
+└── components/dashboard/YoutubeFeed.tsx        (wellness content)
+
+/chat-ai
+├── components/chat/VoiceChatInput.tsx          (Web Speech API)
+└── components/chat/ShareAccessDialog.tsx       (Web3 sharing modal)
+
+/avc/practice/[scenarioId]
+├── lib/avc/analysis.ts → useSpeechAnalysis()   (WPM, fillers, pauses)
+└── lib/avc/analysis.ts → useFaceAnalysis()     (eye contact, emotions)
+
+/neuropet
+├── components/neuropet/Character2.tsx          (Three.js 3D model)
+├── components/neuropet/Character2Ref.tsx       (animation controller)
+├── components/neuropet/ActionButtons.tsx       (interaction buttons)
+├── components/neuropet/AdoptionModal.tsx       (pet adoption flow)
+├── components/neuropet/EmojiReaction.tsx       (visual feedback)
+├── components/neuropet/MiniGames.tsx           (game launcher)
+├── components/neuropet/PetProgressPanel.tsx    (XP/level display)
+├── components/neuropet/VoiceChat.tsx           (TTS interaction)
+├── components/neuropet/RewardShowcase.tsx      (level-up UI)
+└── components/neuropet/SceneEnvironment.tsx    (3D scene)
+
+/offline
+└── components/offline-landing.tsx
+    ├── components/games/BreathingGame.tsx
+    ├── components/games/BubblePop.tsx
+    ├── components/games/ColorGame.tsx
+    ├── components/games/MoodGame.tsx
+    ├── components/games/ShapeGame.tsx
+    ├── components/games/TracePath.tsx
+    └── components/games/TriviaGame.tsx
+
+/appointments + /doctors
+├── components/DoctorCard.tsx
+├── components/DoctorModel.tsx                  (React Three Fiber)
+└── components/DoctorModelWrapper.tsx
+
+/assessment
+└── components/assessment/Disclaimer.tsx
+
+Layout (wraps all pages)
+├── components/app-sidebar.tsx                  (user navigation)
+├── components/therapist-sidebar.tsx            (therapist nav)
+├── components/buddy-sidebar.tsx                (buddy nav)
+├── components/language-toggle.tsx              (EN/HI/MR)
+└── components/mode-toggle.tsx                  (dark/light)
+</code></pre><h3 id="ui-primitives-componentsui">UI Primitives (<code>/components/ui/</code>) </h3>
+<p>All sourced from <strong>Radix UI</strong> (WCAG 2.1 compliant, keyboard-navigable):</p>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>Button          Card (Header, Content, Footer)
+Dialog          DropdownMenu
+Input           Label          Textarea
+Avatar          Badge          Progress
+Alert           Skeleton       Tooltip
+Tabs            Select         Separator
+Accordion       ScrollArea     Popover
+Checkbox        RadioGroup     Switch
+</code></pre><hr>
+<h2 id="13-state-management-architecture">13. STATE MANAGEMENT ARCHITECTURE </h2>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>┌─────────────────────────────────────────────────────────────────┐
+│                    STATE MANAGEMENT LAYERS                       │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                   │
+│  1. ZUSTAND — Client Global (lib/neuropet/store/petStore.ts)     │
+│     State: xp, level, stage, lastAction                          │
+│     Actions: gainXP(), loseXP(), performAction()                 │
+│     Persistence: in-memory (resets on page reload)               │
+│                                                                   │
+│  2. REACT CONTEXT — App-Wide                                      │
+│     ├── ThemeContext     → 'dark' | 'light' | 'system'           │
+│     ├── LanguageContext  → 'en' | 'hi' | 'mr' + t() function     │
+│     ├── AppointmentCtx  → bookings state, mutate functions       │
+│     ├── OfflineContext  → isOnline, manualOffline, toggle()      │
+│     └── Web3Context     → walletAddress, provider, connect()    │
+│                                                                   │
+│  3. SERVER STATE — Database (NeonDB via Drizzle ORM)              │
+│     Fetched via API routes on demand:                            │
+│     • User + profile data                                        │
+│     • Chat sessions + messages + insights                        │
+│     • Appointments                                               │
+│     • AVC session history                                        │
+│     • Access grants                                              │
+│                                                                   │
+│  4. REAL-TIME STATE — Firebase Firestore                          │
+│     • Community group messages (onSnapshot listeners)            │
+│     • Auto-updates UI without polling                            │
+│                                                                   │
+│  5. LOCAL STORAGE — Offline Persistence                           │
+│     Key                     │ Value                              │
+│     ─────────────────────── │ ───────────────────────────        │
+│     neuranet-lang            │ 'en' | 'hi' | 'mr'                │
+│     manual-offline-mode      │ true | false                      │
+│     offline-journal-entries  │ JSON array of entries             │
+│     offline-mood-logs        │ JSON array of mood records        │
+│                                                                   │
+└─────────────────────────────────────────────────────────────────┘
+</code></pre><hr>
+<h2 id="14-performance--optimization-design">14. PERFORMANCE &amp; OPTIMIZATION DESIGN </h2>
+<h3 id="latency-optimizations">Latency Optimizations </h3>
+<table>
+<thead>
+<tr>
+<th>Technique</th>
+<th>Where</th>
+<th>Benefit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Context Amputation</strong> (5 msg limit)</td>
+<td><code>/api/chat</code></td>
+<td>Reduces Gemini input tokens by 70-80%</td>
+</tr>
+<tr>
+<td><strong>Async Background Jobs</strong></td>
+<td>Insight engine, DB writes</td>
+<td>User response not blocked by these ops</td>
+</tr>
+<tr>
+<td><strong>Fire-and-Forget Summarization</strong></td>
+<td><code>/api/chat/summarize</code></td>
+<td>Non-blocking session wrap-up</td>
+</tr>
+<tr>
+<td><strong>TinyFaceDetector</strong></td>
+<td>AVC face analysis</td>
+<td>Lightweight ML; real-time at 30fps</td>
+</tr>
+<tr>
+<td><strong>Slim Gemini Context</strong></td>
+<td>All AI prompts</td>
+<td>Smaller context = faster generation</td>
+</tr>
+</tbody>
+</table>
+<h3 id="scale-architecture-decisions">Scale Architecture Decisions </h3>
+<table>
+<thead>
+<tr>
+<th>Decision</th>
+<th>Technology</th>
+<th>Reasoning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Serverless DB</td>
+<td>NeonDB</td>
+<td>Auto-scales; no connection pool management</td>
+</tr>
+<tr>
+<td>Edge Middleware</td>
+<td>Next.js Middleware</td>
+<td>JWT verified at edge, zero full server roundtrip</td>
+</tr>
+<tr>
+<td>Real-time Data</td>
+<td>Firebase Firestore</td>
+<td>Purpose-built for real-time; no polling overhead</td>
+</tr>
+<tr>
+<td>Distributed Storage</td>
+<td>IPFS (Pinata)</td>
+<td>No single point of failure for user data</td>
+</tr>
+<tr>
+<td>Stateless API</td>
+<td>JWT in cookies</td>
+<td>Enables horizontal scaling without sticky sessions</td>
+</tr>
+<tr>
+<td>Serverless Functions</td>
+<td>Next.js API Routes</td>
+<td>Auto-scales per request on Vercel/similar</td>
+</tr>
+</tbody>
+</table>
+<h3 id="client-side-performance">Client-Side Performance </h3>
+<ul>
+<li><strong>Next.js App Router</strong> — Automatic route-based code splitting</li>
+<li><strong>Next/Image</strong> — Automatic image optimization &amp; lazy loading</li>
+<li><strong>Zustand</strong> — Minimal re-renders (only subscribed components update)</li>
+<li><strong>Radix UI</strong> — Headless components; no layout shift</li>
+<li><strong>gltfpack</strong> — 3D model compression for NeuroPet</li>
+</ul>
+<hr>
+<h2 id="15-security-architecture">15. SECURITY ARCHITECTURE </h2>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Implementation</th>
+<th>Protection Against</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Transport</td>
+<td>HTTPS enforced by Next.js</td>
+<td>MITM, eavesdropping</td>
+</tr>
+<tr>
+<td>Auth Tokens</td>
+<td>JWT in HTTP-Only cookies</td>
+<td>XSS token theft</td>
+</tr>
+<tr>
+<td>Password Storage</td>
+<td>bcryptjs 10 rounds + unique salt</td>
+<td>Rainbow table, brute force</td>
+</tr>
+<tr>
+<td>Route Authorization</td>
+<td>Middleware RBAC (role-checked at edge)</td>
+<td>Unauthorized access</td>
+</tr>
+<tr>
+<td>Data Encryption</td>
+<td>AES-256, CryptoJS, wallet-derived key</td>
+<td>Data exposure at rest</td>
+</tr>
+<tr>
+<td>Key Management</td>
+<td>Key derived on-demand, never stored</td>
+<td>Key theft</td>
+</tr>
+<tr>
+<td>Data Location</td>
+<td>IPFS — only ciphertext stored</td>
+<td>Server-side data breach</td>
+</tr>
+<tr>
+<td>Access Control</td>
+<td>Smart contract — immutable, auditable</td>
+<td>Unauthorized data reading</td>
+</tr>
+<tr>
+<td>Access Revocation</td>
+<td>On-chain event + DB soft-delete</td>
+<td>Persistent unauthorized access</td>
+</tr>
+<tr>
+<td>Input Safety</td>
+<td>TypeScript types + Drizzle schema</td>
+<td>Type coercion, injection</td>
+</tr>
+<tr>
+<td>XSS Prevention</td>
+<td>React JSX auto-escaping</td>
+<td>Cross-site scripting</td>
+</tr>
+<tr>
+<td>CSRF Protection</td>
+<td>SameSite=lax cookie attribute</td>
+<td>Cross-site request forgery</td>
+</tr>
+<tr>
+<td>Session Expiry</td>
+<td>30-min JWT, rolling refresh</td>
+<td>Session hijacking</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="16-severity-spectrum-coverage">16. SEVERITY SPECTRUM COVERAGE </h2>
+<p>The core architectural insight: NeuroNet serves users at <strong>every level</strong> of mental health need.</p>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>  SEVERITY LEVEL     │  FEATURES ACTIVE
+  ───────────────────┼──────────────────────────────────────────────────────
+  🟢 WELLNESS        │  • NeuroPet 3D companion (gamified engagement)
+  No clinical        │  • Mini-games: Breathing, Bubble Pop, Trivia
+  concerns           │  • YouTube Wellness Feed
+                     │  • Offline tools
+  ───────────────────┼──────────────────────────────────────────────────────
+  🟡 MILD            │  • AI Companion Chat (24/7 support)
+  Everyday stress,   │  • Mood Tracking Dashboard
+  situational        │  • Journaling (online + offline)
+  anxiety            │  • Streak &amp; engagement gamification
+  ───────────────────┼──────────────────────────────────────────────────────
+  🟠 MODERATE        │  • PHQ-9 / GAD-7 Self-Assessments
+  Persistent         │  • AVC Communication Coaching
+  anxiety,           │  • Community Support Groups (Firebase)
+  depression signs   │  • Buddy System (peer support)
+                     │  • Multi-language support
+  ───────────────────┼──────────────────────────────────────────────────────
+  🔴 HIGH            │  • Doctor Discovery &amp; Browsing
+  Clinical symptoms  │  • Appointment Booking (with Meet link)
+  requiring          │  • Therapist Video Sessions
+  professional care  │  • Encrypted Chat Sharing to Therapist (Web3)
+                     │  • Assessment Sharing to Therapist
+  ───────────────────┼──────────────────────────────────────────────────────
+  🚨 CRISIS          │  • Real-Time Crisis Keyword Detection
+  Suicidal ideation  │  • Automated calming content redirect
+  or self-harm       │  • Emergency resource display
+                     │  • Intervention countdown modal
+  ───────────────────┴──────────────────────────────────────────────────────
+</code></pre><hr>
+<h2 id="17-pitch-flow--problem-to-solution">17. PITCH FLOW — PROBLEM TO SOLUTION </h2>
+<h3 id="opening-hook">Opening Hook </h3>
+<blockquote>
+<p><em>"1 in 7 Indians has a mental health condition. 80% of them never seek help. Not because they don't want to — but because the system makes it almost impossible."</em></p>
+</blockquote>
+<hr>
+<h3 id="the-5-barriers">The 5 Barriers </h3>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>  ┌─────────────────────────────────────────────────────────────┐
+  │  BARRIER 1: ACCESS                                           │
+  │  1 psychiatrist per 100,000 people (WHO)                     │
+  │  → Most people physically cannot reach professional care     │
+  ├─────────────────────────────────────────────────────────────┤
+  │  BARRIER 2: COST                                             │
+  │  ₹1,500–₹3,000 per therapy session                          │
+  │  → 3 months of salary for minimum wage workers              │
+  ├─────────────────────────────────────────────────────────────┤
+  │  BARRIER 3: STIGMA                                           │
+  │  80%+ never seek help due to social judgment                 │
+  │  → No anonymous, judgment-free, non-clinical entry point    │
+  ├─────────────────────────────────────────────────────────────┤
+  │  BARRIER 4: CONTINUITY                                       │
+  │  Zero support between therapy sessions                       │
+  │  → Crisis doesn't wait for the next appointment             │
+  ├─────────────────────────────────────────────────────────────┤
+  │  BARRIER 5: PRIVACY                                          │
+  │  "Who will see my data?"                                     │
+  │  → Patients fear sharing sensitive mental health records     │
+  └─────────────────────────────────────────────────────────────┘
+</code></pre><hr>
+<h3 id="the-insight">The Insight </h3>
+<blockquote>
+<p><em>"Mental health care isn't one-size-fits-all. A student with exam stress needs something very different from someone with clinical depression. Existing apps serve only one end of the spectrum — and none solve the data privacy problem."</em></p>
+</blockquote>
+<hr>
+<h3 id="neuronet-solves-all-5-barriers">NeuroNet Solves All 5 Barriers </h3>
+<table>
+<thead>
+<tr>
+<th>Barrier</th>
+<th>NeuroNet Solution</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Access</strong></td>
+<td>AI companion available 24/7 on any device, any connection</td>
+</tr>
+<tr>
+<td><strong>Cost</strong></td>
+<td>Free AI support tier; affordable professional access via appointment marketplace</td>
+</tr>
+<tr>
+<td><strong>Stigma</strong></td>
+<td>Anonymous AI chat + NeuroPet (non-clinical, game-like entry) + offline mode</td>
+</tr>
+<tr>
+<td><strong>Continuity</strong></td>
+<td>Daily engagement: pet progression, streak, games, community groups</td>
+</tr>
+<tr>
+<td><strong>Privacy</strong></td>
+<td>Web3 vault: patient controls who sees their data via smart contracts + IPFS encryption</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="demo-walkthrough-10-minute-pitch">Demo Walkthrough (10-minute pitch) </h3>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>  STEP 1: ONBOARDING (2 min)
+  ├── Show multilingual signup (EN/HI/MR toggle)
+  ├── Demo voice-based profile setup (no typing needed)
+  └── Show inputMetadata tracking voice vs. text per field
+
+  STEP 2: AI COMPANION (2 min)
+  ├── Show real-time chat with emotional insight panel (live scores)
+  ├── Demo language switching mid-conversation
+  ├── Trigger a crisis keyword → show intervention countdown modal
+  └── Show end-of-session summary generation
+
+  STEP 3: NEUROPET + GAMES (1.5 min)
+  ├── Show 3D pet with level and XP display
+  ├── Demo a mini-game: Breathing Game or Bubble Pop
+  └── Show XP gain and growth stage progression animation
+
+  STEP 4: AVC COACHING (2 min)
+  ├── Select "Interview Introduction" scenario
+  ├── Speak for 30 seconds → show live WPM + filler word counter
+  ├── Show confidence score breakdown after recording
+  └── Show AI feedback with "improved answer" example
+
+  STEP 5: WEB3 DATA PRIVACY (1.5 min)
+  ├── Show patient sharing PHQ-9 results with a therapist
+  ├── Explain: AES-256 encrypted → IPFS → smart contract grant
+  ├── Show therapist's view: decrypted data visible
+  └── Demonstrate one-click revocation (on-chain)
+
+  STEP 6: THERAPIST PORTAL (1 min)
+  ├── Show patient risk-level filtering (PHQ-9/GAD-7 scores)
+  ├── Show shared records panel with decrypted session data
+  └── Show appointment management + upcoming sessions
+</code></pre><hr>
+<h3 id="impact-statement">Impact Statement </h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Current State</th>
+<th>With NeuroNet</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Help-seeking rate</td>
+<td>~20%</td>
+<td>60–80% (low-friction entry via NeuroPet/AI)</td>
+</tr>
+<tr>
+<td>Time to first support</td>
+<td>Days / weeks</td>
+<td>Seconds (AI chat)</td>
+</tr>
+<tr>
+<td>Cost of first touchpoint</td>
+<td>₹1,500+</td>
+<td>₹0 (AI + NeuroPet tier)</td>
+</tr>
+<tr>
+<td>User retention</td>
+<td>Low (avg 3 days for mental health apps)</td>
+<td>High (pet progression + streak)</td>
+</tr>
+<tr>
+<td>Data privacy</td>
+<td>Zero control</td>
+<td>Full sovereign control via blockchain</td>
+</tr>
+<tr>
+<td>Language accessibility</td>
+<td>English only</td>
+<td>EN + HI + MR (voice-native)</td>
+</tr>
+<tr>
+<td>Offline accessibility</td>
+<td>None</td>
+<td>Full offline mode</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="technical-differentiators">Technical Differentiators </h3>
+<p><strong>1. FULL SPECTRUM COVERAGE</strong><br>
+Not a meditation app. Not just telehealth. One platform that dynamically activates features based on severity level.</p>
+<p><strong>2. WEB3 DATA SOVEREIGNTY</strong><br>
+First mental health platform where patients control their data via smart contracts. Not a buzzword — it's a deployed, functional Solidity contract on Polygon Amoy.</p>
+<p><strong>3. VOICE-NATIVE DESIGN</strong><br>
+Entire onboarding, chat, and NeuroPet interaction can be completed without typing. Critical for accessibility in low-literacy populations.</p>
+<p><strong>4. REAL-TIME EMOTIONAL ANALYTICS</strong><br>
+Insight engine runs in parallel (not series) with the chat response — users see emotional tone shift without any added latency.</p>
+<p><strong>5. GAMIFICATION THAT IS THERAPEUTIC</strong><br>
+NeuroPet is not a distraction — each mini-game is a therapeutic exercise: breathing for anxiety, trivia for cognitive engagement, AVC for social confidence building.</p>
+<p><strong>6. MULTILINGUAL AI</strong><br>
+Gemini responds in Hindi and Marathi. Crisis detection scans in Hindi and Marathi. This is the first AI mental health companion designed for India's languages.</p>
+<hr>
+<h3 id="closing-statement">Closing Statement </h3>
+<blockquote>
+<p><em>"NeuroNet is not a therapy app. It is not a meditation app. It is not a telemedicine platform. It is all three — and none of them alone. It is an ecosystem that meets users where they are, in the language they speak, at the price they can afford, with their privacy fully protected. Because mental health care should be a right — not a privilege."</em></p>
+</blockquote>
+<hr>
+<h2 id="18-file-structure-summary">18. FILE STRUCTURE SUMMARY </h2>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>NN2.0/
+├── app/
+│   ├── page.tsx                         ← Landing page
+│   ├── layout.tsx                       ← Root layout (all providers)
+│   ├── auth/
+│   │   ├── login/page.tsx
+│   │   └── register/page.tsx
+│   ├── dashboard/page.tsx
+│   ├── chat-ai/page.tsx
+│   ├── avc/
+│   │   ├── page.tsx                     ← Scenario selection
+│   │   ├── practice/[scenarioId]/page.tsx
+│   │   └── history/page.tsx
+│   ├── neuropet/page.tsx
+│   ├── assessment/page.tsx
+│   ├── appointments/page.tsx
+│   ├── doctors/page.tsx
+│   ├── groups/page.tsx
+│   ├── settings/page.tsx
+│   ├── profile/page.tsx
+│   ├── editprofile/page.tsx
+│   ├── offline/page.tsx
+│   ├── web3-vault/page.tsx
+│   ├── sharing-history/page.tsx
+│   ├── youtube-feed/page.tsx
+│   ├── therapist/
+│   │   ├── onboarding/page.tsx
+│   │   ├── dashboard/page.tsx
+│   │   ├── patients/
+│   │   │   ├── page.tsx
+│   │   │   └── [id]/page.tsx
+│   │   ├── profile/page.tsx
+│   │   ├── schedule/page.tsx
+│   │   └── video-sessions/page.tsx
+│   ├── buddy/
+│   │   ├── dashboard/page.tsx
+│   │   ├── connections/
+│   │   │   ├── page.tsx
+│   │   │   └── [id]/page.tsx
+│   │   ├── requests/page.tsx
+│   │   ├── sessions/page.tsx
+│   │   ├── training/page.tsx
+│   │   ├── profile/page.tsx
+│   │   └── chat/page.tsx
+│   └── api/
+│       ├── auth/[register|login|me|logout]/route.ts
+│       ├── profile/route.ts
+│       ├── chat/[route.ts|summarize/route.ts]
+│       ├── appointments/[create|route.ts|[id]|therapist]/route.ts
+│       ├── doctors/route.ts
+│       ├── avc/[session|history]/route.ts
+│       ├── therapist/[onboarding|list|patient-info|shared-records]/route.ts
+│       ├── web3/[wallet|access|ipfs/upload|ipfs/retrieve|assessment-share]/route.ts
+│       ├── youtube/feed/route.ts
+│       ├── neuropet/chat/route.ts
+│       └── seed/route.ts
+│
+├── components/
+│   ├── ui/                              ← Radix UI primitives (20+ components)
+│   ├── dashboard/                       ← mood-chart, streak, quick-actions, etc.
+│   ├── chat/                            ← VoiceChatInput, ShareAccessDialog
+│   ├── neuropet/                        ← 10 components (Character2, MiniGames, etc.)
+│   ├── games/                           ← 7 therapeutic games
+│   ├── assessment/                      ← Disclaimer
+│   ├── onboarding/                      ← OnboardingOverlay, EditProfileOverlay
+│   ├── app-sidebar.tsx
+│   ├── therapist-sidebar.tsx
+│   ├── buddy-sidebar.tsx
+│   ├── language-toggle.tsx
+│   ├── mode-toggle.tsx
+│   ├── DoctorCard.tsx
+│   ├── DoctorModel.tsx
+│   ├── DoctorModelWrapper.tsx
+│   ├── LogoutButton.tsx
+│   ├── offline-landing.tsx
+│   ├── theme-provider.tsx
+│   └── trivia-card.tsx
+│
+├── lib/
+│   ├── auth.ts                          ← JWT, bcrypt
+│   ├── crisis.ts                        ← Keyword detection
+│   ├── firebase.ts                      ← Firestore init
+│   ├── offline-support.ts               ← Offline fallbacks
+│   ├── trivia.ts                        ← Trivia question bank
+│   ├── utils.ts                         ← General helpers
+│   ├── gemini/
+│   │   ├── client.ts
+│   │   ├── prompts.ts
+│   │   └── context.ts
+│   ├── avc/
+│   │   ├── scenarios.ts
+│   │   └── analysis.ts                  ← useSpeechAnalysis, useFaceAnalysis
+│   ├── neuropet/
+│   │   ├── store/petStore.ts            ← Zustand store
+│   │   ├── store/voiceStore.ts
+│   │   └── data/emotionMap.ts
+│   ├── speech/
+│   │   ├── speechEngine.ts              ← TTS wrapper
+│   │   └── browserEngine.ts
+│   └── web3/
+│       ├── contract.ts                  ← Ethers.js contract
+│       ├── encryption.ts                ← AES-256
+│       ├── ipfs.ts                      ← Pinata helpers
+│       └── web3auth.ts                  ← Web3Auth init
+│
+├── config/
+│   └── schema.ts                        ← Drizzle ORM schema (8 tables)
+│
+├── context/
+│   ├── LanguageProvider.tsx
+│   ├── AppointmentProvider.tsx
+│   ├── OfflineProvider.tsx
+│   └── Web3Provider.tsx
+│
+├── contracts/
+│   └── ChatAccessControl.sol            ← Solidity, 124 lines
+│
+├── data/
+│   ├── translations.ts                  ← 29KB i18n (EN/HI/MR)
+│   └── crisis/                          ← Multi-language keyword datasets
+│
+├── hooks/
+│   ├── use-mobile.ts                    ← Breakpoint detection
+│   └── useSpeechToText.ts               ← Speech recognition hook
+│
+├── drizzle/                             ← DB migration files
+├── middleware.ts                        ← RBAC + JWT (117 lines)
+├── next.config.ts
+├── drizzle.config.ts
+├── package.json
+└── README.md
+</code></pre><hr>
+<p><em>Report generated on March 12, 2026. All analysis based on static codebase review — no files were modified.</em></p>
+
+      </div>
+      
+      
+    
+    
+    
+    
+    
+    
+  
+    </body></html>
