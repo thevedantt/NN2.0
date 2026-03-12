@@ -188,20 +188,23 @@ export default function ProfilePage() {
                         setInputMetadata(savedMeta);
                     }
 
-                    // Check if key profile fields are filled
-                    const hasRequiredFields = data.gender && data.preferredLanguage && data.primaryConcern;
-                    if (!hasRequiredFields) {
-                        const onboardingDone = localStorage.getItem("nn_onboarding_editprofile_done");
-                        if (onboardingDone !== "true") {
-                            setShowOnboarding(true);
-                        }
-                    }
+                    // TEMPORARY: Always show onboarding for testing
+                    // Original conditions commented out — restore after testing
+                    // const hasRequiredFields = data.gender && data.preferredLanguage && data.primaryConcern;
+                    // if (!hasRequiredFields) {
+                    //     const onboardingDone = localStorage.getItem("nn_onboarding_editprofile_done");
+                    //     if (onboardingDone !== "true") {
+                    //         setShowOnboarding(true);
+                    //     }
+                    // }
+                    setShowOnboarding(true);
                 } else {
-                    // Profile is empty — check if onboarding was already completed
-                    const onboardingDone = localStorage.getItem("nn_onboarding_editprofile_done");
-                    if (onboardingDone !== "true") {
-                        setShowOnboarding(true);
-                    }
+                    // TEMPORARY: Always show onboarding for testing
+                    // const onboardingDone = localStorage.getItem("nn_onboarding_editprofile_done");
+                    // if (onboardingDone !== "true") {
+                    //     setShowOnboarding(true);
+                    // }
+                    setShowOnboarding(true);
                 }
             } catch (error) {
                 console.error("Failed to load profile", error);
