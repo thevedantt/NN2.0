@@ -8,6 +8,7 @@ export class BrowserSpeechEngine implements SpeechEngine {
     private recognition: SpeechRecognition | null = null;
     private config: SpeechEngineConfig;
     private isListening = false;
+    private shouldBeListening = false; // Tracks user intent (vs browser auto-stop)
     private processingTimer: NodeJS.Timeout | null = null;
 
     constructor(config: SpeechEngineConfig) {
@@ -25,7 +26,7 @@ export class BrowserSpeechEngine implements SpeechEngine {
     private configureRecognition() {
         if (!this.recognition) return;
 
-        this.recognition.continuous = false; // Stop after one utterance for speed
+        this.recognition.continuous = true; // Keep listening until user stops
         this.recognition.interimResults = true; // Instant feedback
         this.recognition.lang = this.config.language;
         this.recognition.maxAlternatives = 1;
@@ -37,9 +38,20 @@ export class BrowserSpeechEngine implements SpeechEngine {
 
         this.recognition.onend = () => {
             this.isListening = false;
-            // Short delay to allow 'processing' state to be visible if needed, 
-            // but generally we go back to idle quickly.
             if (this.processingTimer) clearTimeout(this.processingTimer);
+
+            // If the user hasn't explicitly stopped, auto-restart
+            // (browser can stop recognition due to silence, network, etc.)
+            if (this.shouldBeListening && this.recognition) {
+                try {
+                    this.recognition.start();
+                    return; // Don't change state, seamless restart
+                } catch (e) {
+                    console.warn("Failed to auto-restart recognition", e);
+                }
+            }
+
+            this.shouldBeListening = false;
             this.config.onStateChange('idle');
         };
 
@@ -50,32 +62,40 @@ export class BrowserSpeechEngine implements SpeechEngine {
                 // If we stop getting results for a bit, consider processing done
             }, 500); // 500ms silence buffer if needed
 
-            let finalTranscript = '';
-            let interimTranscript = '';
+            // In continuous mode, event.results accumulates ALL results
+            // Collect all finalized text + current interim for full transcript
+            let fullTranscript = '';
+            let currentInterim = '';
 
-            for (let i = event.resultIndex; i < event.results.length; ++i) {
+            for (let i = 0; i < event.results.length; ++i) {
                 if (event.results[i].isFinal) {
-                    finalTranscript += event.results[i][0].transcript;
+                    fullTranscript += event.results[i][0].transcript;
                 } else {
-                    interimTranscript += event.results[i][0].transcript;
+                    currentInterim += event.results[i][0].transcript;
                 }
             }
 
-            // Immediately send whatever we have
-            const textToShow = finalTranscript || interimTranscript;
+            // Send the complete text (all finalized + current interim)
+            const textToShow = fullTranscript + currentInterim;
             if (textToShow) {
-                this.config.onTranscript(textToShow, !!finalTranscript);
+                this.config.onTranscript(textToShow, !currentInterim);
             }
         };
 
         this.recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
             this.isListening = false;
             if (event.error === 'no-speech') {
-                this.config.onStateChange('idle'); // Just silent timeout, no scary error
+                // Silence timeout — don't change state, let onend handle auto-restart
+                return;
+            } else if (event.error === 'aborted') {
+                // Intentional abort, just let onend clean up
+                return;
             } else if (event.error === 'not-allowed') {
+                this.shouldBeListening = false;
                 this.config.onError('Microphone access denied');
                 this.config.onStateChange('error');
             } else {
+                this.shouldBeListening = false;
                 console.warn("Speech recognition error", event.error);
                 this.config.onStateChange('error');
             }
@@ -89,21 +109,25 @@ export class BrowserSpeechEngine implements SpeechEngine {
             return;
         }
 
+        this.shouldBeListening = true;
         try {
             this.recognition.start();
         } catch (e) {
             console.error("Failed to start recognition", e);
+            this.shouldBeListening = false;
             this.config.onStateChange('error');
         }
     }
 
     stop(): void {
         if (!this.recognition) return;
+        this.shouldBeListening = false;
         this.recognition.stop();
     }
 
     abort(): void {
         if (!this.recognition) return;
+        this.shouldBeListening = false;
         this.recognition.abort();
     }
 
