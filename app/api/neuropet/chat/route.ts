@@ -1,9 +1,16 @@
-import { GoogleGenAI } from "@google/genai"
+import OpenAI from "openai"
 import { NextRequest, NextResponse } from "next/server"
 
 const SYSTEM_PROMPT = `You are NeuroPet, a friendly emotional support companion dog that helps users stay calm, motivated, and mindful. Your responses should be short (1-3 sentences max), warm, supportive, and slightly playful. Never respond like a robot. You speak like a caring little puppy friend. Add occasional gentle humor. If the user seems sad, be extra comforting. If they're happy, celebrate with them. You can use simple emotional words but avoid complex jargon.`
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! })
+const openai = new OpenAI({
+    baseURL: "https://openrouter.ai/api/v1",
+    apiKey: process.env.OPENROUTER_API_KEY || process.env.GEMINI_API_KEY,
+    defaultHeaders: {
+        "HTTP-Referer": "https://neuronet.app",
+        "X-Title": "NeuroNet",
+    },
+})
 
 export async function POST(request: NextRequest) {
     try {
@@ -16,36 +23,17 @@ export async function POST(request: NextRequest) {
             )
         }
 
-        // Retry with backoff for rate limiting (429)
-        let response
-        let lastError
-        for (let attempt = 0; attempt < 3; attempt++) {
-            try {
-                response = await ai.models.generateContent({
-                    model: "gemini-3-flash-preview",
-                    contents: message,
-                    config: {
-                        systemInstruction: SYSTEM_PROMPT,
-                        maxOutputTokens: 150,
-                        temperature: 0.8,
-                        topP: 0.9,
-                    },
-                })
-                break // success, exit retry loop
-            } catch (err: any) {
-                lastError = err
-                const is429 = err?.status === 429 || err?.message?.includes("429")
-                if (is429 && attempt < 2) {
-                    // Wait before retrying: 1s, 2s, 4s
-                    await new Promise((r) => setTimeout(r, 1000 * Math.pow(2, attempt)))
-                    console.log(`[NeuroPet Chat] Rate limited, retry ${attempt + 1}/3...`)
-                    continue
-                }
-                throw err
-            }
-        }
+        const completion = await openai.chat.completions.create({
+            model: "google/gemma-3-12b-it",
+            messages: [
+                { role: "system", content: SYSTEM_PROMPT },
+                { role: "user", content: message }
+            ],
+            max_tokens: 150,
+            temperature: 0.8,
+        })
 
-        const text = response?.text ?? "Woof! I'm here for you! 🐾"
+        const text = completion.choices[0]?.message?.content ?? "Woof! I'm here for you! 🐾"
 
         // Determine which emotion/animation best fits the response
         const emotion = detectEmotion(message, text)

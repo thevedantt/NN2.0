@@ -25,13 +25,12 @@ interface SpeechRecognitionEvent {
 export default function VoiceChat({ onPetSpeak, onPetFinishSpeaking }: VoiceChatProps) {
     const { state, lastPetMessage, setState, setMessages } = useVoiceStore()
     const recognitionRef = useRef<any>(null)
-    const synthRef = useRef<SpeechSynthesisUtterance | null>(null)
+    const audioRef = useRef<HTMLAudioElement | null>(null)
     const [pulseKey, setPulseKey] = useState(0)
     const [liveTranscript, setLiveTranscript] = useState("")
     const finalTranscriptRef = useRef("")
 
     // Create a fresh speech recognition instance each time
-    // (avoids stale event handler issues with cached instances)
     const createRecognition = useCallback(() => {
         const SpeechRecognition =
             (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
@@ -49,63 +48,56 @@ export default function VoiceChat({ onPetSpeak, onPetFinishSpeaking }: VoiceChat
         return recognition
     }, [])
 
-    // Get a soft, friendly voice
-    const getSoftVoice = useCallback((): SpeechSynthesisVoice | null => {
-        const voices = speechSynthesis.getVoices()
-        const preferred = [
-            "Google UK English Female",
-            "Microsoft Zira",
-            "Samantha",
-            "Google US English",
-            "Karen",
-            "Moira",
-            "Tessa",
-            "Fiona",
-        ]
-        for (const name of preferred) {
-            const v = voices.find((voice) => voice.name.includes(name))
-            if (v) return v
-        }
-        // Fallback: any female English voice
-        const female = voices.find(
-            (v) => v.lang.startsWith("en") && v.name.toLowerCase().includes("female")
-        )
-        return female || voices.find((v) => v.lang.startsWith("en")) || null
-    }, [])
-
-    // Speak the pet's response
+    // Speak the pet's response using ElevenLabs via API 
     const speakResponse = useCallback(
-        (text: string, emotion: string) => {
+        async (text: string, emotion: string) => {
             // Cancel any ongoing speech
-            speechSynthesis.cancel()
-
-            const utterance = new SpeechSynthesisUtterance(text)
-            utterance.pitch = 1.2
-            utterance.rate = 0.9
-            utterance.volume = 1.0
-
-            const voice = getSoftVoice()
-            if (voice) utterance.voice = voice
-
-            utterance.onstart = () => {
-                setState("speaking")
-                onPetSpeak?.(emotion)
+            if (audioRef.current) {
+                audioRef.current.pause()
+                URL.revokeObjectURL(audioRef.current.src)
+                audioRef.current = null
             }
 
-            utterance.onend = () => {
+            setState("speaking")
+            onPetSpeak?.(emotion)
+
+            try {
+                const res = await fetch("/api/neuropet/tts", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ text }),
+                })
+
+                if (!res.ok) throw new Error("TTS failed")
+
+                const blob = await res.blob()
+                const audioUrl = URL.createObjectURL(blob)
+
+                const audio = new Audio(audioUrl)
+                audioRef.current = audio
+
+                audio.onended = () => {
+                    setState("idle")
+                    onPetFinishSpeaking?.()
+                    URL.revokeObjectURL(audioUrl)
+                }
+
+                audio.onerror = () => {
+                    setState("idle")
+                    onPetFinishSpeaking?.()
+                    URL.revokeObjectURL(audioUrl)
+                }
+
+                await audio.play()
+
+            } catch (err) {
+                console.error("[VoiceChat] TTS Error:", err)
+                // Fallback to idle if TTS fails
                 setState("idle")
                 onPetFinishSpeaking?.()
             }
-
-            utterance.onerror = () => {
-                setState("idle")
-                onPetFinishSpeaking?.()
-            }
-
-            synthRef.current = utterance
-            speechSynthesis.speak(utterance)
         },
-        [getSoftVoice, setState, onPetSpeak, onPetFinishSpeaking]
+        [setState, onPetSpeak, onPetFinishSpeaking]
     )
 
     // Send message to Gemini via API route
@@ -144,7 +136,10 @@ export default function VoiceChat({ onPetSpeak, onPetFinishSpeaking }: VoiceChat
     // Start listening
     const startListening = useCallback(() => {
         // Stop any ongoing speech
-        speechSynthesis.cancel()
+        if (audioRef.current) {
+            audioRef.current.pause()
+            audioRef.current = null
+        }
 
         // Stop previous recognition if any
         if (recognitionRef.current) {
@@ -208,8 +203,8 @@ export default function VoiceChat({ onPetSpeak, onPetFinishSpeaking }: VoiceChat
                     toast.error("Network error. Speech recognition needs internet.", { icon: "🌐" })
                     break
                 case "aborted":
-                    setState("idle")
-                    setLiveTranscript("")
+                    // Aborted intentionally by clicking 'stop sensing', do not reset UI state
+                    console.log("[VoiceChat] Recognition manually aborted to submit text.")
                     break
                 default:
                     setState("idle")
@@ -280,7 +275,7 @@ export default function VoiceChat({ onPetSpeak, onPetFinishSpeaking }: VoiceChat
         if (state === "listening") {
             stopListening()
         } else if (state === "speaking") {
-            speechSynthesis.cancel()
+            if (audioRef.current) audioRef.current.pause()
             setState("idle")
             onPetFinishSpeaking?.()
         } else if (state === "idle") {
@@ -289,16 +284,13 @@ export default function VoiceChat({ onPetSpeak, onPetFinishSpeaking }: VoiceChat
         // If processing, do nothing (wait for Gemini)
     }, [state, startListening, stopListening, setState, onPetFinishSpeaking])
 
-    // Preload voices
-    useEffect(() => {
-        speechSynthesis.getVoices()
-        speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices()
-    }, [])
-
     // Cleanup on unmount
     useEffect(() => {
         return () => {
-            speechSynthesis.cancel()
+            if (audioRef.current) {
+                audioRef.current.pause()
+                URL.revokeObjectURL(audioRef.current.src)
+            }
             if (recognitionRef.current) {
                 try { recognitionRef.current.stop() } catch { /* */ }
             }

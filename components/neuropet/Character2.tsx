@@ -8,7 +8,6 @@ import { SkeletonUtils } from "three-stdlib"
 
 // Procedural animation names
 const ANIMATION_NAMES = [
-    "Idle",
     "Happy",
     "Sad",
     "Excited",
@@ -16,11 +15,7 @@ const ANIMATION_NAMES = [
     "Wave",
     "Dance",
     "Scared",
-    "Curious",
     "Angry",
-    "Love",
-    "Confused",
-    "Dizzy",
     "Clap",
     "Nod",
     "Shake",
@@ -56,7 +51,7 @@ const Character2 = forwardRef<Character2Ref, Character2Props>(({ onAnimationsLoa
     const { actions, names: clipNames, mixer } = useAnimations(animations, clone)
 
     // Track current procedural animation and time
-    const currentAnimation = useRef<AnimationName>("Idle")
+    const currentAnimation = useRef<AnimationName>("Happy")
     const animTime = useRef(0)
 
     // Cache bone references for performance
@@ -109,11 +104,28 @@ const Character2 = forwardRef<Character2Ref, Character2Props>(({ onAnimationsLoa
             
             // Try to play GLB animation if it exists
             if (actions) {
+                // Map common procedural names to available GLB clips
+                const glbMapping: Record<string, string> = {
+                    "Excited": "dance2",
+                    "Happy": "agree",
+                    "Sad": "cry",
+                    "Sleepy": "depressed",
+                    "Wave": "greet",
+                    "Dance": "dance1",
+                    "Scared": "scared",
+                    "Angry": "angry",
+                    "Clap": "claps",
+                    "Nod": "agree",
+                    "Shake": "angry2"
+                };
+
+                const mappedName = glbMapping[name] || name;
+
                 // Find action with flexible name matching
-                const foundKey = Object.keys(actions).find(k => k.toLowerCase().includes(name.toLowerCase()))
-                const action = actions[name] || 
-                             actions[name.toLowerCase()] || 
-                             actions[name.charAt(0).toUpperCase() + name.slice(1).toLowerCase()] ||
+                const foundKey = Object.keys(actions).find(k => k.toLowerCase().includes(mappedName.toLowerCase()))
+                const action = actions[mappedName] || 
+                             actions[mappedName.toLowerCase()] || 
+                             actions[mappedName.charAt(0).toUpperCase() + mappedName.slice(1).toLowerCase()] ||
                              (foundKey ? actions[foundKey] : null);
                 
                 // Stop others
@@ -157,14 +169,6 @@ const Character2 = forwardRef<Character2Ref, Character2Props>(({ onAnimationsLoa
         const anim = currentAnimation.current
 
         switch (anim) {
-            case "Idle": {
-                // Very simple, gentle breathing
-                const breathe = Math.sin(t * 1.5) * 0.015
-                if (b.Spine01) b.Spine01.rotation.x += breathe
-                if (b.Head) b.Head.rotation.x += breathe * 0.3
-                break
-            }
-
             case "Happy": {
                 // Arms swinging + head bob
                 const armSwing = Math.sin(t * 5) * 0.4
@@ -265,92 +269,7 @@ const Character2 = forwardRef<Character2Ref, Character2Props>(({ onAnimationsLoa
                 break
             }
 
-            case "Curious": {
-                // Head tilt + lean forward + look around
-                const lookAround = Math.sin(t * 1.5)
-                if (b.Head) {
-                    b.Head.rotation.z += 0.25 + Math.sin(t * 2) * 0.05
-                    b.Head.rotation.y += lookAround * 0.2
-                }
-                if (b.NeckTwist01) b.NeckTwist01.rotation.x -= 0.1
-                if (b.Spine01) b.Spine01.rotation.x -= 0.08
-                if (b.R_Clavicle) b.R_Clavicle.rotation.z -= Math.sin(t * 3) * 0.05
-                break
-            }
-
             case "Angry": {
-                // Tense body, fists forward, head down
-                const tense = Math.sin(t * 6) * 0.02
-                if (b.Spine01) b.Spine01.rotation.x -= 0.08 + tense
-                if (b.Spine02) b.Spine02.rotation.x -= 0.05
-                if (b.Head) {
-                    b.Head.rotation.x -= 0.15
-                    b.Head.rotation.z += tense * 2
-                }
-                if (b.L_Upperarm) b.L_Upperarm.rotation.x += 0.4
-                if (b.R_Upperarm) b.R_Upperarm.rotation.x += 0.4
-                if (b.L_Forearm) b.L_Forearm.rotation.x += 0.8 + tense * 3
-                if (b.R_Forearm) b.R_Forearm.rotation.x += 0.8 + tense * 3
-                if (b.L_Hand) b.L_Hand.rotation.x += 0.3
-                if (b.R_Hand) b.R_Hand.rotation.x += 0.3
-                break
-            }
-
-            case "Love": {
-                // Hands to chest, dreamy sway
-                const sway = Math.sin(t * 1.5) * 0.06
-                const heartbeat = Math.sin(t * 4) * 0.02
-                if (b.Spine01) b.Spine01.rotation.z += sway
-                if (b.Spine02) b.Spine02.rotation.z += sway * 0.5
-                if (b.Head) {
-                    b.Head.rotation.z += sway * 0.8 + 0.1
-                    b.Head.rotation.x += 0.05 + heartbeat
-                }
-                if (b.L_Upperarm) b.L_Upperarm.rotation.x += 0.5
-                if (b.R_Upperarm) b.R_Upperarm.rotation.x += 0.5
-                if (b.L_Forearm) b.L_Forearm.rotation.x += 1.0 + heartbeat * 2
-                if (b.R_Forearm) b.R_Forearm.rotation.x += 1.0 + heartbeat * 2
-                if (b.L_Upperarm) b.L_Upperarm.rotation.z += 0.3
-                if (b.R_Upperarm) b.R_Upperarm.rotation.z -= 0.3
-                break
-            }
-
-            case "Confused": {
-                // Scratch head, look around
-                const look = Math.sin(t * 1.2)
-                const scratch = Math.sin(t * 8) * 0.1
-                if (b.Head) {
-                    b.Head.rotation.z += 0.15
-                    b.Head.rotation.y += look * 0.25
-                }
-                // Right arm scratches head
-                if (b.R_Upperarm) b.R_Upperarm.rotation.z -= 1.0
-                if (b.R_Forearm) b.R_Forearm.rotation.x += 0.8 + scratch
-                if (b.R_Hand) b.R_Hand.rotation.z += scratch * 2
-                // Left arm hangs
-                if (b.L_Upperarm) b.L_Upperarm.rotation.z += 0.1
-                if (b.Spine01) b.Spine01.rotation.z += Math.sin(t * 0.8) * 0.03
-                break
-            }
-
-            case "Dizzy": {
-                // Wobbly head and body
-                const wobble = Math.sin(t * 3)
-                const wobble2 = Math.cos(t * 2.5)
-                if (b.Head) {
-                    b.Head.rotation.z += wobble * 0.2
-                    b.Head.rotation.x += wobble2 * 0.15
-                    b.Head.rotation.y += Math.sin(t * 2) * 0.1
-                }
-                if (b.Spine01) b.Spine01.rotation.z += wobble * 0.08
-                if (b.Spine02) b.Spine02.rotation.x += wobble2 * 0.05
-                if (b.L_Upperarm) b.L_Upperarm.rotation.z += wobble * 0.15
-                if (b.R_Upperarm) b.R_Upperarm.rotation.z -= wobble * 0.15
-                if (b.NeckTwist01) b.NeckTwist01.rotation.z += wobble2 * 0.1
-                break
-            }
-
-            case "Clap": {
                 // Arms come together and apart
                 const clap = Math.sin(t * 8)
                 const clapOpen = Math.max(0, clap) * 0.4
