@@ -1,7 +1,8 @@
 "use client"
 
 import * as React from "react"
-import { CheckCircle2, ChevronRight, ClipboardList, Info, AlertCircle, ArrowRight, Shield, Loader2, ShieldCheck } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { CheckCircle2, ChevronRight, ClipboardList, Info, AlertCircle, ArrowRight, Shield, Loader2, ShieldCheck, X, Brain, PawPrint, Mic, Users, CalendarDays, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -70,9 +71,50 @@ type TherapistOption = {
     walletAddress: string | null
 }
 
+const RISK_RECOMMENDATIONS = {
+    low: {
+        label: "Low Risk",
+        color: "text-green-600",
+        badgeBg: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
+        borderColor: "border-green-200 dark:border-green-800",
+        headerBg: "bg-green-50 dark:bg-green-950/30",
+        message: "Great news! Your scores suggest minimal symptoms. NeuroNet has tools to help you maintain and strengthen your mental wellness.",
+        suggestions: [
+            { label: "Start AI Companion", desc: "Chat with Aura, your personal AI wellness companion", icon: Brain, href: "/chat-ai", color: "bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300" },
+            { label: "Meet NeuroPet", desc: "Your 3D emotional support companion with mini-games", icon: PawPrint, href: "/neuropet", color: "bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300" },
+        ]
+    },
+    medium: {
+        label: "Moderate Risk",
+        color: "text-yellow-600",
+        badgeBg: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400",
+        borderColor: "border-yellow-200 dark:border-yellow-800",
+        headerBg: "bg-yellow-50 dark:bg-yellow-950/30",
+        message: "Your scores suggest some symptoms that need attention. Try these tools to build resilience and connect with others who understand.",
+        suggestions: [
+            { label: "AVC Coaching", desc: "Practice communication and build real-world confidence", icon: Mic, href: "/avc", color: "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300" },
+            { label: "Community Groups", desc: "Connect with peers in safe, moderated group spaces", icon: Users, href: "/groups", color: "bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300" },
+        ]
+    },
+    high: {
+        label: "High Risk",
+        color: "text-red-600",
+        badgeBg: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
+        borderColor: "border-red-200 dark:border-red-800",
+        headerBg: "bg-red-50 dark:bg-red-950/30",
+        message: "Your scores indicate significant symptoms. We strongly recommend speaking with a qualified mental health professional who can provide personalized care.",
+        suggestions: [
+            { label: "Book Appointment", desc: "Connect with a verified therapist for a real session", icon: CalendarDays, href: "/appointments", color: "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300" },
+        ]
+    }
+}
+
 export default function AssessmentPage() {
+    const router = useRouter()
     const { walletAddress } = useWeb3()
     const [view, setView] = React.useState<"selection" | "taking" | "results">("selection")
+    const [showRecommendationPopup, setShowRecommendationPopup] = React.useState(false)
+    const [popupRiskCategory, setPopupRiskCategory] = React.useState<"low" | "medium" | "high">("low")
     const [selectedAssessment, setSelectedAssessment] = React.useState<typeof ASSESSMENTS[0] | null>(null)
     const [currentStep, setCurrentStep] = React.useState(0)
     const [answers, setAnswers] = React.useState<number[]>([])
@@ -135,7 +177,16 @@ export default function AssessmentPage() {
         if (currentStep < selectedAssessment.questions.length - 1) {
             setCurrentStep(prev => prev + 1)
         } else {
+            const score = answers.reduce((a, b) => a + (b === -1 ? 0 : b), 0)
+            const result = getResultAnalysis(score, selectedAssessment.id)
+            const level = result.level.toLowerCase()
+            const riskCategory: "low" | "medium" | "high" =
+                level.includes("low") || level.includes("minimal") ? "low"
+                : level.includes("moderate") ? "medium"
+                : "high"
+            setPopupRiskCategory(riskCategory)
             setView("results")
+            setShowRecommendationPopup(true)
             // Fetch therapists for sharing
             fetch("/api/therapist/list").then(r => r.json()).then(d => {
                 setTherapists(d.therapists || [])
@@ -406,6 +457,73 @@ export default function AssessmentPage() {
 
                 <Disclaimer />
             </div>
+
+            {/* Recommendation Popup */}
+            {showRecommendationPopup && (() => {
+                const rec = RISK_RECOMMENDATIONS[popupRiskCategory]
+                return (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+                        <div className={cn("relative w-full max-w-md rounded-2xl border shadow-2xl overflow-hidden bg-background animate-in zoom-in-95 slide-in-from-bottom-4 duration-300", rec.borderColor)}>
+                            {/* Header */}
+                            <div className={cn("px-6 pt-6 pb-4", rec.headerBg)}>
+                                <button
+                                    onClick={() => setShowRecommendationPopup(false)}
+                                    className="absolute top-4 right-4 h-8 w-8 rounded-full flex items-center justify-center bg-background/80 hover:bg-background transition-colors text-muted-foreground hover:text-foreground"
+                                >
+                                    <X className="h-4 w-4" />
+                                </button>
+
+                                <div className="flex items-center gap-3 mb-3">
+                                    <div className="h-10 w-10 rounded-xl bg-background/80 flex items-center justify-center shadow-sm">
+                                        <Sparkles className="h-5 w-5 text-primary" />
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">NeuroNet Recommends</p>
+                                        <span className={cn("text-xs font-semibold px-2 py-0.5 rounded-full", rec.badgeBg)}>
+                                            {rec.label}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <p className="text-sm text-muted-foreground leading-relaxed">
+                                    {rec.message}
+                                </p>
+                            </div>
+
+                            {/* Suggestions */}
+                            <div className="px-6 py-4 space-y-3">
+                                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Try these features</p>
+                                {rec.suggestions.map((s) => (
+                                    <button
+                                        key={s.href}
+                                        onClick={() => { setShowRecommendationPopup(false); router.push(s.href) }}
+                                        className="w-full flex items-center gap-4 p-4 rounded-xl border border-border/60 hover:border-primary/40 hover:shadow-md transition-all text-left group bg-card hover:bg-secondary/20"
+                                    >
+                                        <div className={cn("h-11 w-11 rounded-xl flex items-center justify-center shrink-0", s.color)}>
+                                            <s.icon className="h-5 w-5" />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="font-semibold text-sm text-foreground group-hover:text-primary transition-colors">{s.label}</p>
+                                            <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{s.desc}</p>
+                                        </div>
+                                        <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all shrink-0" />
+                                    </button>
+                                ))}
+                            </div>
+
+                            {/* Footer */}
+                            <div className="px-6 pb-5">
+                                <button
+                                    onClick={() => setShowRecommendationPopup(false)}
+                                    className="w-full text-xs text-muted-foreground hover:text-foreground transition-colors py-2"
+                                >
+                                    Dismiss — I'll explore on my own
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )
+            })()}
         </div>
     )
 }
