@@ -56,16 +56,28 @@ export function Web3Provider({ children }: { children: ReactNode }) {
     const connectWallet = useCallback(async () => {
         try {
             setIsConnecting(true);
-            const web3auth = getWeb3AuthInstance();
-            const provider = await web3auth.connect();
 
-            if (provider) {
-                const ethersProvider = new BrowserProvider(provider);
+            let address: string | null = null;
+
+            // Use MetaMask directly if available
+            if (typeof window !== "undefined" && (window as any).ethereum) {
+                const ethersProvider = new BrowserProvider((window as any).ethereum);
+                await (window as any).ethereum.request({ method: "eth_requestAccounts" });
                 const signer = await ethersProvider.getSigner();
-                const address = await signer.getAddress();
-                setWalletAddress(address);
+                address = await signer.getAddress();
+            } else {
+                // Fall back to Web3Auth if no MetaMask
+                const web3auth = getWeb3AuthInstance();
+                const provider = await web3auth.connect();
+                if (provider) {
+                    const ethersProvider = new BrowserProvider(provider);
+                    const signer = await ethersProvider.getSigner();
+                    address = await signer.getAddress();
+                }
+            }
 
-                // Store wallet address in backend
+            if (address) {
+                setWalletAddress(address);
                 try {
                     await fetch("/api/web3/wallet", {
                         method: "POST",
@@ -94,6 +106,9 @@ export function Web3Provider({ children }: { children: ReactNode }) {
     }, []);
 
     const getProvider = useCallback(() => {
+        if (typeof window !== "undefined" && (window as any).ethereum) {
+            return (window as any).ethereum;
+        }
         const web3auth = getWeb3AuthInstance();
         return web3auth.provider;
     }, []);

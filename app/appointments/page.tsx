@@ -61,7 +61,10 @@ export default function AppointmentsPage() {
             ]);
 
             if (aptRes.success) setAppointments(aptRes.appointments || []);
-            if (therRes.therapists) setTherapists(therRes.therapists || []);
+            const EXCLUDED_NAMES = ["Dr. Sarah Mitchell", "Dr. James Wilson", "Dr. Michael Ross", "Dr. Emily Chen", "Mayur"]
+            if (therRes.therapists) setTherapists(
+                (therRes.therapists || []).filter((t: Therapist) => !EXCLUDED_NAMES.includes(t.fullName))
+            );
         } catch (err) {
             console.error("Failed to load appointments data", err);
         } finally {
@@ -120,18 +123,53 @@ export default function AppointmentsPage() {
                                     {loading ? (
                                         <div className="col-span-2 text-center py-8 text-muted-foreground">Loading therapists...</div>
                                     ) : therapists.length > 0 ? (
-                                        therapists.map((therapist) => {
+                                        therapists.map((therapist, index) => {
+                                            const THERAPIST_IMAGES = ["/thp1.jpg", "/thp2.jpg", "/thp3.jpg", "/thp4.jpg"]
+                                            const EXPERIENCES = [5, 8, 10, 12, 7, 15, 6, 9]
+                                            const RATINGS = [4.7, 4.8, 4.9, 4.6, 4.8, 4.9, 4.7, 4.8]
+                                            const PRICES = [499, 599, 699, 799, 549, 649, 749, 499]
+                                            const AVAILABILITIES = [
+                                                ["Mon", "Wed", "Fri"],
+                                                ["Mon", "Thu", "Sat"],
+                                                ["Tue", "Thu"],
+                                                ["Wed", "Sat", "Sun"],
+                                                ["Mon", "Tue", "Fri"],
+                                                ["Thu", "Fri", "Sat"],
+                                                ["Mon", "Wed", "Sun"],
+                                                ["Tue", "Wed", "Thu"],
+                                            ]
+                                            const LANGUAGES = [
+                                                ["English", "Hindi"],
+                                                ["English", "Hindi", "Punjabi"],
+                                                ["English", "Hindi", "Gujarati"],
+                                                ["English", "Hindi", "Marathi"],
+                                                ["English", "Hindi"],
+                                                ["English", "Marathi"],
+                                                ["English", "Hindi", "Tamil"],
+                                                ["English", "Hindi", "Bengali"],
+                                            ]
+                                            const DESCRIPTIONS = [
+                                                "Specializing in CBT and mindfulness-based therapies for anxiety and depression management.",
+                                                "Expert in trauma-informed care and EMDR therapy for healing and recovery.",
+                                                "Helping professionals navigate workplace stress, burnout, and career transitions.",
+                                                "Specialized in couples counseling, family dynamics, and conflict resolution.",
+                                                "Focused on helping young adults build resilience and emotional intelligence.",
+                                                "Experienced in grief counseling, life transitions, and personal growth.",
+                                                "Skilled in DBT and emotion regulation for mood and personality challenges.",
+                                                "Dedicated to supporting children and adolescents through mental health journeys.",
+                                            ]
+                                            const i = index % 8
                                             const doc: any = {
                                                 id: therapist.userId,
                                                 name: therapist.fullName,
-                                                image: "/thp1.jpg", 
+                                                image: THERAPIST_IMAGES[index % THERAPIST_IMAGES.length],
                                                 specialization: therapist.specializations?.[0] || "General Therapy",
-                                                experience: 5,
-                                                languages: ["English", "Hindi"],
-                                                description: "A highly-qualified specialist dedicated to your care.",
-                                                availability: ["Mon", "Wed", "Fri"],
-                                                price: 500,
-                                                rating: 4.9
+                                                experience: EXPERIENCES[i],
+                                                languages: LANGUAGES[i],
+                                                description: DESCRIPTIONS[i],
+                                                availability: AVAILABILITIES[i],
+                                                price: PRICES[i],
+                                                rating: RATINGS[i],
                                             };
                                             return <DoctorCard key={therapist.userId} doctor={doc} />
                                         })
@@ -238,8 +276,8 @@ function AppointmentCard({ appointment, isPast, onUpdate }: { appointment: Appoi
                                 <div className="flex flex-col gap-2">
                                     <p className="text-xs text-muted-foreground">Please create a <a href="https://meet.google.com/new" target="_blank" rel="noreferrer" className="text-primary hover:underline">Google Meet</a> and paste the link below:</p>
                                     <div className="flex gap-2 max-w-sm">
-                                        <Input 
-                                            placeholder="https://meet.google.com/abc-defg-hij" 
+                                        <Input
+                                            placeholder="https://meet.google.com/abc-defg-hij"
                                             value={meetLinkInput}
                                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMeetLinkInput(e.target.value)}
                                             className="h-9"

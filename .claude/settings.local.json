@@ -5,7 +5,9 @@
       "Bash(cd \"D:\\\\Projects\\\\NeuroNet_HOC\\\\NN2.0\" && npm install react-markdown --legacy-peer-deps 2>&1 | tail -5)",
       "Bash(cd \"D:\\\\Projects\\\\NeuroNet_HOC\\\\NN2.0\" && npx drizzle-kit push 2>&1)",
       "Bash(cd \"D:\\\\Projects\\\\NeuroNet_HOC\\\\NN2.0\" && npx drizzle-kit push 2>&1 | tail -10)",
-      "Bash(type \"C:\\\\Users\\\\Phoenix\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\D--Projects-NeuroNet-HOC-NN2-0\\\\220ff74f-2ea3-48c9-89fe-89056f601823\\\\tasks\\\\bw1pygusg.output\" 2>&1 | findstr /i \"error warning changes applied\")"
+      "Bash(type \"C:\\\\Users\\\\Phoenix\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\D--Projects-NeuroNet-HOC-NN2-0\\\\220ff74f-2ea3-48c9-89fe-89056f601823\\\\tasks\\\\bw1pygusg.output\" 2>&1 | findstr /i \"error warning changes applied\")",
+      "Bash(find \"D:\\\\Projects\\\\NeuroNet_HOC\\\\NN2.0\" -name \".env*\" -type f 2>/dev/null | grep -v node_modules | head -5)",
+      "Bash(ls \"D:\\\\Projects\\\\NeuroNet_HOC\\\\NN2.0\\\\public\" 2>/dev/null || dir \"D:\\\\Projects\\\\NeuroNet_HOC\\\\NN2.0\\\\public\")"
     ]
   }
 }
